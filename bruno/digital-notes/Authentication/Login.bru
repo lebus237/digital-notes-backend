@@ -1,0 +1,31 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "admin-dev@admin.com",
+    "password": "admin-pwd"
+  }
+}
+
+tests {
+  test("should return 200 on success", function() {
+    expect(res.status).toBe(200);
+  });
+  
+  test("should return user and access token", function() {
+    const body = res.body;
+    expect(body.data.accessToken).toBeTruthy();
+    expect(body.data.user).toBeTruthy();
+    expect(body.data.user.email).toBeTruthy();
+  });
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Get Current User
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/api/me
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+tests {
+  test("should return 200 on success", function() {
+    expect(res.status).toBe(200);
+  });
+
+  test("should return user data", function() {
+    const body = res.body;
+    expect(body.data.user).toBeTruthy();
+    expect(body.data.user.email).toBeTruthy();
+  });
+}

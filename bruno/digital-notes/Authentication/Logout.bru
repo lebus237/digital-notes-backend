@@ -1,0 +1,20 @@
+meta {
+  name: Logout
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/api/logout
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+tests {
+  test("should return 200 on success", function() {
+    expect(res.status).toBe(200);
+  });
+}
