@@ -1,0 +1,209 @@
+
+> solar-backend@0.0.0 dev
+> node ace serve --hmr
+
+c[ info ] starting HTTP server...
+[09:10:02.867] [32mINFO[39m (8768): [36mstarted HTTP server on localhost:3333[39m
+╭─────────────────────────────────────────────────╮
+│                                                 │
+│    Server address: http://localhost:3333        │
+│    Watch Mode: HMR                              │
+│    Ready in: 2.69 s                             │
+│                                                 │
+╰─────────────────────────────────────────────────╯
+[CommandBus.execute] start {
+  commandName: 'CreateProductCommand',
+  hasHandler: true,
+  existingDependencyArrayLength: 0,
+  existingDependencyArrayTypes: [],
+  handlerDeps: [ 'ProductRepository' ]
+}
+[CommandBus.execute] resolved {
+  commandName: 'CreateProductCommand',
+  finalDependencyArrayLength: 1,
+  finalDependencyArrayTypes: [ 'ProductARRepository' ],
+  handlerClass: 'CreateProductHandler'
+}
+[09:10:20.096] [31mERROR[39m (8768): [36minsert into "products" ("brand", "category_id", "created_at", "description", "designation", "id", "is_available", "is_deleted", "picture_id", "price", "product_slug", "updated_at") values (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning "id" - duplicate key value violates unique constraint "products_designation_unique"[39m
+    [35mrequest_id[39m: "q1flq23yehj6ue1icqk4uw10"
+    [35mx-request-id[39m: "q1flq23yehj6ue1icqk4uw10"
+    err: {
+      "type": "DatabaseError",
+      "message": "insert into \"products\" (\"brand\", \"category_id\", \"created_at\", \"description\", \"designation\", \"id\", \"is_available\", \"is_deleted\", \"picture_id\", \"price\", \"product_slug\", \"updated_at\") values (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning \"id\" - duplicate key value violates unique constraint \"products_designation_unique\"",
+      "stack":
+          error: insert into "products" ("brand", "category_id", "created_at", "description", "designation", "id", "is_available", "is_deleted", "picture_id", "price", "product_slug", "updated_at") values (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning "id" - duplicate key value violates unique constraint "products_designation_unique"
+              at parseErrorMessage (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:394:9)
+              at Parser.handlePacket (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:212:19)
+              at Parser.parse (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:105:30)
+              at Socket.<anonymous> (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\index.ts:7:48)
+              at Socket.emit (node:events:519:28)
+              at addChunk (node:internal/streams/readable:561:12)
+              at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+              at Readable.push (node:internal/streams/readable:392:5)
+              at TCP.onStreamRead (node:internal/stream_base_commons:189:23)
+      "length": 231,
+      "name": "error",
+      "severity": "ERROR",
+      "code": "23505",
+      "detail": "Key (designation)=(XXXXXX) already exists.",
+      "schema": "public",
+      "table": "products",
+      "constraint": "products_designation_unique",
+      "file": "nbtinsert.c",
+      "line": "673",
+      "routine": "_bt_check_unique",
+      "status": 500
+    }
+[CommandBus.execute] start {
+  commandName: 'CreateProductCategoryCommand',
+  hasHandler: true,
+  existingDependencyArrayLength: 1,
+  existingDependencyArrayTypes: [ 'ProductARRepository' ],
+  handlerDeps: [ 'ProductCategoryRepository' ]
+}
+[CommandBus.execute] resolved {
+  commandName: 'CreateProductCategoryCommand',
+  finalDependencyArrayLength: 2,
+  finalDependencyArrayTypes: [ 'ProductARRepository', 'ProductCategoryARRepository' ],
+  handlerClass: 'CreateProductCategoryHandler'
+}
+[09:11:22.455] [31mERROR[39m (8768): [36minsert into "products" ("brand", "category_id", "created_at", "description", "designation", "id", "is_available", "is_deleted", "picture_id", "price", "product_slug", "updated_at") values (DEFAULT, DEFAULT, $1, DEFAULT, $2, $3, DEFAULT, DEFAULT, DEFAULT, DEFAULT, $4, $5) returning "id" - null value in column "category_id" of relation "products" violates not-null constraint[39m
+    [35mrequest_id[39m: "pu0lewklmnpvoc9etn34wkfx"
+    [35mx-request-id[39m: "pu0lewklmnpvoc9etn34wkfx"
+    err: {
+      "type": "DatabaseError",
+      "message": "insert into \"products\" (\"brand\", \"category_id\", \"created_at\", \"description\", \"designation\", \"id\", \"is_available\", \"is_deleted\", \"picture_id\", \"price\", \"product_slug\", \"updated_at\") values (DEFAULT, DEFAULT, $1, DEFAULT, $2, $3, DEFAULT, DEFAULT, DEFAULT, DEFAULT, $4, $5) returning \"id\" - null value in column \"category_id\" of relation \"products\" violates not-null constraint",
+      "stack":
+          error: insert into "products" ("brand", "category_id", "created_at", "description", "designation", "id", "is_available", "is_deleted", "picture_id", "price", "product_slug", "updated_at") values (DEFAULT, DEFAULT, $1, DEFAULT, $2, $3, DEFAULT, DEFAULT, DEFAULT, DEFAULT, $4, $5) returning "id" - null value in column "category_id" of relation "products" violates not-null constraint
+              at parseErrorMessage (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:394:9)
+              at Parser.handlePacket (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:212:19)
+              at Parser.parse (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:105:30)
+              at Socket.<anonymous> (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\index.ts:7:48)
+              at Socket.emit (node:events:519:28)
+              at addChunk (node:internal/streams/readable:561:12)
+              at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+              at Readable.push (node:internal/streams/readable:392:5)
+              at TCP.onStreamRead (node:internal/stream_base_commons:189:23)
+      "length": 389,
+      "name": "error",
+      "severity": "ERROR",
+      "code": "23502",
+      "detail": "Failing row contains (b303ff32-fea9-497e-a3f2-c274ae45304c, category-qqq546-w_eke8sv, null, Category qqq546, null, null, null, f, f, 2026-03-02 10:11:22.452+01, 2026-03-02 10:11:22.452+01, null).",
+      "schema": "public",
+      "table": "products",
+      "column": "category_id",
+      "file": "execMain.c",
+      "line": "2205",
+      "routine": "ReportNotNullViolationError",
+      "status": 500
+    }
+cfull-reload src\shared\infrastructure\bus\command_bus.ts
+╭─────────────────────────────────────────────────╮
+│                                                 │
+│    Server address: http://localhost:3333        │
+│    Watch Mode: HMR                              │
+│    Ready in: 4.59 s                             │
+│                                                 │
+╰─────────────────────────────────────────────────╯
+[09:13:37.887] [32mINFO[39m (20192): [36mstarted HTTP server on localhost:3333[39m
+[09:17:42.134] [31mERROR[39m (20192): [36minsert into "product_categories" ("category_slug", "category_type", "created_at", "designation", "id", "parent_id", "updated_at") values ($1, $2, $3, $4, $5, $6, $7) returning "id" - duplicate key value violates unique constraint "product_categories_designation_unique"[39m
+    [35mrequest_id[39m: "kbh3u5f1m9yca4p4tzqncr31"
+    [35mx-request-id[39m: "kbh3u5f1m9yca4p4tzqncr31"
+    err: {
+      "type": "DatabaseError",
+      "message": "insert into \"product_categories\" (\"category_slug\", \"category_type\", \"created_at\", \"designation\", \"id\", \"parent_id\", \"updated_at\") values ($1, $2, $3, $4, $5, $6, $7) returning \"id\" - duplicate key value violates unique constraint \"product_categories_designation_unique\"",
+      "stack":
+          error: insert into "product_categories" ("category_slug", "category_type", "created_at", "designation", "id", "parent_id", "updated_at") values ($1, $2, $3, $4, $5, $6, $7) returning "id" - duplicate key value violates unique constraint "product_categories_designation_unique"
+              at parseErrorMessage (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:394:9)
+              at Parser.handlePacket (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:212:19)
+              at Parser.parse (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:105:30)
+              at Socket.<anonymous> (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\index.ts:7:48)
+              at Socket.emit (node:events:519:28)
+              at addChunk (node:internal/streams/readable:561:12)
+              at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+              at Readable.push (node:internal/streams/readable:392:5)
+              at TCP.onStreamRead (node:internal/stream_base_commons:189:23)
+      "length": 270,
+      "name": "error",
+      "severity": "ERROR",
+      "code": "23505",
+      "detail": "Key (designation)=(Category qqq546) already exists.",
+      "schema": "public",
+      "table": "product_categories",
+      "constraint": "product_categories_designation_unique",
+      "file": "nbtinsert.c",
+      "line": "673",
+      "routine": "_bt_check_unique",
+      "status": 500
+    }
+Store {
+  id: null,
+  designation: 'Store Yde 01',
+  domainName: 'yd1.mystore.com',
+  createdAt: null,
+  updatedAt: null
+}
+[09:18:09.068] [31mERROR[39m (20192): [36mNot implemented[39m
+    [35mrequest_id[39m: "s13ta7rtja5485jima9nv7uy"
+    [35mx-request-id[39m: "s13ta7rtja5485jima9nv7uy"
+    err: {
+      "type": "Error",
+      "message": "Not implemented",
+      "stack":
+          Error: Not implemented
+              at StoreARRepository.save (C:\workspace\ITS\solar-backend\src\kernel\store\infrastructure\persistence\store_ar_repository.ts:12:27)
+              at CreateStoreHandler.handle (C:\workspace\ITS\solar-backend\src\kernel\store\application\command_handler\create_store_handler.ts:10:28)
+              at CommandBus.execute (C:\workspace\ITS\solar-backend\src\shared\infrastructure\bus\command_bus.ts:40:34)
+              at async StoreController.handleCommand (C:\workspace\ITS\solar-backend\src\shared\user_interface\controller\app_abstract_controller.ts:10:12)
+              at async StoreController.store (C:\workspace\ITS\solar-backend\app\controllers\store\store_controller.ts:13:5)
+      "status": 500
+    }
+[09:18:15.554] [31mERROR[39m (20192): [36minsert into "products" ("brand", "category_id", "created_at", "description", "designation", "id", "is_available", "is_deleted", "picture_id", "price", "product_slug", "updated_at") values (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning "id" - duplicate key value violates unique constraint "products_designation_unique"[39m
+    [35mrequest_id[39m: "ap1isb7tze4x1vjk69zl77i3"
+    [35mx-request-id[39m: "ap1isb7tze4x1vjk69zl77i3"
+    err: {
+      "type": "DatabaseError",
+      "message": "insert into \"products\" (\"brand\", \"category_id\", \"created_at\", \"description\", \"designation\", \"id\", \"is_available\", \"is_deleted\", \"picture_id\", \"price\", \"product_slug\", \"updated_at\") values (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning \"id\" - duplicate key value violates unique constraint \"products_designation_unique\"",
+      "stack":
+          error: insert into "products" ("brand", "category_id", "created_at", "description", "designation", "id", "is_available", "is_deleted", "picture_id", "price", "product_slug", "updated_at") values (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning "id" - duplicate key value violates unique constraint "products_designation_unique"
+              at parseErrorMessage (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:394:9)
+              at Parser.handlePacket (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:212:19)
+              at Parser.parse (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\parser.ts:105:30)
+              at Socket.<anonymous> (C:\workspace\ITS\solar-backend\node_modules\pg-protocol\src\index.ts:7:48)
+              at Socket.emit (node:events:519:28)
+              at addChunk (node:internal/streams/readable:561:12)
+              at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+              at Readable.push (node:internal/streams/readable:392:5)
+              at TCP.onStreamRead (node:internal/stream_base_commons:189:23)
+      "length": 231,
+      "name": "error",
+      "severity": "ERROR",
+      "code": "23505",
+      "detail": "Key (designation)=(XXXXXX) already exists.",
+      "schema": "public",
+      "table": "products",
+      "constraint": "products_designation_unique",
+      "file": "nbtinsert.c",
+      "line": "673",
+      "routine": "_bt_check_unique",
+      "status": 500
+    }
+cfull-reload app\controllers\product\product_controller.ts
+╭─────────────────────────────────────────────────╮
+│                                                 │
+│    Server address: http://localhost:3333        │
+│    Watch Mode: HMR                              │
+│    Ready in: 2.9 s                              │
+│                                                 │
+╰─────────────────────────────────────────────────╯
+[09:20:18.067] [32mINFO[39m (16200): [36mstarted HTTP server on localhost:3333[39m
+cfull-reload src\shared\infrastructure\bus\command_bus.ts
+╭─────────────────────────────────────────────────╮
+│                                                 │
+│    Server address: http://localhost:3333        │
+│    Watch Mode: HMR                              │
+│    Ready in: 2.93 s                             │
+│                                                 │
+╰─────────────────────────────────────────────────╯
+[09:20:48.327] [32mINFO[39m (5780): [36mstarted HTTP server on localhost:3333[39m
+Terminate batch job (Y/N)? 

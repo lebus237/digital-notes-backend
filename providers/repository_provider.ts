@@ -1,6 +1,7 @@
 import { ApplicationService } from '@adonisjs/core/types'
 import { ImageMediaARRepository } from '#kernel/medias/infrastructure/persistence/image_media_ar_repository'
 import { DocumentMediaARRepository } from '#kernel/medias/infrastructure/persistence/document_media_ar_repository'
+import { MediaARRepository } from '#kernel/medias/infrastructure/persistence/media_ar_repository'
 
 export default class RepositoryProvider {
   constructor(protected app: ApplicationService) {}
@@ -12,6 +13,9 @@ export default class RepositoryProvider {
       })
       this.app.container.bind('DocumentMediaRepository', () => {
         return new DocumentMediaARRepository()
+      })
+      this.app.container.bind('MediaRepository', () => {
+        return new MediaARRepository()
       })
     }
   }

@@ -5,16 +5,11 @@ import {
   StoreMediaCommandReturnType,
 } from '#kernel/medias/application/command/store_media_command'
 import { AppFile } from '#shared/domain/app_file'
-import { documentSchema } from '#validators/document_schema'
+import { unifiedMediaSchema } from '#validators/unified_media_schema'
 import { DeleteMediaCommand } from '#kernel/medias/application/command/delete_media_command'
 import { AppId } from '#shared/domain/app_id'
 
-/**
- * @deprecated Use `MediasController` (`POST /api/media`) instead.
- * Kept as a backward-compatible shim: accepts the legacy `document`
- * field, then delegates to the unified media pipeline.
- */
-export default class DocumentMediasController extends AppAbstractController {
+export default class MediasController extends AppAbstractController {
   constructor() {
     super()
   }
@@ -27,9 +22,9 @@ export default class DocumentMediasController extends AppAbstractController {
    * Handle form submission for the create action
    */
   async store({ request, response }: HttpContext) {
-    const file = request.file('document', {})
+    const file = request.file('file', {})
 
-    const payload = await request.validateUsing(documentSchema)
+    const payload = await request.validateUsing(unifiedMediaSchema)
 
     const result = await this.handleCommand<StoreMediaCommandReturnType>(
       new StoreMediaCommand(new AppFile(file), payload.title, payload.description ?? null)

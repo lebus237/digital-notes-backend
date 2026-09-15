@@ -12,6 +12,7 @@ import { middleware } from '#start/kernel'
 
 const ImageMediasController = () => import('#controllers/media/image_medias_controller')
 const DocumentMediasController = () => import('#controllers/media/document_medias_controller')
+const MediasController = () => import('#controllers/media/medias_controller')
 const AuthController = () => import('#controllers/authentication/auth_controller')
 
 router
@@ -26,6 +27,13 @@ router
     })
 
     router.group(() => {
+      router
+        .resource('media', MediasController)
+        .apiOnly()
+        .only(['store', 'destroy'])
+        .use('*', middleware.auth())
+
+      // @deprecated shims — use `media` instead. Kept for backward compatibility.
       router
         .resource('image-media', ImageMediasController)
         .apiOnly()

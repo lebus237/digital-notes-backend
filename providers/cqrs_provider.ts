@@ -5,6 +5,8 @@ import { StoreImageHandler } from '#kernel/medias/application/command_handler/st
 import { DeleteImageHandler } from '#kernel/medias/application/command_handler/delete_image_handler'
 import { StoreDocumentHandler } from '#kernel/medias/application/command_handler/store_document.handler'
 import { DeleteDocumentHandler } from '#kernel/medias/application/command_handler/delete_document_handler'
+import { StoreMediaHandler } from '#kernel/medias/application/command_handler/store_media.handler'
+import { DeleteMediaHandler } from '#kernel/medias/application/command_handler/delete_media_handler'
 
 export default class CqrsProvider {
   constructor(protected app: ApplicationService) {}
@@ -28,6 +30,14 @@ export default class CqrsProvider {
       ])
       commandBus.register('DeleteDocumentCommand', DeleteDocumentHandler, [
         'DocumentMediaRepository',
+        'MediaUploadService',
+      ])
+      commandBus.register('StoreMediaCommand', StoreMediaHandler, [
+        'MediaRepository',
+        'MediaUploadService',
+      ])
+      commandBus.register('DeleteMediaCommand', DeleteMediaHandler, [
+        'MediaRepository',
         'MediaUploadService',
       ])
 

@@ -11,6 +11,7 @@ declare module '@adonisjs/core/types' {
     //AGGREGATES REPOSITORY
     'ImageMediaRepository': RepositoryInterface
     'DocumentMediaRepository': RepositoryInterface
+    'MediaRepository': RepositoryInterface
 
     //SERVICE
     'MediaUploadService': MediaManagerInterface
