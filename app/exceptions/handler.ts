@@ -4,12 +4,19 @@ import { errors as vineErrors } from '@vinejs/vine'
 import { DomainError } from '#shared/domain/errors/domain_error'
 import { ApplicationError } from '#shared/application/errors/application_error'
 
+const SERVER_MESSAGE: Record<number, string> = {
+  404: 'Resource not found',
+  409: 'Conflict',
+  422: 'Unprocessable entity',
+  500: 'Internal server error',
+}
+
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
-   * In debug mode, the exception handler will display verbose errors
-   * with pretty printed stack traces.
+   * Verbose stack traces are limited to local development.
+   * `stage` and `production` return sanitized payloads only.
    */
-  protected debug = !app.inProduction
+  protected debug = app.inDev
 
   /**
    * The method is used for handling errors and returning
@@ -30,12 +37,13 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     if (error instanceof DomainError || error instanceof ApplicationError) {
       const status = this.resolveStatus(error)
 
+      ctx.logger.error({ err: error, code: error.code }, error.message)
+
       return ctx.response.status(status).send({
         status: 'error',
         error: {
           code: error.code,
-          message: error.message,
-          details: error.details,
+          message: SERVER_MESSAGE[status] ?? SERVER_MESSAGE[500],
         },
       })
     }
@@ -45,20 +53,19 @@ export default class HttpExceptionHandler extends ExceptionHandler {
 
   private resolveStatus(error: DomainError | ApplicationError): number {
     switch (error.code) {
-      case 'PRODUCT_IMAGE_LIMIT_REACHED':
-        return 409
-      case 'PRODUCT_PACK_NOT_FOUND':
-      case 'RESOURCE_NOT_FOUND':
-      case 'CUSTOMER_NOT_FOUND':
+      case 'MEDIA_NOT_FOUND':
       case 'IMAGE_NOT_FOUND':
-        return 404
-      case 'ORDER_STATUS_TRANSITION_INVALID':
+      case 'DOCUMENT_NOT_FOUND':
+      case 'RESOURCE_NOT_FOUND':
+      case 'MEDIA_NOT_OWNED':
       case 'PRODUCT_IMAGE_NOT_OWNED':
-        return 409
+        return 404
+      case 'PRODUCT_IMAGE_LIMIT_REACHED':
+      case 'ORDER_STATUS_TRANSITION_INVALID':
       case 'STORE_CONFLICTING_BUSINESS_HOURS':
         return 409
       default:
-        return 422
+        return 500
     }
   }
 

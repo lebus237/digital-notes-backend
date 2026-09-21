@@ -51,6 +51,7 @@ export default defineConfig({
     () => import('#providers/cqrs_provider'),
     () => import('#providers/service_provider'),
     () => import('@adonisjs/drive/drive_provider'),
+    () => import('@adonisjs/limiter/limiter_provider'),
   ],
 
   /*

@@ -8,6 +8,7 @@ import { AppFile } from '#shared/domain/app_file'
 import { mediaSchema } from '#validators/media_schema'
 import { DeleteMediaCommand } from '#kernel/medias/application/command/delete_media_command'
 import { AppId } from '#shared/domain/app_id'
+import type User from '#database/active-records/user'
 
 /**
  * @deprecated Use `MediasController` (`POST /api/media`) instead.
@@ -26,13 +27,14 @@ export default class ImageMediasController extends AppAbstractController {
   /**
    * Handle form submission for the create action
    */
-  async store({ request, response }: HttpContext) {
+  async store({ auth, request, response }: HttpContext) {
+    const user = auth.user as User
     const file = request.file('image', {})
 
     const payload = await request.validateUsing(mediaSchema)
 
     const result = await this.handleCommand<StoreMediaCommandReturnType>(
-      new StoreMediaCommand(new AppFile(file), payload.title, payload.alt ?? null)
+      new StoreMediaCommand(String(user.id), new AppFile(file), payload.title, payload.alt ?? null)
     )
 
     return response.created(result)
@@ -41,10 +43,13 @@ export default class ImageMediasController extends AppAbstractController {
   /**
    * Delete record
    */
-  async destroy({ request, response }: HttpContext) {
+  async destroy({ auth, request, response }: HttpContext) {
+    const user = auth.user as User
     const params = request.params()
 
-    await this.handleCommand<void>(new DeleteMediaCommand(AppId.fromString(params.id)))
+    await this.handleCommand<void>(
+      new DeleteMediaCommand(String(user.id), AppId.fromString(params.id), user.role)
+    )
 
     return response.noContent()
   }

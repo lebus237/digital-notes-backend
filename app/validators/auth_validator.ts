@@ -12,7 +12,10 @@ export const registerSchema = vine.compile(
         return !match
       }),
 
-    password: vine.string().minLength(8),
+    password: vine
+      .string()
+      .minLength(10)
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/),
     fullName: vine.string(),
   })
 )

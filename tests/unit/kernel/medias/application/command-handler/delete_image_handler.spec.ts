@@ -6,6 +6,8 @@ import { MediaManagerInterface } from '#shared/application/services/upload/media
 import { MediaType } from '#shared/application/services/upload/types'
 import { ImageMedia } from '#kernel/medias/domain/image_media'
 import { AppId } from '#shared/domain/app_id'
+import { MediaNotOwnedError } from '#kernel/medias/domain/errors/media_not_owned_error'
+import { UserRole } from '#kernel/user/domain/types/user_role'
 
 test.group('DeleteImageHandler', () => {
   const IMG_123 = '00000000-0000-4000-8000-000000000123'
@@ -21,7 +23,8 @@ test.group('DeleteImageHandler', () => {
       {},
       new Date(),
       null,
-      'images/test-image.jpg'
+      'images/test-image.jpg',
+      'user-1'
     )
   }
 
@@ -67,7 +70,7 @@ test.group('DeleteImageHandler', () => {
     }
 
     const handler = new DeleteImageHandler(mockRepository, mockMediaManager)
-    const command = new DeleteImageCommand(AppId.fromString(IMG_123))
+    const command = new DeleteImageCommand('user-1', AppId.fromString(IMG_123))
 
     await handler.handle(command)
 
@@ -82,14 +85,14 @@ test.group('DeleteImageHandler', () => {
     const mockMediaManager = createMockMediaManager()
 
     const handler = new DeleteImageHandler(mockRepository, mockMediaManager)
-    const command = new DeleteImageCommand(AppId.fromString(NON_EXISTENT))
+    const command = new DeleteImageCommand('user-1', AppId.fromString(NON_EXISTENT))
 
     try {
       await handler.handle(command)
       assert.fail('Should have thrown an error')
     } catch (error) {
       assert.instanceOf(error, Error)
-      assert.include((error as Error).message, `Image record for id: "${NON_EXISTENT}" not found`)
+      assert.equal((error as Error).message, 'Image not found')
     }
   })
 
@@ -107,7 +110,7 @@ test.group('DeleteImageHandler', () => {
     const mockMediaManager = createMockMediaManager()
 
     const handler = new DeleteImageHandler(mockRepository, mockMediaManager)
-    const command = new DeleteImageCommand(AppId.fromString(IMG_456))
+    const command = new DeleteImageCommand('user-1', AppId.fromString(IMG_456))
 
     await handler.handle(command)
 
@@ -130,7 +133,7 @@ test.group('DeleteImageHandler', () => {
     }
 
     const handler = new DeleteImageHandler(mockRepository, mockMediaManager)
-    const command = new DeleteImageCommand(AppId.fromString(IMG_123))
+    const command = new DeleteImageCommand('user-1', AppId.fromString(IMG_123))
 
     await handler.handle(command)
 
@@ -153,7 +156,7 @@ test.group('DeleteImageHandler', () => {
     }
 
     const handler = new DeleteImageHandler(mockRepository, mockMediaManager)
-    const command = new DeleteImageCommand(AppId.fromString(IMG_123))
+    const command = new DeleteImageCommand('user-1', AppId.fromString(IMG_123))
 
     await handler.handle(command)
 
@@ -174,7 +177,7 @@ test.group('DeleteImageHandler', () => {
     }
 
     const handler = new DeleteImageHandler(mockRepository, mockMediaManager)
-    const command = new DeleteImageCommand(AppId.fromString(IMG_123))
+    const command = new DeleteImageCommand('user-1', AppId.fromString(IMG_123))
 
     await handler.handle(command)
 
@@ -195,10 +198,39 @@ test.group('DeleteImageHandler', () => {
     }
 
     const handler = new DeleteImageHandler(mockRepository, mockMediaManager)
-    const command = new DeleteImageCommand(AppId.fromString(IMG_123))
+    const command = new DeleteImageCommand('user-1', AppId.fromString(IMG_123))
 
     await handler.handle(command)
 
     assert.equal(capturedKey, 'images/test-image.jpg')
+  })
+
+  test('should reject deletion by a different user', async ({ assert }) => {
+    const handler = new DeleteImageHandler(createMockRepository(), createMockMediaManager())
+
+    try {
+      await handler.handle(new DeleteImageCommand('user-2', AppId.fromString(IMG_123)))
+      assert.fail('Should have thrown an error')
+    } catch (error) {
+      assert.instanceOf(error, MediaNotOwnedError)
+      assert.equal((error as Error).message, 'Media not found')
+    }
+  })
+
+  test('should allow an administrator to delete another user image', async ({ assert }) => {
+    let repositoryDeleteCalled = false
+    const mockRepository: ImageMediaRepository = {
+      ...createMockRepository(),
+      delete: async () => {
+        repositoryDeleteCalled = true
+      },
+    }
+    const handler = new DeleteImageHandler(mockRepository, createMockMediaManager())
+
+    await handler.handle(
+      new DeleteImageCommand('admin-1', AppId.fromString(IMG_123), UserRole.ADMINISTRATOR)
+    )
+
+    assert.isTrue(repositoryDeleteCalled)
   })
 })

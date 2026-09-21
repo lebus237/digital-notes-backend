@@ -53,7 +53,7 @@ test.group('StoreMediaHandler', () => {
 
   test('should store an image and return id, url, signedUrl and type', async ({ assert }) => {
     const handler = new StoreMediaHandler(createMockRepository(), createMockMediaManager())
-    const command = new StoreMediaCommand(createMockAppFile(), 'Test Image', 'A caption')
+    const command = new StoreMediaCommand('user-1', createMockAppFile(), 'Test Image', 'A caption')
 
     const result = await handler.handle(command)
 
@@ -70,7 +70,7 @@ test.group('StoreMediaHandler', () => {
       size: 2048,
     })
     const handler = new StoreMediaHandler(createMockRepository(), createMockMediaManager())
-    const command = new StoreMediaCommand(mockFile, 'Report', null)
+    const command = new StoreMediaCommand('user-1', mockFile, 'Report', null)
 
     const result = await handler.handle(command)
 
@@ -93,7 +93,7 @@ test.group('StoreMediaHandler', () => {
     }
 
     const handler = new StoreMediaHandler(createMockRepository(), mockMediaManager)
-    await handler.handle(new StoreMediaCommand(createMockAppFile(), 'Test', 'Caption'))
+    await handler.handle(new StoreMediaCommand('user-1', createMockAppFile(), 'Test', 'Caption'))
 
     assert.equal(capturedFileInfo.originalName, 'test-image.jpg')
     assert.equal(capturedFileInfo.mimeType, 'image/jpeg')
@@ -112,7 +112,7 @@ test.group('StoreMediaHandler', () => {
     const handler = new StoreMediaHandler(createMockRepository(), mockMediaManager)
 
     try {
-      await handler.handle(new StoreMediaCommand(createMockAppFile(), 'Test', null))
+      await handler.handle(new StoreMediaCommand('user-1', createMockAppFile(), 'Test', null))
       assert.fail('Should have thrown an error')
     } catch (error) {
       assert.instanceOf(error, Error)
@@ -132,7 +132,9 @@ test.group('StoreMediaHandler', () => {
     }
 
     const handler = new StoreMediaHandler(mockRepository, createMockMediaManager())
-    await handler.handle(new StoreMediaCommand(createMockAppFile(), 'My File', 'My caption'))
+    await handler.handle(
+      new StoreMediaCommand('user-1', createMockAppFile(), 'My File', 'My caption')
+    )
 
     assert.isDefined(savedMedia)
     assert.equal(savedMedia!.getTitle(), 'My File')
@@ -141,6 +143,7 @@ test.group('StoreMediaHandler', () => {
     assert.equal(savedMedia!.getType(), MediaType.IMAGE)
     assert.equal(savedMedia!.getMimeType(), 'image/jpeg')
     assert.equal(savedMedia!.getSize(), 1024)
+    assert.equal(savedMedia!.getCreatedBy(), 'user-1')
   })
 
   test('should use default values for title and description', async ({ assert }) => {
@@ -155,7 +158,7 @@ test.group('StoreMediaHandler', () => {
     }
 
     const handler = new StoreMediaHandler(mockRepository, createMockMediaManager())
-    await handler.handle(new StoreMediaCommand(createMockAppFile()))
+    await handler.handle(new StoreMediaCommand('user-1', createMockAppFile()))
 
     assert.equal(savedMedia!.getTitle(), '')
     assert.isNull(savedMedia!.getDescription())

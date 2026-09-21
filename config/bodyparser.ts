@@ -1,4 +1,9 @@
+import env from '#start/env'
 import { defineConfig } from '@adonisjs/core/bodyparser'
+
+const configuredMb = env.get('MAX_FILE_SIZE_MB') ?? 2
+/** Hard cap: multipart bodies stay at or below 10mb. */
+const multipartLimitMb = Math.min(10, configuredMb)
 
 const bodyParserConfig = defineConfig({
   /**
@@ -21,12 +26,7 @@ const bodyParserConfig = defineConfig({
    */
   json: {
     convertEmptyStringsToNull: true,
-    types: [
-      'application/json',
-      'application/json-patch+json',
-      'application/vnd.api+json',
-      'application/csp-report',
-    ],
+    types: ['application/json', 'application/json-patch+json', 'application/vnd.api+json'],
   },
 
   /**
@@ -47,7 +47,7 @@ const bodyParserConfig = defineConfig({
      * Maximum limit of data to parse including all files
      * and fields
      */
-    limit: '20mb',
+    limit: `${multipartLimitMb}mb`,
     types: ['multipart/form-data'],
   },
 })

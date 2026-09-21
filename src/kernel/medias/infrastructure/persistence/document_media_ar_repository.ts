@@ -12,6 +12,7 @@ export class DocumentMediaARRepository implements DocumentMediaRepository {
       createdAt: entity.getCreatedAt() as any,
       updatedAt: entity.getUpdatedAt() as any,
       relativeKey: entity.getRelativeKey(),
+      createdBy: entity.getCreatedBy(),
     }
 
     if (entity.getId()) {
@@ -25,7 +26,11 @@ export class DocumentMediaARRepository implements DocumentMediaRepository {
   }
 
   async findById(_id: string): Promise<DocumentMedia | null> {
-    const document = await EntityActiveRecord.findOrFail(_id)
+    const document = await EntityActiveRecord.find(_id)
+
+    if (!document) {
+      return null
+    }
 
     return new DocumentMedia(
       new AppId(document.id),

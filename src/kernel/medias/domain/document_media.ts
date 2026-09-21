@@ -10,7 +10,7 @@ export class DocumentMedia {
     private readonly createdAt: Date | null,
     private readonly updatedAt: Date | null,
     private readonly relativeKey?: string,
-    private readonly createdBy?: any
+    private readonly createdBy: string | null = null
   ) {}
 
   getId() {
@@ -47,5 +47,13 @@ export class DocumentMedia {
 
   getUpdatedAt(): Date | null {
     return this.updatedAt
+  }
+
+  getCreatedBy(): string | null {
+    return this.createdBy
+  }
+
+  isOwnedBy(actorId: string): boolean {
+    return this.createdBy !== null && this.createdBy === actorId
   }
 }

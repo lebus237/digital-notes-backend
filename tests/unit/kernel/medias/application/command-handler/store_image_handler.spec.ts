@@ -55,7 +55,7 @@ test.group('StoreImageHandler', () => {
     const mockRepository = createMockRepository()
 
     const handler = new StoreImageHandler(mockRepository, mockMediaManager)
-    const command = new StoreImageCommand(mockFile, 'Test Image', 'Test description')
+    const command = new StoreImageCommand('user-1', mockFile, 'Test Image', 'Test description')
 
     const result = await handler.handle(command)
 
@@ -82,7 +82,7 @@ test.group('StoreImageHandler', () => {
     const mockRepository = createMockRepository()
 
     const handler = new StoreImageHandler(mockRepository, mockMediaManager)
-    const command = new StoreImageCommand(mockFile, 'Test', 'Alt')
+    const command = new StoreImageCommand('user-1', mockFile, 'Test', 'Alt')
 
     await handler.handle(command)
 
@@ -103,7 +103,7 @@ test.group('StoreImageHandler', () => {
     const mockRepository = createMockRepository()
 
     const handler = new StoreImageHandler(mockRepository, mockMediaManager)
-    const command = new StoreImageCommand(mockFile, 'Test', 'Alt')
+    const command = new StoreImageCommand('user-1', mockFile, 'Test', 'Alt')
 
     try {
       await handler.handle(command)
@@ -128,7 +128,7 @@ test.group('StoreImageHandler', () => {
     }
 
     const handler = new StoreImageHandler(mockRepository, mockMediaManager)
-    const command = new StoreImageCommand(mockFile, 'My Image', 'My alt text')
+    const command = new StoreImageCommand('user-1', mockFile, 'My Image', 'My alt text')
 
     await handler.handle(command)
 
@@ -152,7 +152,7 @@ test.group('StoreImageHandler', () => {
     }
 
     const handler = new StoreImageHandler(mockRepository, mockMediaManager)
-    const command = new StoreImageCommand(mockFile)
+    const command = new StoreImageCommand('user-1', mockFile)
 
     await handler.handle(command)
 
@@ -174,7 +174,7 @@ test.group('StoreImageHandler', () => {
     const mockRepository = createMockRepository()
 
     const handler = new StoreImageHandler(mockRepository, mockMediaManager)
-    const command = new StoreImageCommand(mockFile, 'Test', 'Alt')
+    const command = new StoreImageCommand('user-1', mockFile, 'Test', 'Alt')
 
     const result = await handler.handle(command)
 

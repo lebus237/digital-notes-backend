@@ -3,6 +3,8 @@ import { DeleteDocumentCommand } from '#kernel/medias/application/command/delete
 import { DocumentMediaRepository } from '#kernel/medias/domain/document_media_repository'
 import { MediaManagerInterface } from '#shared/application/services/upload/media_manager_interface'
 import { DocumentNotFoundError } from '#kernel/medias/domain/errors/document_not_found_error'
+import { MediaNotOwnedError } from '#kernel/medias/domain/errors/media_not_owned_error'
+import { UserRole } from '#kernel/user/domain/types/user_role'
 
 export class DeleteDocumentHandler implements CommandHandler<DeleteDocumentCommand> {
   constructor(
@@ -14,6 +16,11 @@ export class DeleteDocumentHandler implements CommandHandler<DeleteDocumentComma
 
     if (!document) {
       throw new DocumentNotFoundError(command.id.value)
+    }
+
+    const isAdmin = command.actorRole === UserRole.ADMINISTRATOR
+    if (!isAdmin && !document.isOwnedBy(command.actorId)) {
+      throw new MediaNotOwnedError()
     }
 
     if (await this.mediaManager.fileExists(document.getKey() as string)) {

@@ -26,3 +26,6 @@ yarn-error.log
 
 #Local storage assets
 storage
+
+# Bruno environment files hold access tokens. Keep request *.bru files tracked.
+bruno/digital-notes/environments/

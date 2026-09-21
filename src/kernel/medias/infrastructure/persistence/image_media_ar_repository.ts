@@ -12,6 +12,7 @@ export class ImageMediaARRepository implements ImageMediaRepository {
       createdAt: entity.getCreatedAt() as any,
       updatedAt: entity.getUpdatedAt() as any,
       relativeKey: entity.getRelativeKey(),
+      createdBy: entity.getCreatedBy(),
     }
 
     if (entity.getId()) {
@@ -25,7 +26,11 @@ export class ImageMediaARRepository implements ImageMediaRepository {
   }
 
   async findById(_id: string): Promise<ImageMedia | null> {
-    const image = await EntityActiveRecord.findOrFail(_id)
+    const image = await EntityActiveRecord.find(_id)
+
+    if (!image) {
+      return null
+    }
 
     return new ImageMedia(
       new AppId(image.id),

@@ -17,6 +17,7 @@ export class MediaARRepository implements MediaRepository {
       createdAt: entity.getCreatedAt() as any,
       updatedAt: entity.getUpdatedAt() as any,
       relativeKey: entity.getRelativeKey(),
+      createdBy: entity.getCreatedBy(),
     }
 
     if (entity.getId()) {
@@ -30,7 +31,11 @@ export class MediaARRepository implements MediaRepository {
   }
 
   async findById(_id: string): Promise<Media | null> {
-    const media = await EntityActiveRecord.findOrFail(_id)
+    const media = await EntityActiveRecord.find(_id)
+
+    if (!media) {
+      return null
+    }
 
     return new Media(
       new AppId(media.id),

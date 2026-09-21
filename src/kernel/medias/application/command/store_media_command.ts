@@ -12,6 +12,7 @@ export class StoreMediaCommand implements Command {
   readonly timestamp: Date
 
   constructor(
+    public readonly actorId: string,
     public readonly file: AppFile,
     public readonly title: string = '',
     public readonly description: string | null = null

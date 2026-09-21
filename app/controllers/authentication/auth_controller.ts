@@ -1,15 +1,16 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { loginSchema, registerSchema } from '#validators/auth_validator'
 import User from '#database/active-records/user'
+import { UserRole } from '#kernel/user/domain/types/user_role'
 
 export default class AuthController {
-  async register({ request, response }: HttpContext) {
+  async register({ request, response, logger }: HttpContext) {
     const payload = await request.validateUsing(registerSchema)
 
     try {
-      let user = await User.create(payload)
+      const user = await User.create({ ...payload, role: UserRole.STUDENT })
 
-      let accessToken = await User.accessTokens.create(user)
+      const accessToken = await User.accessTokens.create(user)
 
       return response.created({
         data: {
@@ -17,7 +18,8 @@ export default class AuthController {
         },
       })
     } catch (error) {
-      return response.abort({ error })
+      logger.error({ err: error }, 'auth.register failed')
+      return response.abort({ message: 'Registration failed' })
     }
   }
 
@@ -26,7 +28,7 @@ export default class AuthController {
 
     const user = await User.verifyCredentials(payload.email, payload.password)
 
-    let accessToken = await User.accessTokens.create(user)
+    const accessToken = await User.accessTokens.create(user)
 
     return response.ok({
       data: {
@@ -42,9 +44,9 @@ export default class AuthController {
   }
 
   async me({ auth, response }: HttpContext) {
-    await auth.check()
+    await auth.authenticate()
 
-    const user = auth.user as User
+    const user = auth.user!
 
     return response.ok({
       data: {
@@ -58,7 +60,8 @@ export default class AuthController {
     })
   }
 
-  async logout({ auth }: HttpContext) {
+  async logout({ auth, response }: HttpContext) {
     await auth.use('api').invalidateToken()
+    return response.noContent()
   }
 }

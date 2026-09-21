@@ -26,7 +26,7 @@ export default await Env.create(new URL('../', import.meta.url), {
   DB_HOST: Env.schema.string({ format: 'host' }),
   DB_PORT: Env.schema.number(),
   DB_USER: Env.schema.string(),
-  DB_PASSWORD: Env.schema.string.optional(),
+  DB_PASSWORD: Env.schema.string(),
   DB_DATABASE: Env.schema.string(),
 
   /*
@@ -82,4 +82,19 @@ export default await Env.create(new URL('../', import.meta.url), {
   */
   IMAGE_STORAGE_BASE_PATH: Env.schema.string.optional(),
   DOCUMENT_STORAGE_BASE_PATH: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Comma-separated browser origins allowed to call the API
+  | with credentials. Example: http://localhost:3000
+  |----------------------------------------------------------
+  */
+  CORS_ORIGINS: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Multipart upload ceiling in megabytes (hard-capped at 10)
+  |----------------------------------------------------------
+  */
+  MAX_FILE_SIZE_MB: Env.schema.number.optional(),
 })

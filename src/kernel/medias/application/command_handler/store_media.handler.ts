@@ -7,6 +7,7 @@ import {
 } from '#kernel/medias/application/command/store_media_command'
 import { Media } from '#kernel/medias/domain/media'
 import { MediaType } from '#shared/application/services/upload/types'
+import { ApplicationError } from '#shared/application/errors/application_error'
 
 export class StoreMediaHandler implements CommandHandler<
   StoreMediaCommand,
@@ -29,7 +30,9 @@ export class StoreMediaHandler implements CommandHandler<
     )
 
     if (!upload.success) {
-      throw new Error(`${upload.error}`)
+      throw new ApplicationError('MEDIA_UPLOAD_FAILED', 'Upload failed', {
+        reason: upload.error,
+      })
     }
 
     const type = this.uploadService.getMediaType(command.file.mimeType) as MediaType
@@ -46,7 +49,8 @@ export class StoreMediaHandler implements CommandHandler<
         upload.metadata,
         null,
         null,
-        upload.key
+        upload.key,
+        command.actorId
       )
     )) as string
 

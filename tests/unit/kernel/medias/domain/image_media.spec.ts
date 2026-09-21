@@ -155,4 +155,12 @@ test.group('ImageMedia Entity', () => {
 
     assert.equal(image.getKey(), 'images/test-image.jpg')
   })
+
+  test('should report ownership only for the creator', ({ assert }) => {
+    const image = createMockImageMedia()
+
+    assert.equal(image.getCreatedBy(), 'user-1')
+    assert.isTrue(image.isOwnedBy('user-1'))
+    assert.isFalse(image.isOwnedBy('user-2'))
+  })
 })

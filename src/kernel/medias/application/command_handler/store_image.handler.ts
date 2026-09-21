@@ -6,6 +6,7 @@ import {
   StoreImageCommandReturnType,
 } from '#kernel/medias/application/command/store_image_command'
 import { ImageMedia } from '#kernel/medias/domain/image_media'
+import { ApplicationError } from '#shared/application/errors/application_error'
 
 export class StoreImageHandler implements CommandHandler<
   StoreImageCommand,
@@ -28,7 +29,9 @@ export class StoreImageHandler implements CommandHandler<
     )
 
     if (!upload.success) {
-      throw new Error(`${upload.error}`)
+      throw new ApplicationError('MEDIA_UPLOAD_FAILED', 'Upload failed', {
+        reason: upload.error,
+      })
     }
 
     const id = (await this.repository.save(
@@ -40,7 +43,8 @@ export class StoreImageHandler implements CommandHandler<
         upload.metadata,
         null,
         null,
-        upload.key
+        upload.key,
+        command.actorId
       )
     )) as string
 
