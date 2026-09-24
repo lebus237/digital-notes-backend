@@ -9,9 +9,7 @@ declare module '@adonisjs/core/types' {
     'CQRS/QueryBus': QueryBus
 
     //AGGREGATES REPOSITORY
-    'ImageMediaRepository': RepositoryInterface
-    'DocumentMediaRepository': RepositoryInterface
-    'MediaRepository': RepositoryInterface
+    'UploadRepository': RepositoryInterface
 
     //SERVICE
     'MediaUploadService': MediaManagerInterface

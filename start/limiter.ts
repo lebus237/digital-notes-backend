@@ -15,10 +15,10 @@ export const authThrottle = limiter.define('auth', () => {
   return requestsOrNone(5, '5 minutes')
 })
 
-export const mediaStoreThrottle = limiter.define('mediaStore', () => {
+export const uploadStoreThrottle = limiter.define('uploadStore', () => {
   return requestsOrNone(20)
 })
 
-export const mediaDestroyThrottle = limiter.define('mediaDestroy', () => {
+export const uploadDestroyThrottle = limiter.define('uploadDestroy', () => {
   return requestsOrNone(30)
 })

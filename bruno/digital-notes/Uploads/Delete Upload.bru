@@ -1,0 +1,17 @@
+meta {
+  name: Delete Upload
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{base_url}}/api/uploads/00000-00000000000-0
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should return 204 on success", function() {
+    expect(res.status).toBe(204);
+  });
+}

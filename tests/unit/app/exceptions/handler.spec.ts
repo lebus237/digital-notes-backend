@@ -2,8 +2,8 @@ import { test } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
 import type { HttpContext } from '@adonisjs/core/http'
 import HttpExceptionHandler from '#exceptions/handler'
-import { MediaNotFoundError } from '#kernel/medias/domain/errors/media_not_found_error'
-import { MediaNotOwnedError } from '#kernel/medias/domain/errors/media_not_owned_error'
+import { UploadNotFoundError } from '#kernel/uploads/domain/errors/upload_not_found_error'
+import { UploadNotOwnedError } from '#kernel/uploads/domain/errors/upload_not_owned_error'
 import { ApplicationError } from '#shared/application/errors/application_error'
 
 class ProbeHandler extends HttpExceptionHandler {
@@ -42,7 +42,7 @@ test.group('HttpExceptionHandler', () => {
     const handler = new HttpExceptionHandler()
     const { sent, ctx } = captureContext()
 
-    await handler.handle(new MediaNotFoundError('secret-media-id'), ctx)
+    await handler.handle(new UploadNotFoundError('secret-media-id'), ctx)
 
     assert.equal(sent.status, 404)
     assert.deepEqual(sent.body, {
@@ -56,7 +56,7 @@ test.group('HttpExceptionHandler', () => {
     const handler = new HttpExceptionHandler()
     const { sent, ctx } = captureContext()
 
-    await handler.handle(new MediaNotOwnedError(), ctx)
+    await handler.handle(new UploadNotOwnedError(), ctx)
 
     assert.equal(sent.status, 404)
     assert.equal((sent.body as { error: { code: string } }).error.code, 'MEDIA_NOT_OWNED')
@@ -69,9 +69,9 @@ test.group('HttpExceptionHandler', () => {
     await handler.handle(
       new ApplicationError(
         'HANDLER_NOT_REGISTERED',
-        'No handler registered for command: StoreMediaCommand',
+        'No handler registered for command: StoreUploadCommand',
         {
-          name: 'StoreMediaCommand',
+          name: 'StoreUploadCommand',
         }
       ),
       ctx
@@ -82,6 +82,6 @@ test.group('HttpExceptionHandler', () => {
       status: 'error',
       error: { code: 'HANDLER_NOT_REGISTERED', message: 'Internal server error' },
     })
-    assert.notInclude(JSON.stringify(sent.body), 'StoreMediaCommand')
+    assert.notInclude(JSON.stringify(sent.body), 'StoreUploadCommand')
   })
 })

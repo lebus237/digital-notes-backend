@@ -8,17 +8,12 @@ declare const brand: unique symbol
 export type Brand<T, TBrand> = T & { readonly [brand]: TBrand }
 
 export type UserId = Brand<string, 'UserId'>
-export type ImageMediaId = Brand<string, 'ImageMediaId'>
 
 /**
  * Helper to create branded IDs (for internal use)
  */
 export function asUserId(id: string): UserId {
   return id as UserId
-}
-
-export function asImageMediaId(id: string): ImageMediaId {
-  return id as ImageMediaId
 }
 
 /**

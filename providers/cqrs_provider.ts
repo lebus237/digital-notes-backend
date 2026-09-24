@@ -1,12 +1,8 @@
 import { CommandBus } from '#shared/infrastructure/bus/command_bus'
 import { QueryBus } from '#shared/infrastructure/bus/query_bus'
 import { ApplicationService } from '@adonisjs/core/types'
-import { StoreImageHandler } from '#kernel/medias/application/command_handler/store_image.handler'
-import { DeleteImageHandler } from '#kernel/medias/application/command_handler/delete_image_handler'
-import { StoreDocumentHandler } from '#kernel/medias/application/command_handler/store_document.handler'
-import { DeleteDocumentHandler } from '#kernel/medias/application/command_handler/delete_document_handler'
-import { StoreMediaHandler } from '#kernel/medias/application/command_handler/store_media.handler'
-import { DeleteMediaHandler } from '#kernel/medias/application/command_handler/delete_media_handler'
+import { StoreUploadHandler } from '#kernel/uploads/application/command_handler/store_upload.handler'
+import { DeleteUploadHandler } from '#kernel/uploads/application/command_handler/delete_upload_handler'
 
 export default class CqrsProvider {
   constructor(protected app: ApplicationService) {}
@@ -15,29 +11,13 @@ export default class CqrsProvider {
     this.app.container.singleton('CQRS/CommandBus', () => {
       const commandBus = new CommandBus(this.app)
 
-      //MEDIA COMMANDS
-      commandBus.register('StoreImageCommand', StoreImageHandler, [
-        'ImageMediaRepository',
+      //UPLOAD COMMANDS
+      commandBus.register('StoreUploadCommand', StoreUploadHandler, [
+        'UploadRepository',
         'MediaUploadService',
       ])
-      commandBus.register('DeleteImageCommand', DeleteImageHandler, [
-        'ImageMediaRepository',
-        'MediaUploadService',
-      ])
-      commandBus.register('StoreDocumentCommand', StoreDocumentHandler, [
-        'DocumentMediaRepository',
-        'MediaUploadService',
-      ])
-      commandBus.register('DeleteDocumentCommand', DeleteDocumentHandler, [
-        'DocumentMediaRepository',
-        'MediaUploadService',
-      ])
-      commandBus.register('StoreMediaCommand', StoreMediaHandler, [
-        'MediaRepository',
-        'MediaUploadService',
-      ])
-      commandBus.register('DeleteMediaCommand', DeleteMediaHandler, [
-        'MediaRepository',
+      commandBus.register('DeleteUploadCommand', DeleteUploadHandler, [
+        'UploadRepository',
         'MediaUploadService',
       ])
 

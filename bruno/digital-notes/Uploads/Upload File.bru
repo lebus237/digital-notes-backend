@@ -1,0 +1,17 @@
+meta {
+  name: Upload File
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/uploads
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  file: @file(C:\Users\Elkira01\Pictures\KBM\kbm.webp)
+  title: service2
+  description: service2
+}

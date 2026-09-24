@@ -9,11 +9,9 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
-import { authThrottle, mediaDestroyThrottle, mediaStoreThrottle } from '#start/limiter'
+import { authThrottle, uploadDestroyThrottle, uploadStoreThrottle } from '#start/limiter'
 
-const ImageMediasController = () => import('#controllers/media/image_medias_controller')
-const DocumentMediasController = () => import('#controllers/media/document_medias_controller')
-const MediasController = () => import('#controllers/media/medias_controller')
+const UploadsController = () => import('#controllers/uploads/uploads_controller')
 const AuthController = () => import('#controllers/authentication/auth_controller')
 
 router
@@ -29,26 +27,11 @@ router
 
     router.group(() => {
       router
-        .resource('media', MediasController)
+        .resource('uploads', UploadsController)
         .apiOnly()
         .only(['store', 'destroy'])
-        .use('store', [middleware.auth(), mediaStoreThrottle])
-        .use('destroy', [middleware.auth(), mediaDestroyThrottle])
-
-      // @deprecated shims — use `media` instead. Kept for backward compatibility.
-      router
-        .resource('image-media', ImageMediasController)
-        .apiOnly()
-        .only(['store', 'destroy'])
-        .use('store', [middleware.auth(), mediaStoreThrottle])
-        .use('destroy', [middleware.auth(), mediaDestroyThrottle])
-
-      router
-        .resource('document-media', DocumentMediasController)
-        .apiOnly()
-        .only(['store', 'destroy'])
-        .use('store', [middleware.auth(), mediaStoreThrottle])
-        .use('destroy', [middleware.auth(), mediaDestroyThrottle])
+        .use('store', [middleware.auth(), uploadStoreThrottle])
+        .use('destroy', [middleware.auth(), uploadDestroyThrottle])
     })
   })
   .prefix('/api')
