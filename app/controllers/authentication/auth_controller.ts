@@ -26,7 +26,13 @@ export default class AuthController {
   async login({ request, response }: HttpContext) {
     const payload = await request.validateUsing(loginSchema)
 
-    const user = await User.verifyCredentials(payload.email, payload.password)
+    const identifier = payload.phoneNumber || payload.email
+
+    if (!identifier) {
+      return response.badRequest({ message: 'email or phoneNumber is required' })
+    }
+
+    const user = await User.verifyCredentials(identifier, payload.password)
 
     const accessToken = await User.accessTokens.create(user)
 
@@ -35,6 +41,7 @@ export default class AuthController {
         user: {
           fullName: user?.getFullName(),
           email: user?.getEmail(),
+          phoneNumber: user?.getPhoneNumber(),
           createdAt: user?.getCreatedAt(),
         },
         context: {},
@@ -53,6 +60,7 @@ export default class AuthController {
         user: {
           fullName: user?.getFullName(),
           email: user?.getEmail(),
+          phoneNumber: user?.getPhoneNumber(),
           createdAt: user?.getCreatedAt(),
         },
         context: {},
