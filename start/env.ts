@@ -44,8 +44,10 @@ export default await Env.create(new URL('../', import.meta.url), {
    * 'fs'  → local filesystem (development)
    * 's3'  → Railway S3-compatible object storage (production)
    * 'contabo' → Contabo S3-compatible object storage (production)
+   * 'neon' → Neon object storage, media bucket (development / production)
+   * 'neon_docs' → Neon object storage, documents bucket
    */
-  DRIVE_DISK: Env.schema.enum(['fs', 's3', 'contabo'] as const),
+  DRIVE_DISK: Env.schema.enum(['fs', 's3', 'contabo', 'neon', 'neon_docs'] as const),
 
   /*
   |----------------------------------------------------------
@@ -80,6 +82,21 @@ export default await Env.create(new URL('../', import.meta.url), {
   CONTABO_STORAGE_SECRET_ACCESS_KEY: Env.schema.string.optional(),
   CONTABO_STORAGE_BUCKET: Env.schema.string.optional(),
   CONTABO_STORAGE_REGION: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring Neon object storage
+  | (S3-compatible; AWS_* are written by `neon env pull`)
+  |----------------------------------------------------------
+  */
+  AWS_ACCESS_KEY_ID: Env.schema.string.optional(),
+  AWS_SECRET_ACCESS_KEY: Env.schema.string.optional(),
+  AWS_ENDPOINT_URL_S3: Env.schema.string.optional(),
+  AWS_REGION: Env.schema.string.optional(),
+  /** Neon bucket holding image objects */
+  NEON_STORAGE_BUCKET: Env.schema.string.optional(),
+  /** Neon bucket holding document objects */
+  NEON_DOCS_STORAGE_BUCKET: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------

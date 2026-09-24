@@ -71,6 +71,49 @@ const driveConfig = defineConfig({
        */
       supportsACL: false,
     }),
+
+    /**
+     * S3-compatible driver — Neon object storage, media bucket (image objects).
+     *
+     * Credentials are AWS-standard variables written by `neon env pull`; the
+     * buckets themselves are declared in `neon.ts` and provisioned per branch
+     * with `neon deploy`. The bucket names are app-owned and read from
+     * NEON_STORAGE_BUCKET / NEON_DOCS_STORAGE_BUCKET.
+     */
+    neon: services.s3({
+      credentials: {
+        accessKeyId: env.get('AWS_ACCESS_KEY_ID', ''),
+        secretAccessKey: env.get('AWS_SECRET_ACCESS_KEY', ''),
+      },
+      region: env.get('AWS_REGION', 'us-east-2'),
+      endpoint: env.get('AWS_ENDPOINT_URL_S3', ''),
+      bucket: env.get('NEON_STORAGE_BUCKET', ''),
+      visibility: 'private',
+      /**
+       * Neon's storage gateway only speaks path-style addressing (SigV4).
+       */
+      forcePathStyle: true,
+      /**
+       * Neon does not support ACLs; read access is granted through presigned URLs.
+       */
+      supportsACL: false,
+    }),
+
+    /**
+     * S3-compatible driver — Neon object storage, documents bucket.
+     */
+    neon_docs: services.s3({
+      credentials: {
+        accessKeyId: env.get('AWS_ACCESS_KEY_ID', ''),
+        secretAccessKey: env.get('AWS_SECRET_ACCESS_KEY', ''),
+      },
+      region: env.get('AWS_REGION', 'us-east-2'),
+      endpoint: env.get('AWS_ENDPOINT_URL_S3', ''),
+      bucket: env.get('NEON_DOCS_STORAGE_BUCKET', ''),
+      visibility: 'private',
+      forcePathStyle: true,
+      supportsACL: false,
+    }),
   },
 })
 
