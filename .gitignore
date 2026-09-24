@@ -29,3 +29,5 @@ storage
 
 # Bruno environment files hold access tokens. Keep request *.bru files tracked.
 bruno/digital-notes/environments/
+opencode.json
+.neon
