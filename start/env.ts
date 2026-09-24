@@ -20,14 +20,20 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
-  | Variables for configuring database connection
+  | Variables for configuring the database connection
   |----------------------------------------------------------
+  | DB_DRIVER=neon     → connect via DATABASE_URL (Neon, TLS enforced)
+  | DB_DRIVER=postgres → connect via the discrete DB_* values below
   */
-  DB_HOST: Env.schema.string({ format: 'host' }),
-  DB_PORT: Env.schema.number(),
-  DB_USER: Env.schema.string(),
-  DB_PASSWORD: Env.schema.string(),
-  DB_DATABASE: Env.schema.string(),
+  DB_DRIVER: Env.schema.enum.optional(['neon', 'postgres'] as const),
+  DATABASE_URL: Env.schema.string.optional(),
+  DB_SSL: Env.schema.enum.optional(['true', 'false', 'no-verify'] as const),
+
+  DB_HOST: Env.schema.string.optional({ format: 'host' }),
+  DB_PORT: Env.schema.number.optional(),
+  DB_USER: Env.schema.string.optional(),
+  DB_PASSWORD: Env.schema.string.optional(),
+  DB_DATABASE: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------
