@@ -1,10 +1,14 @@
 import * as path from 'node:path'
 import {
   FileInfo,
-  MediaType,
   UploadOptions,
   UploadResult,
 } from '#shared/application/services/upload/types'
+import {
+  DEFAULT_DOCUMENT_STORAGE_PATH,
+  DEFAULT_IMAGE_STORAGE_PATH,
+  resolveStorageSubPath,
+} from '#shared/application/services/upload/storage_path'
 import { cuid as uuidv4 } from '@adonisjs/core/helpers'
 import { StorageProviderInterface } from '#shared/application/services/upload/storage_provider_interface'
 import { MultipartFile } from '@adonisjs/core/bodyparser'
@@ -21,16 +25,15 @@ export interface LocalProviderConfig {
 export class LocalStorageProvider implements StorageProviderInterface {
   private storagePath: string
   private basePath?: string
-  private imageBasePath?: string
-  private documentBasePath?: string
+  private imageBasePath: string
+  private documentBasePath: string
   private diskDriver = drive.use()
 
   constructor(config: LocalProviderConfig) {
     this.storagePath = config.storagePath
     this.basePath = config.basePath
-    this.imageBasePath = config.imageBasePath
-    this.documentBasePath = config.documentBasePath
-    // this.ensureStorageDirectory()
+    this.imageBasePath = config.imageBasePath ?? DEFAULT_IMAGE_STORAGE_PATH
+    this.documentBasePath = config.documentBasePath ?? DEFAULT_DOCUMENT_STORAGE_PATH
   }
 
   private async ensureStorageDirectory(): Promise<void> {
@@ -50,9 +53,11 @@ export class LocalStorageProvider implements StorageProviderInterface {
     try {
       const fileName = this.generateFileName(fileInfo.originalName)
       const relativeKey = path.join(
-        fileInfo.type === MediaType.IMAGE
-          ? (this.imageBasePath as string)
-          : (this.documentBasePath as string),
+        resolveStorageSubPath(
+          fileInfo.type,
+          fileInfo.storagePath ?? _options?.storagePath,
+          { image: this.imageBasePath, document: this.documentBasePath }
+        ),
         fileName
       )
 

@@ -1,5 +1,6 @@
 import { Command } from '#shared/application/use-cases/command'
 import { AppFile } from '#shared/domain/app_file'
+import type { StoragePath } from '#shared/application/services/upload/storage_path'
 
 export type StoreUploadCommandReturnType = {
   id: string
@@ -15,7 +16,8 @@ export class StoreUploadCommand implements Command {
     public readonly actorId: string,
     public readonly file: AppFile,
     public readonly title: string = '',
-    public readonly description: string | null = null
+    public readonly description: string | null = null,
+    public readonly storagePath?: StoragePath
   ) {
     this.timestamp = new Date()
   }

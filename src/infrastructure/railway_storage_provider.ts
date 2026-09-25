@@ -5,10 +5,14 @@ import drive from '@adonisjs/drive/services/main'
 import { StorageProviderInterface } from '#shared/application/services/upload/storage_provider_interface'
 import {
   FileInfo,
-  MediaType,
   UploadOptions,
   UploadResult,
 } from '#shared/application/services/upload/types'
+import {
+  DEFAULT_DOCUMENT_STORAGE_PATH,
+  DEFAULT_IMAGE_STORAGE_PATH,
+  resolveStorageSubPath,
+} from '#shared/application/services/upload/storage_path'
 
 export interface RailwayProviderConfig {
   /**
@@ -44,8 +48,8 @@ export class RailwayStorageProvider implements StorageProviderInterface {
 
   constructor(config: RailwayProviderConfig = {}) {
     this.basePath = config.basePath ?? ''
-    this.imageBasePath = config.imageBasePath ?? 'images'
-    this.documentBasePath = config.documentBasePath ?? 'documents'
+    this.imageBasePath = config.imageBasePath ?? DEFAULT_IMAGE_STORAGE_PATH
+    this.documentBasePath = config.documentBasePath ?? DEFAULT_DOCUMENT_STORAGE_PATH
   }
 
   // ---------------------------------------------------------------------------
@@ -59,7 +63,11 @@ export class RailwayStorageProvider implements StorageProviderInterface {
   ): Promise<UploadResult> {
     try {
       const fileName = this.generateFileName(fileInfo.originalName)
-      const subPath = fileInfo.type === MediaType.IMAGE ? this.imageBasePath : this.documentBasePath
+      const subPath = resolveStorageSubPath(
+        fileInfo.type,
+        fileInfo.storagePath ?? _options?.storagePath,
+        { image: this.imageBasePath, document: this.documentBasePath }
+      )
       const objectKey = this.buildKey(subPath, fileName)
 
       // Obtain the raw buffer — prefer the MultipartFile stream when available

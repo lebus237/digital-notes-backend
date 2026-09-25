@@ -25,6 +25,7 @@ export class StoreUploadHandler implements CommandHandler<
         originalName: command.file.originalName,
         mimeType: command.file.mimeType,
         size: command.file.size,
+        storagePath: command.storagePath,
       },
       command.file.getFile()
     )

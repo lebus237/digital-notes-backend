@@ -1,5 +1,7 @@
 // Core types for the media upload system
 
+import type { StoragePath } from '#shared/application/services/upload/storage_path'
+
 export enum MediaType {
   IMAGE = 'image',
   DOCUMENT = 'document',
@@ -29,6 +31,7 @@ export interface UploadOptions {
   allowedFormats?: SupportedMimeType[]
   generateThumbnail?: boolean
   metadata?: Record<string, string>
+  storagePath?: StoragePath
 }
 
 export interface UploadResult {
@@ -51,6 +54,7 @@ export interface FileInfo {
   mimeType: string
   size: number
   type?: MediaType
+  storagePath?: StoragePath
 }
 
 export interface ProviderConfig {

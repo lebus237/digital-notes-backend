@@ -100,7 +100,9 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
-  | Optional sub-path overrides shared by all providers
+  | Fallback sub-paths shared by all providers.
+  | Overridden per upload by the optional `storagePath`
+  | payload field (StoragePath enum).
   |----------------------------------------------------------
   */
   IMAGE_STORAGE_BASE_PATH: Env.schema.string.optional(),

@@ -5,6 +5,7 @@ import {
   StoreUploadCommandReturnType,
 } from '#kernel/uploads/application/command/store_upload_command'
 import { AppFile } from '#shared/domain/app_file'
+import type { StoragePath } from '#shared/application/services/upload/storage_path'
 import { uploadSchema } from '#validators/upload_schema'
 import { DeleteUploadCommand } from '#kernel/uploads/application/command/delete_upload_command'
 import { AppId } from '#shared/domain/app_id'
@@ -33,7 +34,8 @@ export default class UploadsController extends AppAbstractController {
         String(user.id),
         new AppFile(file),
         payload.title,
-        payload.description ?? null
+        payload.description ?? null,
+        payload.storagePath as StoragePath | undefined
       )
     )
 

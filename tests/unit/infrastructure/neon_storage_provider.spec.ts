@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 import { NeonStorageProvider } from '#infra/neon_storage_provider'
 import { MediaType } from '#shared/application/services/upload/types'
+import { StoragePath } from '#shared/application/services/upload/storage_path'
 
 const createFakeDisk = () => {
   const calls = {
@@ -148,6 +149,16 @@ test.group('NeonStorageProvider', () => {
     assert.lengthOf(mediaDisk.calls.exists, 0)
     assert.deepEqual(mediaDisk.calls.getMetaData, ['uploads/images/photo.jpg'])
     assert.lengthOf(docsDisk.calls.getMetaData, 0)
+  })
+
+  test('should use the payload storagePath as an override', async ({ assert }) => {
+    const { provider, mediaDisk, docsDisk } = createProvider()
+
+    const result = await provider.upload({ ...imageFileInfo, storagePath: StoragePath.DOCUMENTS })
+
+    assert.isTrue(result.success)
+    assert.match(mediaDisk.calls.put[0].key, /^uploads\/documents\/\d+-[a-z0-9]+\.jpg$/)
+    assert.lengthOf(docsDisk.calls.put, 0)
   })
 
   test('should return a failed result when the upload throws', async ({ assert }) => {

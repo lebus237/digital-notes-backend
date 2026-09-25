@@ -9,6 +9,11 @@ import {
   UploadOptions,
   UploadResult,
 } from '#shared/application/services/upload/types'
+import {
+  DEFAULT_DOCUMENT_STORAGE_PATH,
+  DEFAULT_IMAGE_STORAGE_PATH,
+  resolveStorageSubPath,
+} from '#shared/application/services/upload/storage_path'
 
 /**
  * Subset of the AdonisJS Drive disk API this provider relies on.
@@ -78,8 +83,8 @@ export class NeonStorageProvider implements StorageProviderInterface {
     this.mediaDisk = disks.media ?? drive.use('neon')
     this.docsDisk = disks.docs ?? drive.use('neon_docs')
     this.basePath = config.basePath ?? ''
-    this.imageBasePath = config.imageBasePath ?? 'images'
-    this.documentBasePath = config.documentBasePath ?? 'documents'
+    this.imageBasePath = config.imageBasePath ?? DEFAULT_IMAGE_STORAGE_PATH
+    this.documentBasePath = config.documentBasePath ?? DEFAULT_DOCUMENT_STORAGE_PATH
     this.imagePrefix = `${this.buildKey(this.imageBasePath)}/`
     this.documentPrefix = `${this.buildKey(this.documentBasePath)}/`
   }
@@ -96,7 +101,11 @@ export class NeonStorageProvider implements StorageProviderInterface {
     try {
       const isDocument = fileInfo.type === MediaType.DOCUMENT
       const disk = isDocument ? this.docsDisk : this.mediaDisk
-      const subPath = isDocument ? this.documentBasePath : this.imageBasePath
+      const subPath = resolveStorageSubPath(
+        fileInfo.type,
+        fileInfo.storagePath ?? _options?.storagePath,
+        { image: this.imageBasePath, document: this.documentBasePath }
+      )
       const fileName = this.generateFileName(fileInfo.originalName)
       const objectKey = this.buildKey(subPath, fileName)
 

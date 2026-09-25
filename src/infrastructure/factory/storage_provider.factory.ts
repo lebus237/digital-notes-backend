@@ -4,6 +4,10 @@ import { ContaboStorageProvider } from '#infra/contabo_storage_provider'
 import { NeonStorageProvider } from '#infra/neon_storage_provider'
 import { StorageProviderInterface } from '#shared/application/services/upload/storage_provider_interface'
 import env from '#start/env'
+import {
+  DEFAULT_DOCUMENT_STORAGE_PATH,
+  DEFAULT_IMAGE_STORAGE_PATH,
+} from '#shared/application/services/upload/storage_path'
 
 export enum ProviderType {
   LOCAL = 'LOCAL',
@@ -33,22 +37,22 @@ export class StorageProviderFactory {
       case ProviderType.RAILWAY:
         return new RailwayStorageProvider({
           basePath: env.get('STORAGE_BASE_PATH'),
-          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH'),
-          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH'),
+          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH') ?? DEFAULT_IMAGE_STORAGE_PATH,
+          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH') ?? DEFAULT_DOCUMENT_STORAGE_PATH,
         })
 
       case ProviderType.CONTABO:
         return new ContaboStorageProvider({
           basePath: env.get('STORAGE_BASE_PATH'),
-          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH'),
-          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH'),
+          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH') ?? DEFAULT_IMAGE_STORAGE_PATH,
+          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH') ?? DEFAULT_DOCUMENT_STORAGE_PATH,
         })
 
       case ProviderType.NEON:
         return new NeonStorageProvider({
           basePath: null,
-          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH'),
-          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH'),
+          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH') ?? DEFAULT_IMAGE_STORAGE_PATH,
+          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH') ?? DEFAULT_DOCUMENT_STORAGE_PATH,
         })
 
       default:
@@ -78,29 +82,29 @@ export class StorageProviderFactory {
           storagePath: env.get('STORAGE_BASE_PATH') || './storage',
           baseUrl: env.get('LOCAL_STORAGE_URL') || 'http://localhost:3000/uploads',
           basePath: env.get('STORAGE_BASE_PATH'),
-          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH'),
-          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH'),
+          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH') ?? DEFAULT_IMAGE_STORAGE_PATH,
+          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH') ?? DEFAULT_DOCUMENT_STORAGE_PATH,
         })
 
       case ProviderType.RAILWAY:
         return new RailwayStorageProvider({
           basePath: env.get('STORAGE_BASE_PATH'),
-          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH'),
-          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH'),
+          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH') ?? DEFAULT_IMAGE_STORAGE_PATH,
+          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH') ?? DEFAULT_DOCUMENT_STORAGE_PATH,
         })
 
       case ProviderType.CONTABO:
         return new ContaboStorageProvider({
           basePath: env.get('STORAGE_BASE_PATH'),
-          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH'),
-          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH'),
+          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH') ?? DEFAULT_IMAGE_STORAGE_PATH,
+          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH') ?? DEFAULT_DOCUMENT_STORAGE_PATH,
         })
 
       case ProviderType.NEON:
         return new NeonStorageProvider({
           basePath: null,
-          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH'),
-          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH'),
+          imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH') ?? DEFAULT_IMAGE_STORAGE_PATH,
+          documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH') ?? DEFAULT_DOCUMENT_STORAGE_PATH,
         })
 
       default:

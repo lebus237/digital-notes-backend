@@ -4,6 +4,7 @@ import { StoreUploadCommand } from '#kernel/uploads/application/command/store_up
 import { UploadRepository } from '#kernel/uploads/domain/upload_repository'
 import { MediaManagerInterface } from '#shared/application/services/upload/media_manager_interface'
 import { MediaType } from '#shared/application/services/upload/types'
+import { StoragePath } from '#shared/application/services/upload/storage_path'
 import { AppFile } from '#shared/domain/app_file'
 import { Upload } from '#kernel/uploads/domain/upload'
 
@@ -162,5 +163,30 @@ test.group('StoreUploadHandler', () => {
 
     assert.equal(savedUpload!.getTitle(), '')
     assert.isNull(savedUpload!.getDescription())
+  })
+
+  test('should forward storagePath to the upload service', async ({ assert }) => {
+    let capturedFileInfo: any = null
+
+    const mockMediaManager: MediaManagerInterface = {
+      ...createMockMediaManager(),
+      uploadFile: async (fileInfo) => {
+        capturedFileInfo = fileInfo
+        return { success: true, url: 'https://cdn.example.com/test.jpg', key: 'test.jpg' }
+      },
+    }
+
+    const handler = new StoreUploadHandler(createMockRepository(), mockMediaManager)
+    await handler.handle(
+      new StoreUploadCommand(
+        'user-1',
+        createMockAppFile(),
+        'Test',
+        null,
+        StoragePath.DOCUMENTS
+      )
+    )
+
+    assert.equal(capturedFileInfo.storagePath, StoragePath.DOCUMENTS)
   })
 })
