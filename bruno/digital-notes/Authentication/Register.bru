@@ -14,7 +14,8 @@ body:json {
   {
     "email": "test@example.com",
     "password": "Password123",
-    "fullName": "Test User"
+    "fullName": "Test User",
+    "phoneNumber": "655000001"
   }
 }
 
@@ -22,7 +23,7 @@ tests {
   test("should return 201 on success", function() {
     expect(res.status).toBe(201);
   });
-
+  
   test("should return access token", function() {
     const body = res.body;
     expect(body.data.accessToken).toBeTruthy();

@@ -9,19 +9,19 @@
 
 ## 1. Target Architecture (What Changes Structurally)
 
-| Layer | Current | Target |
-|---|---|---|
-| Routes (`start/routes.ts`, `start/kernel.ts`) | `auth` guard only; logout via unguarded GET; no throttle | `auth` + `throttle` + new `role` named middleware; `POST /api/logout` guarded |
-| Controllers | No `auth.user` passed to commands; raw `response.abort({error})` in auth; `auth.check()` in `me` | Controllers extract `auth.user.id` as `actorId`, pass into commands; sanitized errors only; `auth.authenticate()` |
-| Commands | `StoreMediaCommand(file,title,desc)`, `DeleteMediaCommand(id)` — no actor | Add `actorId: string` (+ `actorRole?: UserRole`) to all 6 media commands (unified + legacy image/document) |
-| Domain entity (`src/kernel/medias/domain/media.ts`) | `createdBy?: any`, no getter | `createdBy: string \| null` + `getCreatedBy()` + `isOwnedBy(actorId)` helper |
-| Handlers | No ownership check; `throw new Error()` on upload failure | Ownership enforcement on delete (owner or administrator); throw `ApplicationError` with safe codes |
-| Repository (`media_ar_repository.ts` + image/document equivalents) | `save()` drops `createdBy`; `findById` uses `findOrFail` (leaks Lucid 404) | Persist `createdBy`; `findById` uses `find()` → returns `null` → handler throws sanitized `MediaNotFoundError` |
-| Error pipeline (`app/exceptions/handler.ts`) | `debug = !app.inProduction`; missing `MEDIA/DOCUMENT_NOT_FOUND`; default 422; echoes `error.message/details` | `debug = app.inDev`; full code→status map; default 500; sanitized client messages + server-side log |
-| Config | CORS `origin:true`; multipart `20mb`; `csp-report` JSON; `prettyPrintDebugQueries:true`; `DB_PASSWORD` optional | CORS allowlist from env; multipart aligned to `MAX_FILE_SIZE_MB`; strict JSON types; debug queries off in prod; `DB_PASSWORD` required in prod |
-| Validators (`auth_validator.ts`) | `password: minLength(8)`; no role default | Stronger password rule; register sets default `UserRole.STUDENT` server-side (never from client) |
-| Secrets | Real values in `.env.example`, live tokens in `bruno/*/environments/*.bru` | Placeholders only; `bruno/` gitignored or vaulted (operational rotation done separately) |
-| Pagination (`pagination.ts`, `app_abstract_controller.ts`) | Unvalidated `page/limit` passthrough | `parseQueryPagination` coerces + clamps (`page>=1`, `1<=limit<=100`) |
+| Layer                                                              | Current                                                                                                         | Target                                                                                                                                         |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routes (`start/routes.ts`, `start/kernel.ts`)                      | `auth` guard only; logout via unguarded GET; no throttle                                                        | `auth` + `throttle` + new `role` named middleware; `POST /api/logout` guarded                                                                  |
+| Controllers                                                        | No `auth.user` passed to commands; raw `response.abort({error})` in auth; `auth.check()` in `me`                | Controllers extract `auth.user.id` as `actorId`, pass into commands; sanitized errors only; `auth.authenticate()`                              |
+| Commands                                                           | `StoreMediaCommand(file,title,desc)`, `DeleteMediaCommand(id)` — no actor                                       | Add `actorId: string` (+ `actorRole?: UserRole`) to all 6 media commands (unified + legacy image/document)                                     |
+| Domain entity (`src/kernel/medias/domain/media.ts`)                | `createdBy?: any`, no getter                                                                                    | `createdBy: string \| null` + `getCreatedBy()` + `isOwnedBy(actorId)` helper                                                                   |
+| Handlers                                                           | No ownership check; `throw new Error()` on upload failure                                                       | Ownership enforcement on delete (owner or administrator); throw `ApplicationError` with safe codes                                             |
+| Repository (`media_ar_repository.ts` + image/document equivalents) | `save()` drops `createdBy`; `findById` uses `findOrFail` (leaks Lucid 404)                                      | Persist `createdBy`; `findById` uses `find()` → returns `null` → handler throws sanitized `MediaNotFoundError`                                 |
+| Error pipeline (`app/exceptions/handler.ts`)                       | `debug = !app.inProduction`; missing `MEDIA/DOCUMENT_NOT_FOUND`; default 422; echoes `error.message/details`    | `debug = app.inDev`; full code→status map; default 500; sanitized client messages + server-side log                                            |
+| Config                                                             | CORS `origin:true`; multipart `20mb`; `csp-report` JSON; `prettyPrintDebugQueries:true`; `DB_PASSWORD` optional | CORS allowlist from env; multipart aligned to `MAX_FILE_SIZE_MB`; strict JSON types; debug queries off in prod; `DB_PASSWORD` required in prod |
+| Validators (`auth_validator.ts`)                                   | `password: minLength(8)`; no role default                                                                       | Stronger password rule; register sets default `UserRole.STUDENT` server-side (never from client)                                               |
+| Secrets                                                            | Real values in `.env.example`, live tokens in `bruno/*/environments/*.bru`                                      | Placeholders only; `bruno/` gitignored or vaulted (operational rotation done separately)                                                       |
+| Pagination (`pagination.ts`, `app_abstract_controller.ts`)         | Unvalidated `page/limit` passthrough                                                                            | `parseQueryPagination` coerces + clamps (`page>=1`, `1<=limit<=100`)                                                                           |
 
 ---
 
@@ -44,7 +44,12 @@
 1. Change `protected debug = !app.inProduction` → `protected debug = app.inDev`.
 2. Rework `handle()` Domain/Application branch to return **sanitized** payloads:
    ```ts
-   const SERVER_MESSAGE: Record<number,string> = { 404:'Resource not found', 409:'Conflict', 422:'Unprocessable entity', 500:'Internal server error' }
+   const SERVER_MESSAGE: Record<number, string> = {
+     404: 'Resource not found',
+     409: 'Conflict',
+     422: 'Unprocessable entity',
+     500: 'Internal server error',
+   }
    // send: { status:'error', error:{ code: error.code, message: SERVER_MESSAGE[status] } }
    // log full error via ctx.logger.error({ err: error, code: error.code })
    ```
@@ -53,6 +58,7 @@
 4. Ensure `report()` logs via `ctx.logger` (already delegates to super — keep).
 
 **File:** `app/controllers/authentication/auth_controller.ts` (`register`)
+
 - Replace `return response.abort({ error })` with logger + generic abort:
   ```ts
   catch (error) { ctx.logger.error({ err: error }, 'auth.register failed'); return response.abort({ message: 'Registration failed' }) }
@@ -60,6 +66,7 @@
   Needs `logger` from `HttpContext` (add to destructure).
 
 **Files:** `src/kernel/medias/domain/errors/media_not_found_error.ts` (+ image/document equivalents)
+
 - Change message to generic `'Media not found'` while keeping `{ mediaId }` **out** of client payload (details still available server-side via log; handler no longer echoes details).
 
 **Verify:** trigger 404/422/500 manually; assert responses contain only `{code, message}` with no stack, no IDs, no handler names; `NODE_ENV=stage` returns no stack.
@@ -69,23 +76,27 @@
 ## 4. Phase 2 — Auth Routes & Validators (H1, H8, M3, H7-partial)
 
 **File:** `start/routes.ts`
+
 - `router.post('/logout', [AuthController,'logout']).use(middleware.auth())` — replaces unguarded `GET /logout`. (Breaking change for Bruno `Logout.bru` — update it to POST.)
 - Wrap auth group with throttle (Phase 3 wiring lands here; see below).
 
 **File:** `app/controllers/authentication/auth_controller.ts`
+
 - `me()`: replace `await auth.check()` + `as User` cast with:
   ```ts
-  await auth.authenticate()  // throws 401 via handler
+  await auth.authenticate() // throws 401 via handler
   const user = auth.user!
   ```
 - `register()`: force server-side role — `User.create({ ...payload, role: UserRole.STUDENT })`. Never accept `role` from client. Import `UserRole` from `#kernel/user/domain/types/user_role`.
 - `logout()`: keep `invalidateToken()`, add `return response.noContent()`.
 
 **File:** `app/validators/auth_validator.ts`
+
 - Strengthen: `password: vine.string().minLength(10).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)` (message: must include upper, lower, digit). Keep `minLength(8)`→ bump to 10 as agreed minimal uplift.
 - No `role` field added (intentional — role is server-assigned).
 
 **File:** `start/env.ts`
+
 - `DB_PASSWORD: Env.schema.string()` (required). If Railway injects empty locally, use `.env` override — schema must not permit production without password.
 
 **Verify:** `GET /api/logout` → 404/405; `POST /api/logout` without token → 401; with token → 204; `POST /api/register` ignores injected `role`; weak password → 422.
@@ -120,7 +131,9 @@
 - New error `src/kernel/medias/domain/errors/media_not_owned_error.ts` (mirror for image/document or reuse one code):
   ```ts
   export class MediaNotOwnedError extends DomainError {
-    constructor() { super('MEDIA_NOT_OWNED', 'Media not found', undefined) } // message intentionally generic to avoid oracle
+    constructor() {
+      super('MEDIA_NOT_OWNED', 'Media not found', undefined)
+    } // message intentionally generic to avoid oracle
   }
   ```
   Map `MEDIA_NOT_OWNED` → **404** (not 403) in handler to avoid existence oracle — return "not found" whether missing or not-owned.
@@ -177,7 +190,11 @@
    export default class RoleMiddleware {
      async handle(ctx, next, options: { roles: string[] }) {
        const user = ctx.auth.user as User | undefined
-       if (!user || !options.roles.includes(user.role)) return ctx.response.forbidden({ status:'error', error:{ code:'FORBIDDEN', message:'Forbidden' } })
+       if (!user || !options.roles.includes(user.role))
+         return ctx.response.forbidden({
+           status: 'error',
+           error: { code: 'FORBIDDEN', message: 'Forbidden' },
+         })
        return next()
      }
    }
@@ -192,14 +209,14 @@
 
 ## 8. Phase 6 — Config & Transport Hardening (C5, M7, M9, M10, L5)
 
-| File | Change |
-|---|---|
-| `config/cors.ts` | `origin: (origin, cb) => allowlist check` against new `CORS_ORIGINS` env (comma-separated); `credentials:true` kept; add `PUT,PATCH` to methods only if frontend needs it |
-| `start/env.ts` | Add `CORS_ORIGINS: Env.schema.string.optional()`; document format in `.env.example` |
-| `.env.example` | Replace ALL secrets with placeholders; add `CORS_ORIGINS=http://localhost:3000`, `MAX_FILE_SIZE_MB=2`, `LOCAL_STORAGE_PATH`, `LOCAL_STORAGE_URL` (required by `start/env.ts` but missing from example) |
-| `config/bodyparser.ts` | Remove `'application/csp-report'` from JSON types; `multipart.limit` → read from env (`MAX_FILE_SIZE_MB`, default `2mb`, hard cap comment `≤10mb`) |
-| `config/database.ts` | `prettyPrintDebugQueries: env.get('NODE_ENV') === 'development'` |
-| Transport (L5) | No code change — confirm Railway/Coolify terminates TLS + sends HSTS; document in README/ops note. If self-hosted, add reverse-proxy HSTS rule (out of scope for app code). |
+| File                   | Change                                                                                                                                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `config/cors.ts`       | `origin: (origin, cb) => allowlist check` against new `CORS_ORIGINS` env (comma-separated); `credentials:true` kept; add `PUT,PATCH` to methods only if frontend needs it                              |
+| `start/env.ts`         | Add `CORS_ORIGINS: Env.schema.string.optional()`; document format in `.env.example`                                                                                                                    |
+| `.env.example`         | Replace ALL secrets with placeholders; add `CORS_ORIGINS=http://localhost:3000`, `MAX_FILE_SIZE_MB=2`, `LOCAL_STORAGE_PATH`, `LOCAL_STORAGE_URL` (required by `start/env.ts` but missing from example) |
+| `config/bodyparser.ts` | Remove `'application/csp-report'` from JSON types; `multipart.limit` → read from env (`MAX_FILE_SIZE_MB`, default `2mb`, hard cap comment `≤10mb`)                                                     |
+| `config/database.ts`   | `prettyPrintDebugQueries: env.get('NODE_ENV') === 'development'`                                                                                                                                       |
+| Transport (L5)         | No code change — confirm Railway/Coolify terminates TLS + sends HSTS; document in README/ops note. If self-hosted, add reverse-proxy HSTS rule (out of scope for app code).                            |
 
 **Verify:** cross-origin from unlisted origin gets no `Access-Control-Allow-Origin`; `csp-report` POST → 415/400; multipart over limit → 413; `stage` env shows no SQL pretty-print.
 
@@ -210,7 +227,10 @@
 - `src/shared/application/query-options/pagination.ts`: coerce in constructor:
   ```ts
   this.page = Math.max(1, Number.parseInt(String(page)) || 1)
-  this.limit = Math.min(MAX_PAGE_LIMIT, Math.max(1, Number.parseInt(String(limit)) || DEFAULT_PAGE_LIMIT))
+  this.limit = Math.min(
+    MAX_PAGE_LIMIT,
+    Math.max(1, Number.parseInt(String(limit)) || DEFAULT_PAGE_LIMIT)
+  )
   ```
 - `app_abstract_controller.ts`: `parseQueryPagination` passes raw through (Pagination now self-sanitizes) — no signature change.
 - Legacy `image_medias_controller.ts` / `document_medias_controller.ts`: apply identical actor-threading + ownership + error-shape changes as unified controller (copy the 6b/6c pattern; do not refactor to shared base — keep diff surgical).
@@ -220,14 +240,14 @@
 
 ## 10. Phase 8 — Tests & Verification
 
-| Area | Tests to add (`tests/`) |
-|---|---|
-| Error shape | Handler spec: VineJS→422 `{code,message}` only; `MEDIA_NOT_FOUND`→404 generic; unknown code→500 generic; `stage` env → no stack |
-| Auth | `register` ignores `role` injection; weak password 422; `me` without token 401; `POST /logout` 204 + token invalidated; `GET /logout` 404/405 |
-| Throttle | 6th rapid login → 429; suite uses isolated IP keys or disables throttle in test env |
-| Ownership | A-create → B-delete 404, A-delete 204; `created_by` persisted; legacy image/document same matrix |
-| RBAC | Admin deletes foreign media 204; student 404; role middleware unit spec |
-| Config | CORS unlisted origin blocked; oversize upload 413; pagination `?page=-1&limit=abc` clamps to `1/10` |
+| Area        | Tests to add (`tests/`)                                                                                                                       |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Error shape | Handler spec: VineJS→422 `{code,message}` only; `MEDIA_NOT_FOUND`→404 generic; unknown code→500 generic; `stage` env → no stack               |
+| Auth        | `register` ignores `role` injection; weak password 422; `me` without token 401; `POST /logout` 204 + token invalidated; `GET /logout` 404/405 |
+| Throttle    | 6th rapid login → 429; suite uses isolated IP keys or disables throttle in test env                                                           |
+| Ownership   | A-create → B-delete 404, A-delete 204; `created_by` persisted; legacy image/document same matrix                                              |
+| RBAC        | Admin deletes foreign media 204; student 404; role middleware unit spec                                                                       |
+| Config      | CORS unlisted origin blocked; oversize upload 413; pagination `?page=-1&limit=abc` clamps to `1/10`                                           |
 
 **Execution order:** implement Phases 1→7 sequentially (each is independently testable); run `npm run typecheck && npm run lint && node ace test` after every phase. Manual smoke: register → login → upload → cross-user delete (404) → owner delete (204) → logout.
 
@@ -258,10 +278,10 @@ database/migrations/<new>_backfill_media_created_by.ts, <new>_default_user_role.
 
 ## 12. Rollout Risks & Mitigations
 
-| Risk | Mitigation |
-|---|---|
-| `POST /logout` breaks existing clients | Ship with 301/308 redirect note + update Bruno + changelog; keep GET for one release returning `410 Gone` with migration hint (optional, cheap) |
-| Throttle locks out test suite | Disable/raise limits when `NODE_ENV=test` |
-| Legacy `created_by=NULL` rows undeletable by anyone except admin | Admin bypass covers cleanup; backfill script assigns service-account owner where known |
-| CORS allowlist blocks legit preview deploys | Support comma-separated list + document adding preview URLs |
-| Stronger password rule rejects existing users on login | Only enforced on register/change, never retroactively on login |
+| Risk                                                             | Mitigation                                                                                                                                      |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /logout` breaks existing clients                           | Ship with 301/308 redirect note + update Bruno + changelog; keep GET for one release returning `410 Gone` with migration hint (optional, cheap) |
+| Throttle locks out test suite                                    | Disable/raise limits when `NODE_ENV=test`                                                                                                       |
+| Legacy `created_by=NULL` rows undeletable by anyone except admin | Admin bypass covers cleanup; backfill script assigns service-account owner where known                                                          |
+| CORS allowlist blocks legit preview deploys                      | Support comma-separated list + document adding preview URLs                                                                                     |
+| Stronger password rule rejects existing users on login           | Only enforced on register/change, never retroactively on login                                                                                  |

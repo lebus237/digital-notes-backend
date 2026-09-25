@@ -13,12 +13,12 @@ The Digital Notes backend implements a CQRS/DDD architecture with opaque access 
 
 **Finding Counts:**
 
-| Severity | Count |
-|----------|-------|
-| Critical | 6 |
-| High | 8 |
-| Medium | 10 |
-| Low | 5 |
+| Severity  | Count  |
+| --------- | ------ |
+| Critical  | 6      |
+| High      | 8      |
+| Medium    | 10     |
+| Low       | 5      |
 | **Total** | **29** |
 
 ---
@@ -47,6 +47,7 @@ HTTP Request
 ### C1 — Credentials Committed to Version Control
 
 **Files:**
+
 - `.env.example` (lines 5, 10, 19–21)
 - `bruno/digital-notes/environments/local_dev.bru` (line 3)
 - `bruno/digital-notes/environments/stage.bru` (line 2)
@@ -57,6 +58,7 @@ HTTP Request
 **Risk:** Anyone with repo access can decrypt app data, access the database, interact with S3 storage, and impersonate users.
 
 **Recommendation:**
+
 - Rotate ALL exposed credentials immediately (APP_KEY, DB_PASSWORD, Railway S3 keys, all access tokens).
 - Replace `.env.example` values with placeholders (`APP_KEY=<generate-with-adonis-generate-key>`).
 - Add `bruno/` to `.gitignore` or use Bruno's environment variable vault.
@@ -79,6 +81,7 @@ HTTP Request
 **Risk:** Full stack traces and internal implementation details are exposed to any API consumer. Attackers can map the codebase structure, file paths, and internal module names.
 
 **Recommendation:**
+
 ```typescript
 } catch (error) {
   // Log the full error server-side
@@ -93,6 +96,7 @@ HTTP Request
 ### C3 — IDOR: No Ownership Check on Media Deletion
 
 **Files:**
+
 - `app/controllers/media/medias_controller.ts` (lines 39–44)
 - `app/controllers/media/image_medias_controller.ts` (lines 44–49)
 - `app/controllers/media/document_medias_controller.ts` (lines 44–49)
@@ -111,6 +115,7 @@ Any authenticated user can delete any media record by providing its UUID. There 
 **Risk:** Data destruction by any authenticated user. Combined with UUID predictability (sequential time-based generation), this is exploitable at scale.
 
 **Recommendation:**
+
 - Populate `created_by` on media creation (currently always `null`).
 - Add ownership verification in the delete handler: compare `media.createdBy` against the authenticated user ID.
 - Add an admin bypass for `administrator` role once RBAC is implemented.
@@ -123,14 +128,15 @@ Any authenticated user can delete any media record by providing its UUID. There 
 
 **Vulnerable Endpoints:**
 
-| Endpoint | Attack Vector |
-|----------|---------------|
-| `POST /api/register` | Mass account creation, resource exhaustion |
-| `POST /api/login` | Credential brute-force (no lockout) |
-| `POST /api/media` | Storage flooding, cost amplification |
-| `DELETE /api/media/:id` | Enumeration and mass deletion |
+| Endpoint                | Attack Vector                              |
+| ----------------------- | ------------------------------------------ |
+| `POST /api/register`    | Mass account creation, resource exhaustion |
+| `POST /api/login`       | Credential brute-force (no lockout)        |
+| `POST /api/media`       | Storage flooding, cost amplification       |
+| `DELETE /api/media/:id` | Enumeration and mass deletion              |
 
 **Recommendation:**
+
 - Install `@adonisjs/throttle` and apply to all endpoints.
 - Apply strict limits to auth endpoints (e.g., 5 login attempts per minute per IP).
 - Apply moderate limits to media upload (e.g., 20 per minute per user).
@@ -152,12 +158,14 @@ credentials: true,
 **Risk:** Cross-site request attacks from any malicious website. An attacker can craft a page that makes authenticated API calls on behalf of any visitor who has a valid session.
 
 **Recommendation:**
+
 ```typescript
 origin: [
   'https://your-frontend.com',
   'https://staging.your-frontend.com',
 ],
 ```
+
 In development, use a specific localhost origin or environment-gated wildcard.
 
 ---
@@ -165,6 +173,7 @@ In development, use a specific localhost origin or environment-gated wildcard.
 ### C6 — `created_by` Never Populated on Media Records
 
 **Files:**
+
 - `src/kernel/medias/application/command_handler/store_media.handler.ts`
 - `src/kernel/medias/application/command_handler/store_image.handler.ts`
 - `src/kernel/medias/application/command_handler/store_document.handler.ts`
@@ -174,6 +183,7 @@ The `Media` entity and DB schema have a `created_by` column, but the handler nev
 **Risk:** No ownership tracking means authorization checks are impossible. All media records are ownerless, making IDOR defense and audit trails infeasible.
 
 **Recommendation:**
+
 - Pass the authenticated user ID through the command to the handler.
 - Set `createdBy` during `Media` entity construction.
 - Make `created_by` non-nullable in a future migration.
@@ -195,6 +205,7 @@ The logout route lacks `middleware.auth()`. The controller calls `auth.use('api'
 Additionally, using GET for logout is a CSRF vector — `<img src="/api/logout">` on any page would trigger it.
 
 **Recommendation:**
+
 - Change to `router.post('/logout', [AuthController, 'logout']).use(middleware.auth())`.
 
 ---
@@ -210,6 +221,7 @@ protected debug = !app.inProduction
 When `NODE_ENV` is anything other than `production` (including `stage`), full stack traces are rendered in error responses. The environment validation schema allows `stage` as a valid value.
 
 **Recommendation:** Set `debug` to `false` explicitly, or gate it only on `development`:
+
 ```typescript
 protected debug = app.inDev
 ```
@@ -219,12 +231,14 @@ protected debug = app.inDev
 ### H3 — Internal Architecture Details Exposed in Error Messages
 
 **Files:**
+
 - `src/kernel/medias/domain/errors/media_not_found_error.ts`
 - `src/kernel/medias/domain/errors/image_not_found_error.ts`
 - `src/kernel/medias/domain/errors/document_not_found_error.ts`
 - `src/shared/infrastructure/bus/errors/handler_not_registered_error.ts`
 
 Domain errors include internal IDs and handler names in their messages and detail objects:
+
 ```
 "Media record for id: \"abc-123\" not found"
 "No handler registered for command: StoreMediaCommand"
@@ -265,6 +279,7 @@ Users can register with any email address and immediately receive an access toke
 The `UserRole` enum (`student`, `administrator`, `contributor`) and `role` column exist in the schema, but **zero enforcement** exists anywhere. All authenticated users have identical access. The `registerSchema` does not include `role`, so it may default or fail (column is `NOT NULL`).
 
 **Recommendation:**
+
 - Set a default role (e.g., `student`) during registration.
 - Implement policies or middleware to enforce role-based access.
 - Protect admin-only endpoints (user management, if added) behind role checks.
@@ -384,48 +399,48 @@ No middleware forces HTTPS or sets `Strict-Transport-Security` headers. Relies e
 
 ## Positive Findings
 
-| Area | Detail |
-|------|--------|
-| Password hashing | scrypt with strong parameters (memory-hard, GPU-resistant) |
-| Token storage | Opaque tokens, hashed in DB, raw token returned only once |
-| Token entropy | 50-byte secret length provides strong resistance to brute-force |
-| Primary keys | UUIDs (non-sequential, resistant to enumeration — though `crypto.randomUUID()` is time-based v4) |
-| Password serialization | `password_hash` excluded via `serializeAs: null` |
-| Email normalization | Lowercased on registration |
-| Environment validation | Critical env vars validated at boot via `Env.create()` |
-| Forced JSON responses | `ForceJsonResponseMiddleware` prevents HTML error pages |
-| Input validation | VineJS schemas validate at request boundary |
-| No SQL injection | Lucid ORM used exclusively, no raw queries found |
-| No command injection | No `exec()`, `eval()`, `Function()` found in source |
-| No XSS vectors | API-only backend with JSON responses, no HTML rendering |
-| S3 visibility | Storage configured as `private` (requires signed URLs for access) |
-| No console.log leaks | No `console.log/error/warn` statements found in source |
-| `.gitignore` coverage | `.env`, `.env.local`, `.env.production.local` excluded |
+| Area                   | Detail                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------ |
+| Password hashing       | scrypt with strong parameters (memory-hard, GPU-resistant)                                       |
+| Token storage          | Opaque tokens, hashed in DB, raw token returned only once                                        |
+| Token entropy          | 50-byte secret length provides strong resistance to brute-force                                  |
+| Primary keys           | UUIDs (non-sequential, resistant to enumeration — though `crypto.randomUUID()` is time-based v4) |
+| Password serialization | `password_hash` excluded via `serializeAs: null`                                                 |
+| Email normalization    | Lowercased on registration                                                                       |
+| Environment validation | Critical env vars validated at boot via `Env.create()`                                           |
+| Forced JSON responses  | `ForceJsonResponseMiddleware` prevents HTML error pages                                          |
+| Input validation       | VineJS schemas validate at request boundary                                                      |
+| No SQL injection       | Lucid ORM used exclusively, no raw queries found                                                 |
+| No command injection   | No `exec()`, `eval()`, `Function()` found in source                                              |
+| No XSS vectors         | API-only backend with JSON responses, no HTML rendering                                          |
+| S3 visibility          | Storage configured as `private` (requires signed URLs for access)                                |
+| No console.log leaks   | No `console.log/error/warn` statements found in source                                           |
+| `.gitignore` coverage  | `.env`, `.env.local`, `.env.production.local` excluded                                           |
 
 ---
 
 ## Recommendations Priority Matrix
 
-| Priority | Action | Addresses |
-|----------|--------|-----------|
-| **P0 — Immediate** | Rotate all exposed credentials, scrub `.env.example` and Bruno files | C1 |
-| **P0 — Immediate** | Replace `response.abort({ error })` with sanitized error response | C2 |
-| **P0 — Immediate** | Add ownership check to media deletion | C3 |
-| **P1 — Urgent** | Install rate limiting on all endpoints (especially `/login`, `/register`) | C4 |
-| **P1 — Urgent** | Restrict CORS origins to known frontends | C5 |
-| **P1 — Urgent** | Populate `created_by` and enforce media ownership | C6 |
-| **P1 — Urgent** | Protect logout with auth middleware, change to POST | H1 |
-| **P1 — Urgent** | Fix error handler debug mode and missing status mappings | H2, H4 |
-| **P2 — Short-term** | Implement RBAC with role enforcement | H7 |
-| **P2 — Short-term** | Add password reset and email verification flows | H5, H6 |
-| **P2 — Short-term** | Fix `auth.check()` to `auth.authenticate()` in `/me` | H8 |
-| **P2 — Short-term** | Sanitize domain error messages for client responses | H3 |
-| **P3 — Medium-term** | Strengthen password policy | M3 |
-| **P3 — Medium-term** | Add pagination validation, reduce multipart limit | M6, M9 |
-| **P3 — Medium-term** | Disable debug queries, require DB password | M7, M8 |
-| **P3 — Medium-term** | Add HTTPS enforcement and security headers | L5 |
-| **P4 — Low** | Add API versioning, deprecation headers, sunset timeline | L1, L2 |
+| Priority             | Action                                                                    | Addresses |
+| -------------------- | ------------------------------------------------------------------------- | --------- |
+| **P0 — Immediate**   | Rotate all exposed credentials, scrub `.env.example` and Bruno files      | C1        |
+| **P0 — Immediate**   | Replace `response.abort({ error })` with sanitized error response         | C2        |
+| **P0 — Immediate**   | Add ownership check to media deletion                                     | C3        |
+| **P1 — Urgent**      | Install rate limiting on all endpoints (especially `/login`, `/register`) | C4        |
+| **P1 — Urgent**      | Restrict CORS origins to known frontends                                  | C5        |
+| **P1 — Urgent**      | Populate `created_by` and enforce media ownership                         | C6        |
+| **P1 — Urgent**      | Protect logout with auth middleware, change to POST                       | H1        |
+| **P1 — Urgent**      | Fix error handler debug mode and missing status mappings                  | H2, H4    |
+| **P2 — Short-term**  | Implement RBAC with role enforcement                                      | H7        |
+| **P2 — Short-term**  | Add password reset and email verification flows                           | H5, H6    |
+| **P2 — Short-term**  | Fix `auth.check()` to `auth.authenticate()` in `/me`                      | H8        |
+| **P2 — Short-term**  | Sanitize domain error messages for client responses                       | H3        |
+| **P3 — Medium-term** | Strengthen password policy                                                | M3        |
+| **P3 — Medium-term** | Add pagination validation, reduce multipart limit                         | M6, M9    |
+| **P3 — Medium-term** | Disable debug queries, require DB password                                | M7, M8    |
+| **P3 — Medium-term** | Add HTTPS enforcement and security headers                                | L5        |
+| **P4 — Low**         | Add API versioning, deprecation headers, sunset timeline                  | L1, L2    |
 
 ---
 
-*Report generated by automated codebase analysis. Findings are based on static analysis of the source code and configuration files at the time of the audit.*
+_Report generated by automated codebase analysis. Findings are based on static analysis of the source code and configuration files at the time of the audit._
