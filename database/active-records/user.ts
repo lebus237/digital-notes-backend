@@ -9,7 +9,7 @@ import { UserRole } from '#kernel/user/domain/types/user_role'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email', 'phone_number'],
-  passwordColumnName: 'password_hash',
+  passwordColumnName: 'password',
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
