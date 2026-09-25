@@ -22,7 +22,7 @@ export interface NeonProviderConfig {
   /**
    * Optional base path prefix for all uploaded objects
    */
-  basePath?: string
+  basePath?: string | null
 
   /**
    * Optional sub-path for image objects (appended after basePath)

@@ -46,7 +46,7 @@ export class StorageProviderFactory {
 
       case ProviderType.NEON:
         return new NeonStorageProvider({
-          basePath: env.get('STORAGE_BASE_PATH'),
+          basePath: null,
           imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH'),
           documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH'),
         })
@@ -98,7 +98,7 @@ export class StorageProviderFactory {
 
       case ProviderType.NEON:
         return new NeonStorageProvider({
-          basePath: env.get('STORAGE_BASE_PATH'),
+          basePath: null,
           imageBasePath: env.get('IMAGE_STORAGE_BASE_PATH'),
           documentBasePath: env.get('DOCUMENT_STORAGE_BASE_PATH'),
         })
