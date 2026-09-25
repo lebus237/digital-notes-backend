@@ -7,7 +7,7 @@ import {
 } from '#kernel/uploads/application/command/store_upload_command'
 import { Upload } from '#kernel/uploads/domain/upload'
 import { MediaType } from '#shared/application/services/upload/types'
-import { ApplicationError } from '#shared/application/errors/application_error'
+import { InfrastructureError } from '#infra/errors/infrastructure_error'
 
 export class StoreUploadHandler implements CommandHandler<
   StoreUploadCommand,
@@ -31,8 +31,8 @@ export class StoreUploadHandler implements CommandHandler<
     )
 
     if (!upload.success) {
-      throw new ApplicationError('MEDIA_UPLOAD_FAILED', 'Upload failed', {
-        reason: upload.error,
+      throw new InfrastructureError('MEDIA_UPLOAD_FAILED', 'Upload failed', {
+        cause: upload.error,
       })
     }
 

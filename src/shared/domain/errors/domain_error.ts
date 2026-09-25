@@ -1,11 +1,13 @@
-export class DomainError extends Error {
+import { AppError, ErrorCategory } from '#shared/domain/errors/app_error'
+
+export class DomainError extends AppError {
   constructor(
-    public readonly code: string,
+    code: string,
     message: string,
-    public readonly details?: Record<string, unknown>,
-    public readonly cause?: unknown
+    category: ErrorCategory,
+    details?: Record<string, unknown>,
+    options?: ErrorOptions
   ) {
-    super(message)
-    this.name = new.target.name
+    super(code, message, category, details, options)
   }
 }

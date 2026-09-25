@@ -1,5 +1,6 @@
 import { MultipartFile } from '@adonisjs/core/bodyparser'
 import { readFile } from 'node:fs/promises'
+import { ErrorCategory } from '#shared/domain/errors/app_error'
 import { DomainError } from '#shared/domain/errors/domain_error'
 
 export class AppFile {
@@ -7,7 +8,7 @@ export class AppFile {
 
   constructor(_file: MultipartFile | null | undefined) {
     if (_file === null || _file === undefined) {
-      throw new DomainError('FILE_REQUIRED_ERROR', 'File is required')
+      throw new DomainError('FILE_REQUIRED_ERROR', 'File is required', ErrorCategory.VALIDATION)
     }
     this.file = _file
   }

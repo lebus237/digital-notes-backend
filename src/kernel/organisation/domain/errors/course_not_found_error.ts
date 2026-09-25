@@ -1,8 +1,8 @@
 import { ErrorCategory } from '#shared/domain/errors/app_error'
 import { DomainError } from '#shared/domain/errors/domain_error'
 
-export class UploadNotOwnedError extends DomainError {
+export class CourseNotFoundError extends DomainError {
   constructor() {
-    super('MEDIA_NOT_OWNED', 'Media not found', ErrorCategory.FORBIDDEN)
+    super('ORGANISATION_COURSE_NOT_FOUND', 'Course not found', ErrorCategory.NOT_FOUND)
   }
 }

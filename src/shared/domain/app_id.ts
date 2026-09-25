@@ -1,4 +1,5 @@
-import { ApplicationError } from '#shared/application/errors/application_error'
+import { ErrorCategory } from '#shared/domain/errors/app_error'
+import { DomainError } from '#shared/domain/errors/domain_error'
 import crypto from 'node:crypto'
 
 export class AppId {
@@ -13,7 +14,11 @@ export class AppId {
 
   static fromString(value: string) {
     if (!this.uuidRegex.test(value)) {
-      throw new ApplicationError('INVALID_UUID_FORMAT_STRING', `Invalid UUID: "${value}"`)
+      throw new DomainError(
+        'INVALID_UUID_FORMAT_STRING',
+        `Invalid UUID: "${value}"`,
+        ErrorCategory.VALIDATION
+      )
     }
     return new AppId(value as crypto.UUID)
   }
