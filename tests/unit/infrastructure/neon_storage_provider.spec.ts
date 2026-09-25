@@ -127,6 +127,20 @@ test.group('NeonStorageProvider', () => {
     assert.lengthOf(docsDisk.calls.delete, 0)
   })
 
+  test('should fall back to the other disk when the primary delete fails', async ({ assert }) => {
+    const { provider, mediaDisk, docsDisk } = createProvider()
+    docsDisk.delete = async (key: string) => {
+      docsDisk.calls.delete.push(key)
+      throw new Error('NotFound')
+    }
+
+    const deleted = await provider.delete('uploads/documents/report.pdf')
+
+    assert.isTrue(deleted)
+    assert.deepEqual(docsDisk.calls.delete, ['uploads/documents/report.pdf'])
+    assert.deepEqual(mediaDisk.calls.delete, ['uploads/documents/report.pdf'])
+  })
+
   test('should route signed URLs by key prefix', async ({ assert }) => {
     const { provider, mediaDisk, docsDisk } = createProvider()
 

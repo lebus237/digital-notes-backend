@@ -146,25 +146,48 @@ export class NeonStorageProvider implements StorageProviderInterface {
       await this.diskForKey(key).delete(key)
       return true
     } catch {
-      return false
+      try {
+        await this.otherDisk(this.diskForKey(key)).delete(key)
+        return true
+      } catch {
+        return false
+      }
     }
   }
 
   async getSignedUrl(key: string, expiresIn?: number): Promise<string> {
-    return this.diskForKey(key).getSignedUrl(key, {
-      expiresIn: expiresIn ?? 60 * 60 * 24, // default: 24 hours
-    })
+    const primary = this.diskForKey(key)
+    try {
+      return await primary.getSignedUrl(key, {
+        expiresIn: expiresIn ?? 60 * 60 * 24, // default: 24 hours
+      })
+    } catch {
+      return this.otherDisk(primary).getSignedUrl(key, {
+        expiresIn: expiresIn ?? 60 * 60 * 24,
+      })
+    }
   }
 
   async exists(key: string): Promise<boolean> {
-    return this.diskForKey(key).exists(key)
+    if (await this.diskForKey(key).exists(key)) {
+      return true
+    }
+    try {
+      return await this.otherDisk(this.diskForKey(key)).exists(key)
+    } catch {
+      return false
+    }
   }
 
   async getMetadata(key: string): Promise<Record<string, any> | null> {
     try {
       return await this.diskForKey(key).getMetaData(key)
     } catch {
-      return null
+      try {
+        return await this.otherDisk(this.diskForKey(key)).getMetaData(key)
+      } catch {
+        return null
+      }
     }
   }
 
@@ -179,6 +202,10 @@ export class NeonStorageProvider implements StorageProviderInterface {
    */
   private diskForKey(key: string): StorageDisk {
     return key.startsWith(this.documentPrefix) ? this.docsDisk : this.mediaDisk
+  }
+
+  private otherDisk(disk: StorageDisk): StorageDisk {
+    return disk === this.docsDisk ? this.mediaDisk : this.docsDisk
   }
 
   /**
