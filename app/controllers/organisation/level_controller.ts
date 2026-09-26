@@ -26,7 +26,7 @@ export default class LevelController extends AppAbstractController {
   async store({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createLevelSchema)
     const id = await this.handleCommand<string>(
-      new CreateLevelCommand(payload.departmentId, payload.name)
+      new CreateLevelCommand(AppId.fromString(payload.departmentId), payload.name)
     )
     return response.created({ id })
   }

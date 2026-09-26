@@ -22,8 +22,8 @@ export class DepartmentARRepository implements DepartmentRepository {
     return result.id
   }
 
-  async findById(id: string): Promise<Department | null> {
-    const record = await DepartmentRecord.find(id)
+  async findById(id: AppId): Promise<Department | null> {
+    const record = await DepartmentRecord.find(id.value)
     if (!record) return null
     return new Department(
       new AppId(record.id),

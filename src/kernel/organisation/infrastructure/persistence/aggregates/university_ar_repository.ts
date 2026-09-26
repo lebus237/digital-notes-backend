@@ -21,8 +21,8 @@ export class UniversityARRepository implements UniversityRepository {
     return result.id
   }
 
-  async findById(id: string): Promise<University | null> {
-    const record = await UniversityRecord.find(id)
+  async findById(id: AppId): Promise<University | null> {
+    const record = await UniversityRecord.find(id.value)
     if (!record) return null
     return new University(
       new AppId(record.id),

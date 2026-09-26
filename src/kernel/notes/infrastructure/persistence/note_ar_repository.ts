@@ -30,8 +30,8 @@ export class NoteARRepository implements NoteRepository {
     return result.id
   }
 
-  async findById(id: string): Promise<Note | null> {
-    const record = await NoteRecord.find(id)
+  async findById(id: AppId): Promise<Note | null> {
+    const record = await NoteRecord.find(id.value)
     if (!record) return null
     return this.toNote(record)
   }

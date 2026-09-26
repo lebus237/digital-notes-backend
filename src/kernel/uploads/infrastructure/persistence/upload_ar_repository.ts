@@ -30,8 +30,8 @@ export class UploadARRepository implements UploadRepository {
     return result.id
   }
 
-  async findById(_id: string): Promise<Upload | null> {
-    const upload = await EntityActiveRecord.find(_id)
+  async findById(id: AppId): Promise<Upload | null> {
+    const upload = await EntityActiveRecord.find(id.value)
 
     if (!upload) {
       return null

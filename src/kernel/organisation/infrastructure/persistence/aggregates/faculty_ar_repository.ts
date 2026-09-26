@@ -22,8 +22,8 @@ export class FacultyARRepository implements FacultyRepository {
     return result.id
   }
 
-  async findById(id: string): Promise<Faculty | null> {
-    const record = await FacultyRecord.find(id)
+  async findById(id: AppId): Promise<Faculty | null> {
+    const record = await FacultyRecord.find(id.value)
     if (!record) return null
     return new Faculty(
       new AppId(record.id),

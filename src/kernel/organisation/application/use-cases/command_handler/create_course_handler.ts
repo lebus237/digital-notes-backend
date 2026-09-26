@@ -31,7 +31,7 @@ export class CreateCourseHandler implements CommandHandler<CreateCourseCommand, 
       throw new LevelNotFoundError()
     }
 
-    if (level.getDepartmentId() !== command.departmentId) {
+    if (level.getDepartmentId() !== command.departmentId.value) {
       throw new InvalidHierarchyError('Level does not belong to the given department')
     }
 
@@ -44,9 +44,9 @@ export class CreateCourseHandler implements CommandHandler<CreateCourseCommand, 
     const id = (await this.courses.save(
       new Course(
         null,
-        command.departmentId,
-        command.levelId,
-        command.semesterId,
+        command.departmentId.value,
+        command.levelId.value,
+        command.semesterId.value,
         command.code,
         command.name,
         command.description,

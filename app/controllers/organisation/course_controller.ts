@@ -39,9 +39,9 @@ export default class CourseController extends AppAbstractController {
     const payload = await request.validateUsing(createCourseSchema)
     const id = await this.handleCommand<string>(
       new CreateCourseCommand(
-        payload.departmentId,
-        payload.levelId,
-        payload.semesterId,
+        AppId.fromString(payload.departmentId),
+        AppId.fromString(payload.levelId),
+        AppId.fromString(payload.semesterId),
         payload.code,
         payload.name,
         payload.description ?? null
@@ -53,13 +53,20 @@ export default class CourseController extends AppAbstractController {
   async update({ request, response }: HttpContext) {
     const payload = await request.validateUsing(updateCourseSchema)
     await this.handleCommand<void>(
-      new UpdateCourseCommand(request.param('id'), payload.code, payload.name, payload.description)
+      new UpdateCourseCommand(
+        AppId.fromString(request.param('id')),
+        payload.code,
+        payload.name,
+        payload.description
+      )
     )
     return response.noContent()
   }
 
   async archive({ request, response }: HttpContext) {
-    await this.handleCommand<void>(new ArchiveCourseCommand(request.param('id')))
+    await this.handleCommand<void>(
+      new ArchiveCourseCommand(AppId.fromString(request.param('id')))
+    )
     return response.noContent()
   }
 }

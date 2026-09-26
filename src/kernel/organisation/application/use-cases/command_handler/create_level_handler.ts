@@ -19,7 +19,7 @@ export class CreateLevelHandler implements CommandHandler<CreateLevelCommand, st
     }
 
     const id = (await this.levels.save(
-      new Level(null, command.departmentId, command.name, null, null)
+      new Level(null, command.departmentId.value, command.name, null, null)
     )) as string
 
     return id

@@ -19,7 +19,7 @@ export class CreateFacultyHandler implements CommandHandler<CreateFacultyCommand
     }
 
     const id = (await this.faculties.save(
-      new Faculty(null, command.universityId, command.name, command.slug, null, null)
+      new Faculty(null, command.universityId.value, command.name, command.slug, null, null)
     )) as string
 
     return id

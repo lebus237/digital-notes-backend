@@ -12,7 +12,7 @@ export class DeleteUploadHandler implements CommandHandler<DeleteUploadCommand> 
     private readonly mediaManager: MediaManagerInterface
   ) {}
   async handle(command: DeleteUploadCommand): Promise<void> {
-    const upload = await this.repository.findById(command.id.value)
+    const upload = await this.repository.findById(command.id)
 
     if (!upload) {
       throw new UploadNotFoundError(command.id.value)

@@ -49,7 +49,7 @@ export default class NoteController extends AppAbstractController {
 
     const id = await this.handleCommand<string>(
       new UploadNoteCommand(
-        payload.courseId,
+        AppId.fromString(payload.courseId),
         payload.title,
         payload.description ?? null,
         (payload.noteType as NoteType) ?? NoteType.LECTURE_NOTES,
@@ -65,7 +65,7 @@ export default class NoteController extends AppAbstractController {
     const payload = await request.validateUsing(updateNoteMetadataSchema)
     await this.handleCommand<void>(
       new UpdateNoteMetadataCommand(
-        request.param('id'),
+        AppId.fromString(request.param('id')),
         payload.title,
         payload.description ?? null,
         payload.price
@@ -75,17 +75,23 @@ export default class NoteController extends AppAbstractController {
   }
 
   async publish({ request, response }: HttpContext) {
-    await this.handleCommand<void>(new PublishNoteCommand(request.param('id')))
+    await this.handleCommand<void>(
+      new PublishNoteCommand(AppId.fromString(request.param('id')))
+    )
     return response.noContent()
   }
 
   async reject({ request, response }: HttpContext) {
-    await this.handleCommand<void>(new RejectNoteCommand(request.param('id')))
+    await this.handleCommand<void>(
+      new RejectNoteCommand(AppId.fromString(request.param('id')))
+    )
     return response.noContent()
   }
 
   async archive({ request, response }: HttpContext) {
-    await this.handleCommand<void>(new ArchiveNoteCommand(request.param('id')))
+    await this.handleCommand<void>(
+      new ArchiveNoteCommand(AppId.fromString(request.param('id')))
+    )
     return response.noContent()
   }
 }

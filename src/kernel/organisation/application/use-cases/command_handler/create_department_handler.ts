@@ -19,7 +19,7 @@ export class CreateDepartmentHandler implements CommandHandler<CreateDepartmentC
     }
 
     const id = (await this.departments.save(
-      new Department(null, command.facultyId, command.name, command.slug, null, null)
+      new Department(null, command.facultyId.value, command.name, command.slug, null, null)
     )) as string
 
     return id

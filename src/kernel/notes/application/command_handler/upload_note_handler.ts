@@ -42,7 +42,7 @@ export class UploadNoteHandler implements CommandHandler<UploadNoteCommand, stri
     const id = (await this.repository.save(
       new Note(
         null,
-        command.courseId,
+        command.courseId.value,
         command.title,
         command.description,
         upload.key as string,

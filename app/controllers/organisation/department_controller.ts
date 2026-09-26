@@ -26,7 +26,11 @@ export default class DepartmentController extends AppAbstractController {
   async store({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createDepartmentSchema)
     const id = await this.handleCommand<string>(
-      new CreateDepartmentCommand(payload.facultyId, payload.name, payload.slug)
+      new CreateDepartmentCommand(
+        AppId.fromString(payload.facultyId),
+        payload.name,
+        payload.slug
+      )
     )
     return response.created({ id })
   }

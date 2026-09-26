@@ -21,8 +21,8 @@ export class LevelARRepository implements LevelRepository {
     return result.id
   }
 
-  async findById(id: string): Promise<Level | null> {
-    const record = await LevelRecord.find(id)
+  async findById(id: AppId): Promise<Level | null> {
+    const record = await LevelRecord.find(id.value)
     if (!record) return null
     return new Level(
       new AppId(record.id),

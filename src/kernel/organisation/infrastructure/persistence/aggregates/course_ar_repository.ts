@@ -26,8 +26,8 @@ export class CourseARRepository implements CourseRepository {
     return result.id
   }
 
-  async findById(id: string): Promise<Course | null> {
-    const record = await CourseRecord.find(id)
+  async findById(id: AppId): Promise<Course | null> {
+    const record = await CourseRecord.find(id.value)
     if (!record) return null
     return new Course(
       new AppId(record.id),
