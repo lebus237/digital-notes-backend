@@ -1,6 +1,6 @@
 export interface CollectionResponse<TData> {
   data: TData[]
-  count: number
+  total: number
   meta: Record<string, unknown>
   analytics?: Record<string, unknown>
 }

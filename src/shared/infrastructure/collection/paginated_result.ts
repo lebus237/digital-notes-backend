@@ -3,6 +3,7 @@ import { CollectionResponse } from '#shared/application/collection/collection_re
 type PaginateJsonResult<T> = {
   meta: CollectionResponse<T>['meta']
   data: T[]
+  count: number
 }
 
 export async function mapPaginatedResult<TInput = any, TOutput = TInput>(
@@ -14,5 +15,6 @@ export async function mapPaginatedResult<TInput = any, TOutput = TInput>(
   return {
     meta: json.meta,
     data: await Promise.all(json.data.map((item) => mapper(item))),
+    total: json.count,
   }
 }
