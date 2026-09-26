@@ -1,14 +1,14 @@
-import { PaginatedResultDto } from '#shared/application/collection/paginated_result'
+import { CollectionResponse } from '#shared/application/collection/collection_response'
 
 type PaginateJsonResult<T> = {
-  meta: PaginatedResultDto<T>['meta']
+  meta: CollectionResponse<T>['meta']
   data: T[]
 }
 
 export async function mapPaginatedResult<TInput = any, TOutput = TInput>(
   paginateResult: { toJSON(): PaginateJsonResult<TInput> },
   mapper: (item: TInput) => Promise<TOutput> | TOutput
-): Promise<PaginatedResultDto<TOutput>> {
+): Promise<CollectionResponse<TOutput>> {
   const json = paginateResult.toJSON()
 
   return {
