@@ -10,6 +10,13 @@ declare module '@adonisjs/core/types' {
 
     //AGGREGATES REPOSITORY
     'UploadRepository': RepositoryInterface
+    'UniversityRepository': RepositoryInterface
+    'FacultyRepository': RepositoryInterface
+    'DepartmentRepository': RepositoryInterface
+    'LevelRepository': RepositoryInterface
+    'SemesterRepository': RepositoryInterface
+    'CourseRepository': RepositoryInterface
+    'NoteRepository': RepositoryInterface
 
     //SERVICE
     'MediaUploadService': MediaManagerInterface
