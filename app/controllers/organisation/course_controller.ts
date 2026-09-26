@@ -64,9 +64,7 @@ export default class CourseController extends AppAbstractController {
   }
 
   async archive({ request, response }: HttpContext) {
-    await this.handleCommand<void>(
-      new ArchiveCourseCommand(AppId.fromString(request.param('id')))
-    )
+    await this.handleCommand<void>(new ArchiveCourseCommand(AppId.fromString(request.param('id'))))
     return response.noContent()
   }
 }
