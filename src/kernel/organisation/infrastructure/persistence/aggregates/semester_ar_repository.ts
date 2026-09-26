@@ -23,7 +23,12 @@ export class SemesterARRepository implements SemesterRepository {
   async findById(id: string): Promise<Semester | null> {
     const record = await SemesterRecord.find(id)
     if (!record) return null
-    return new Semester(new AppId(record.id), record.name, record.createdAt as any, record.updatedAt as any)
+    return new Semester(
+      new AppId(record.id),
+      record.name,
+      record.createdAt as any,
+      record.updatedAt as any
+    )
   }
 
   async delete(id: string): Promise<void> {
