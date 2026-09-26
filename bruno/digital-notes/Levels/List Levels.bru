@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{base_url}}/api/v1/levels
+  url: {{base_url}}/api/v1/levels?page=1&limit=20&q=&departmentId=
   body: none
   auth: none
 }
@@ -13,8 +13,8 @@ get {
 params:query {
   page: 1
   limit: 20
-  q:
-  departmentId:
+  q: 
+  departmentId: 
 }
 
 tests {
