@@ -3,7 +3,7 @@ import { ApplicationError } from '#shared/application/errors/application_error'
 
 export type SortDirection = 'asc' | 'desc'
 
-export class Sort {
+export class Order {
   constructor(public entries: Record<string, SortDirection> = { created_at: 'desc' }) {
     if (Object.values(entries).find((value) => value !== 'asc' && value !== 'desc')) {
       throw new ApplicationError(

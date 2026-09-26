@@ -2,10 +2,12 @@ import { Command } from '#shared/application/use-cases/command'
 import app from '@adonisjs/core/services/app'
 import { Query } from '#shared/application/use-cases/query'
 import { ContainerBindings } from '@adonisjs/core/types'
-import { QuerySearch } from '#shared/application/query-options/query_search'
-import { Pagination } from '#shared/application/query-options/pagination'
+import { Search } from '#shared/application/read-model/search'
+import { Pagination } from '#shared/application/read-model/pagination'
 import _ from 'lodash'
-import { Sort, SortDirection } from '#shared/application/query-options/sort'
+import { Order, SortDirection } from '#shared/application/read-model/order'
+import { DateTimeUtils } from '#lib/date_time'
+import { DateRange } from '#shared/application/read-model/date_range'
 
 export class AppAbstractController {
   protected async handleCommand<ReturnType>(command: Command) {
@@ -25,7 +27,7 @@ export class AppAbstractController {
   }
 
   protected parseQuerySearch(query: Record<string, any>) {
-    return new QuerySearch(query.q || query.search)
+    return new Search(query.q || query.search)
   }
 
   protected parseQueryPagination(query: Record<string, any>) {
@@ -35,7 +37,14 @@ export class AppAbstractController {
     return new Pagination(page, limit)
   }
 
-  protected parseQuerySort(query: Record<string, any>) {
-    return new Sort(query['sort'] as Record<string, SortDirection>)
+  protected parseQueryOrder(query: Record<string, any>) {
+    return new Order(query['sort'] as Record<string, SortDirection>)
+  }
+
+  protected parseQueryDateRange(query: Record<string, any>) {
+    const fromDate = DateTimeUtils.parseISODateOrNull(query['fromDate'])
+    const toDate = DateTimeUtils.parseISODateOrNull(query['toDate'])
+
+    return new DateRange(fromDate, toDate)
   }
 }

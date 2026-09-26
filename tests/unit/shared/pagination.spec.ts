@@ -3,7 +3,7 @@ import {
   Pagination,
   DEFAULT_PAGE_LIMIT,
   MAX_PAGE_LIMIT,
-} from '#shared/application/query-options/pagination'
+} from '#shared/application/read-model/pagination'
 
 test.group('Pagination', () => {
   test('clamps negative page and non-numeric limit', ({ assert }) => {

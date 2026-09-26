@@ -1,5 +1,5 @@
-import { Pagination } from '#shared/application/query-options/pagination'
-import { Sort } from '#shared/application/query-options/sort'
+import { Pagination } from '#shared/application/read-model/pagination'
+import { Order } from '#shared/application/read-model/order'
 import { LucidModel, ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import { ExtractModelRelations } from '@adonisjs/lucid/types/relations'
 
@@ -14,7 +14,7 @@ export class ModelQueryBuilderHelper<TModel extends LucidModel = any> {
     return builder
   }
 
-  applySort(sort: Sort, sortableFields: Array<string>, builder: ModelQueryBuilderContract<TModel>) {
+  applySort(sort: Order, sortableFields: Array<string>, builder: ModelQueryBuilderContract<TModel>) {
     for (const [column, direction] of Object.entries(sort.entries)) {
       if (sortableFields.includes(column)) {
         builder.orderBy(column, direction)
