@@ -17,7 +17,7 @@ export class DepartmentARService implements DepartmentService {
     const { page, limit } = query.pagination
     const { q } = query.search
 
-    const builder = DepartmentRecord.query()
+    const builder = DepartmentRecord.query().preload('faculty')
 
     if (query.facultyId) {
       builder.where('faculty_id', query.facultyId.value)
@@ -31,7 +31,7 @@ export class DepartmentARService implements DepartmentService {
 
     return mapPaginatedResult<DepartmentRecord, DepartmentListItemData>(results, (item) => ({
       id: item.id,
-      facultyId: item.facultyId,
+      facultyName: item.faculty?.name ?? '',
       name: item.name,
       slug: item.slug,
       createdAt: item.createdAt.toISO()!,
@@ -40,7 +40,10 @@ export class DepartmentARService implements DepartmentService {
   }
 
   async viewDepartment(query: GetDepartmentQuery): Promise<DepartmentData> {
-    const department = await DepartmentRecord.find(query.id.value)
+    const department = await DepartmentRecord.query()
+      .where('id', query.id.value)
+      .preload('faculty')
+      .first()
 
     if (!department) {
       throw new DepartmentNotFoundError()
@@ -49,6 +52,7 @@ export class DepartmentARService implements DepartmentService {
     return {
       id: department.id,
       facultyId: department.facultyId,
+      facultyName: department.faculty?.name ?? '',
       name: department.name,
       slug: department.slug,
       createdAt: department.createdAt.toISO()!,

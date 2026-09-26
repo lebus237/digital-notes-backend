@@ -4,7 +4,7 @@ import { GetDepartmentQuery } from '../use-cases/query/get_department_query'
 
 export type DepartmentListItemData = {
   id: string
-  facultyId: string
+  facultyName: string
   name: string
   slug: string
   createdAt: string
@@ -14,6 +14,7 @@ export type DepartmentListItemData = {
 export type DepartmentData = {
   id: string
   facultyId: string
+  facultyName: string
   name: string
   slug: string
   createdAt: string
