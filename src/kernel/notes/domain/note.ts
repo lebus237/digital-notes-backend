@@ -1,4 +1,5 @@
 import { AppId } from '#shared/domain/app_id'
+import { DateTime } from 'luxon'
 import { ErrorCategory } from '#shared/domain/errors/app_error'
 import { DomainError } from '#shared/domain/errors/domain_error'
 
@@ -31,9 +32,9 @@ export class Note {
     private price: number,
     private status: NoteStatus,
     private readonly uploadedBy: string | null,
-    private publishedAt: Date | null,
-    private readonly createdAt: Date | null,
-    private readonly updatedAt: Date | null
+    private publishedAt: DateTime | null,
+    private readonly createdAt: DateTime | null,
+    private readonly updatedAt: DateTime | null
   ) {}
 
   getId() {
@@ -80,15 +81,15 @@ export class Note {
     return this.uploadedBy
   }
 
-  getPublishedAt(): Date | null {
+  getPublishedAt(): DateTime | null {
     return this.publishedAt
   }
 
-  getCreatedAt(): Date | null {
+  getCreatedAt(): DateTime | null {
     return this.createdAt
   }
 
-  getUpdatedAt(): Date | null {
+  getUpdatedAt(): DateTime | null {
     return this.updatedAt
   }
 
@@ -111,7 +112,7 @@ export class Note {
       )
     }
     this.status = NoteStatus.PUBLISHED
-    this.publishedAt = new Date()
+    this.publishedAt = DateTime.now()
   }
 
   reject() {

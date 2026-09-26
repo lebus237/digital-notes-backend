@@ -1,9 +1,10 @@
 import { Command } from '#shared/application/use-cases/command'
+import { DateTime } from 'luxon'
 
 export class CreateSemesterCommand implements Command {
-  readonly timestamp: Date
+  readonly timestamp: DateTime
 
   constructor(public readonly name: string) {
-    this.timestamp = new Date()
+    this.timestamp = DateTime.now()
   }
 }

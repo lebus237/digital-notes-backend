@@ -1,4 +1,5 @@
 import { AppId } from '#shared/domain/app_id'
+import { DateTime } from 'luxon'
 
 export class Course {
   constructor(
@@ -10,8 +11,8 @@ export class Course {
     private readonly name: string,
     private readonly description: string | null,
     private isArchived: boolean,
-    private readonly createdAt: Date | null,
-    private readonly updatedAt: Date | null
+    private readonly createdAt: DateTime | null,
+    private readonly updatedAt: DateTime | null
   ) {}
 
   getId() {
@@ -54,11 +55,11 @@ export class Course {
     this.isArchived = true
   }
 
-  getCreatedAt(): Date | null {
+  getCreatedAt(): DateTime | null {
     return this.createdAt
   }
 
-  getUpdatedAt(): Date | null {
+  getUpdatedAt(): DateTime | null {
     return this.updatedAt
   }
 }

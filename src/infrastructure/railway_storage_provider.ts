@@ -1,4 +1,5 @@
 import * as path from 'node:path'
+import { DateTime } from 'luxon'
 import { cuid as uuidv4 } from '@adonisjs/core/helpers'
 import { MultipartFile } from '@adonisjs/core/bodyparser'
 import drive from '@adonisjs/drive/services/main'
@@ -91,7 +92,7 @@ export class RailwayStorageProvider implements StorageProviderInterface {
           originalName: fileInfo.originalName,
           size: fileInfo.size,
           mimeType: fileInfo.mimeType,
-          uploadedAt: new Date(),
+          uploadedAt: DateTime.now(),
         },
       }
     } catch (error) {
@@ -163,7 +164,7 @@ export class RailwayStorageProvider implements StorageProviderInterface {
    * Generate a unique filename preserving the original extension.
    */
   private generateFileName(originalName: string): string {
-    const timestamp = Date.now()
+    const timestamp = DateTime.now().toMillis()
     const uuid = uuidv4()
     const extension = path.extname(originalName) || ''
     return `${timestamp}-${uuid}${extension}`

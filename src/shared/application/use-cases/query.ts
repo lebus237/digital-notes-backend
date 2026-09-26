@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 export interface Query {
-  readonly timestamp: Date
+  readonly timestamp: DateTime
 }

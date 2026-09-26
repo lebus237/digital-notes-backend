@@ -1,4 +1,5 @@
 import { AppId } from '#shared/domain/app_id'
+import { DateTime } from 'luxon'
 import { MediaType } from '#shared/application/services/upload/types'
 
 export class Upload {
@@ -11,8 +12,8 @@ export class Upload {
     private readonly mimeType: string | null,
     private readonly size: number | null,
     private readonly metadata: any,
-    private readonly createdAt: Date | null,
-    private readonly updatedAt: Date | null,
+    private readonly createdAt: DateTime | null,
+    private readonly updatedAt: DateTime | null,
     private readonly relativeKey?: string,
     private readonly createdBy: string | null = null
   ) {}
@@ -57,11 +58,11 @@ export class Upload {
     return this.relativeKey
   }
 
-  getCreatedAt(): Date | null {
+  getCreatedAt(): DateTime | null {
     return this.createdAt
   }
 
-  getUpdatedAt(): Date | null {
+  getUpdatedAt(): DateTime | null {
     return this.updatedAt
   }
 

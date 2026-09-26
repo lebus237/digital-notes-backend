@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import { DateTime } from 'luxon'
 import { DeleteUploadHandler } from '#kernel/uploads/application/command_handler/delete_upload_handler'
 import { DeleteUploadCommand } from '#kernel/uploads/application/command/delete_upload_command'
 import { UploadRepository } from '#kernel/uploads/domain/upload_repository'
@@ -21,7 +22,7 @@ test.group('DeleteUploadHandler ownership', () => {
     'image/jpeg',
     10,
     {},
-    new Date(),
+    DateTime.now(),
     null,
     'media/file.jpg',
     'user-a'

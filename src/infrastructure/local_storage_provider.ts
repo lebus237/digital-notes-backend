@@ -1,4 +1,5 @@
 import * as path from 'node:path'
+import { DateTime } from 'luxon'
 import {
   FileInfo,
   UploadOptions,
@@ -74,7 +75,7 @@ export class LocalStorageProvider implements StorageProviderInterface {
           originalName: fileInfo.originalName,
           size: fileInfo.size,
           mimeType: fileInfo.mimeType,
-          uploadedAt: new Date(),
+          uploadedAt: DateTime.now(),
         },
       }
     } catch (error) {
@@ -109,7 +110,7 @@ export class LocalStorageProvider implements StorageProviderInterface {
   }
 
   private generateFileName(originalName: string): string {
-    const timestamp = Date.now()
+    const timestamp = DateTime.now().toMillis()
     const uuid = uuidv4()
     const extension = originalName.split('.').pop()
     return `${timestamp}-${uuid}.${extension}`

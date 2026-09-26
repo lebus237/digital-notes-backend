@@ -1,9 +1,10 @@
 import { Command } from '#shared/application/use-cases/command'
+import { DateTime } from 'luxon'
 import { AppFile } from '#shared/domain/app_file'
 import { NoteType } from '#kernel/notes/domain/note'
 
 export class UploadNoteCommand implements Command {
-  readonly timestamp: Date
+  readonly timestamp: DateTime
 
   constructor(
     public readonly courseId: string,
@@ -14,6 +15,6 @@ export class UploadNoteCommand implements Command {
     public readonly file: AppFile,
     public readonly uploadedBy: string
   ) {
-    this.timestamp = new Date()
+    this.timestamp = DateTime.now()
   }
 }

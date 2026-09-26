@@ -1,6 +1,7 @@
 // Core types for the media upload system
 
 import type { StoragePath } from '#shared/application/services/upload/storage_path'
+import { DateTime } from 'luxon'
 
 export enum MediaType {
   IMAGE = 'image',
@@ -44,7 +45,7 @@ export interface UploadResult {
     originalName: string
     size: number
     mimeType: string
-    uploadedAt: Date
+    uploadedAt: DateTime
   }
 }
 

@@ -1,7 +1,8 @@
 import { Command } from '#shared/application/use-cases/command'
+import { DateTime } from 'luxon'
 
 export class UpdateCourseCommand implements Command {
-  readonly timestamp: Date
+  readonly timestamp: DateTime
 
   constructor(
     public readonly id: string,
@@ -9,6 +10,6 @@ export class UpdateCourseCommand implements Command {
     public readonly name?: string,
     public readonly description?: string | null
   ) {
-    this.timestamp = new Date()
+    this.timestamp = DateTime.now()
   }
 }

@@ -1,12 +1,13 @@
 import { Command } from '#shared/application/use-cases/command'
+import { DateTime } from 'luxon'
 
 export class CreateLevelCommand implements Command {
-  readonly timestamp: Date
+  readonly timestamp: DateTime
 
   constructor(
     public readonly departmentId: string,
     public readonly name: string
   ) {
-    this.timestamp = new Date()
+    this.timestamp = DateTime.now()
   }
 }

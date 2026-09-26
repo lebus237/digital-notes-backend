@@ -1,8 +1,9 @@
 import { Query } from '#shared/application/use-cases/query'
+import { DateTime } from 'luxon'
 import { NoteType } from '#kernel/notes/domain/note'
 
 export class ListNotesQuery implements Query {
-  readonly timestamp: Date
+  readonly timestamp: DateTime
 
   constructor(
     public readonly courseId: string,
@@ -11,6 +12,6 @@ export class ListNotesQuery implements Query {
     public readonly page: number = 1,
     public readonly limit: number = 10
   ) {
-    this.timestamp = new Date()
+    this.timestamp = DateTime.now()
   }
 }

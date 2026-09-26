@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import { DateTime } from 'luxon'
 import { StoreUploadHandler } from '#kernel/uploads/application/command_handler/store_upload.handler'
 import { StoreUploadCommand } from '#kernel/uploads/application/command/store_upload_command'
 import { UploadRepository } from '#kernel/uploads/domain/upload_repository'
@@ -30,7 +31,7 @@ test.group('StoreUploadHandler', () => {
         originalName: 'test-image.jpg',
         size: 1024,
         mimeType: 'image/jpeg',
-        uploadedAt: new Date(),
+        uploadedAt: DateTime.now(),
       },
     }),
     uploadImage: async () => ({ success: true }),
