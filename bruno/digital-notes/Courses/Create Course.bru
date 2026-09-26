@@ -1,0 +1,32 @@
+meta {
+  name: Create Course
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/courses
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "departmentId": "00000000-0000-0000-0000-000000000000",
+    "levelId": "00000000-0000-0000-0000-000000000000",
+    "semesterId": "00000000-0000-0000-0000-000000000000",
+    "code": "CSC201",
+    "name": "Introduction to Programming",
+    "description": "Basic programming concepts"
+  }
+}
+
+tests {
+  test("should return 201 on success", function() {
+    expect(res.status).toBe(201);
+  });
+
+  test("should return created id", function() {
+    expect(res.body.id).toBeTruthy();
+  });
+}

@@ -1,13 +1,17 @@
 meta {
-  name: Delete Image
+  name: Archive Note
   type: http
-  seq: 1
+  seq: 7
 }
 
-delete {
-  url: {{base_url}}/api/image-media/00000-00000000000-0
+post {
+  url: {{base_url}}/api/v1/admin/notes/:id/archive
   body: none
   auth: inherit
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
 }
 
 tests {

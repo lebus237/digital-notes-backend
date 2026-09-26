@@ -1,0 +1,28 @@
+meta {
+  name: Create University
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/universities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "University of Yaounde I",
+    "slug": "university-of-yaounde-i"
+  }
+}
+
+tests {
+  test("should return 201 on success", function() {
+    expect(res.status).toBe(201);
+  });
+
+  test("should return created id", function() {
+    expect(res.body.id).toBeTruthy();
+  });
+}

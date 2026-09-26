@@ -1,0 +1,23 @@
+meta {
+  name: List Universities
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/universities
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 1
+  limit: 20
+  q:
+}
+
+tests {
+  test("should return 200 on success", function() {
+    expect(res.status).toBe(200);
+  });
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Archive Course
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/courses/:id/archive
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+tests {
+  test("should return 204 on success", function() {
+    expect(res.status).toBe(204);
+  });
+}

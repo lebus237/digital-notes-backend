@@ -1,0 +1,30 @@
+meta {
+  name: Upload Note
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/notes
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  file: @file(path/to/note.pdf) @contentType(application/pdf)
+  courseId: 00000000-0000-0000-0000-000000000000
+  title: Introduction to Programming - Lecture 1
+  description: First lecture notes
+  noteType: LECTURE_NOTES
+  price: 0
+}
+
+tests {
+  test("should return 201 on success", function() {
+    expect(res.status).toBe(201);
+  });
+
+  test("should return created id", function() {
+    expect(res.body.id).toBeTruthy();
+  });
+}

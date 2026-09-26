@@ -1,0 +1,29 @@
+meta {
+  name: Create Department
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/departments
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "facultyId": "00000000-0000-0000-0000-000000000000",
+    "name": "Department of Computer Science",
+    "slug": "department-of-computer-science"
+  }
+}
+
+tests {
+  test("should return 201 on success", function() {
+    expect(res.status).toBe(201);
+  });
+
+  test("should return created id", function() {
+    expect(res.body.id).toBeTruthy();
+  });
+}

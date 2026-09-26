@@ -1,0 +1,29 @@
+meta {
+  name: Update Course
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{base_url}}/api/v1/admin/courses/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+body:json {
+  {
+    "code": "CSC201",
+    "name": "Introduction to Programming (Updated)",
+    "description": "Updated description"
+  }
+}
+
+tests {
+  test("should return 204 on success", function() {
+    expect(res.status).toBe(204);
+  });
+}

@@ -1,0 +1,24 @@
+meta {
+  name: List Levels
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/levels
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 1
+  limit: 20
+  q:
+  departmentId:
+}
+
+tests {
+  test("should return 200 on success", function() {
+    expect(res.status).toBe(200);
+  });
+}

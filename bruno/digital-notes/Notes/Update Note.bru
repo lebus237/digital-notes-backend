@@ -1,0 +1,29 @@
+meta {
+  name: Update Note
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{base_url}}/api/v1/admin/notes/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+body:json {
+  {
+    "title": "Introduction to Programming - Lecture 1 (Updated)",
+    "description": "Updated description",
+    "price": 500
+  }
+}
+
+tests {
+  test("should return 204 on success", function() {
+    expect(res.status).toBe(204);
+  });
+}

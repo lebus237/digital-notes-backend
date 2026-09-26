@@ -1,0 +1,21 @@
+meta {
+  name: Get Course
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/v1/courses/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+tests {
+  test("should return 200 on success", function() {
+    expect(res.status).toBe(200);
+  });
+}
