@@ -34,17 +34,18 @@ export class UniversityARService implements UniversityService {
   }
 
   async viewUniversity(query: GetUniversityQuery): Promise<UniversityData> {
-    const university = await UniversityRecord.find(query.id.value)
+    const record = await UniversityRecord.find(query.id.value)
 
-    if (!university) {
+    if (!record) {
       throw new UniversityNotFoundError()
     }
 
     return {
-      id: university.id,
-      name: university.name,
-      createdAt: university.createdAt.toISO()!,
-      updatedAt: university.updatedAt.toISO()!,
+      id: record.id,
+      name: record.name,
+      slug: record.slug,
+      createdAt: record.createdAt.toISO()!,
+      updatedAt: record.updatedAt.toISO()!,
     }
   }
 }

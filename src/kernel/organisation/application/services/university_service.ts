@@ -12,6 +12,7 @@ export type UniversityListItemData = {
 export type UniversityData = {
   id: string
   name: string
+  slug: string
   createdAt: string
   updatedAt: string
 }

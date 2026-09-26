@@ -4,7 +4,6 @@ import { GetFacultyQuery } from '../use-cases/query/get_faculty_query'
 
 export type FacultyListItemData = {
   id: string
-  universityId: string
   name: string
   slug: string
   createdAt: string

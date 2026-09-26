@@ -31,7 +31,6 @@ export class FacultyARService implements FacultyService {
 
     return mapPaginatedResult<FacultyRecord, FacultyListItemData>(results, (item) => ({
       id: item.id,
-      universityId: item.universityId,
       name: item.name,
       slug: item.slug,
       createdAt: item.createdAt.toISO()!,

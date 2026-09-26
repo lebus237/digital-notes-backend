@@ -17,7 +17,11 @@ export class CourseARService implements CourseService {
     const { page, limit } = query.pagination
     const { q } = query.search
 
-    const builder = CourseRecord.query().where('is_archived', false)
+    const builder = CourseRecord.query()
+      .where('is_archived', false)
+      .preload('department')
+      .preload('level')
+      .preload('semester')
 
     if (query.departmentId) {
       builder.where('department_id', query.departmentId.value)
@@ -41,9 +45,9 @@ export class CourseARService implements CourseService {
 
     return mapPaginatedResult<CourseRecord, CourseListItemData>(results, (item) => ({
       id: item.id,
-      departmentId: item.departmentId,
-      levelId: item.levelId,
-      semesterId: item.semesterId,
+      departmentName: item.department?.name ?? '',
+      levelName: item.level?.name ?? '',
+      semesterName: item.semester?.name ?? '',
       code: item.code,
       name: item.name,
       description: item.description,
@@ -54,7 +58,12 @@ export class CourseARService implements CourseService {
   }
 
   async viewCourse(query: GetCourseDetailQuery): Promise<CourseData> {
-    const course = await CourseRecord.find(query.id.value)
+    const course = await CourseRecord.query()
+      .where('id', query.id.value)
+      .preload('department')
+      .preload('level')
+      .preload('semester')
+      .first()
 
     if (!course || course.isArchived) {
       throw new CourseNotFoundError()
@@ -65,6 +74,9 @@ export class CourseARService implements CourseService {
       departmentId: course.departmentId,
       levelId: course.levelId,
       semesterId: course.semesterId,
+      departmentName: course.department?.name ?? '',
+      levelName: course.level?.name ?? '',
+      semesterName: course.semester?.name ?? '',
       code: course.code,
       name: course.name,
       description: course.description,

@@ -4,13 +4,11 @@ import { GetCourseDetailQuery } from '../use-cases/query/get_course_detail_query
 
 export type CourseListItemData = {
   id: string
-  departmentId: string
-  levelId: string
-  semesterId: string
+  departmentName: string
+  levelName: string
+  semesterName: string
   code: string
   name: string
-  description: string | null
-  isArchived: boolean
   createdAt: string
   updatedAt: string
 }
@@ -20,6 +18,9 @@ export type CourseData = {
   departmentId: string
   levelId: string
   semesterId: string
+  departmentName: string
+  levelName: string
+  semesterName: string
   code: string
   name: string
   description: string | null
