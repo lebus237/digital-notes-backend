@@ -14,6 +14,5 @@ export async function mapPaginatedResult<TInput = any, TOutput = TInput>(
   return {
     meta: json.meta,
     data: await Promise.all(json.data.map((item: TInput) => mapper(item))),
-    total: json.meta.total,
   }
 }
