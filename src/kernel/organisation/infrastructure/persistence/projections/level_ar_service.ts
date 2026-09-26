@@ -11,7 +11,9 @@ import { CollectionResponse } from '#shared/application/collection/collection_re
 import { mapPaginatedResult } from '#shared/infrastructure/collection/paginated_result'
 
 export class LevelARService implements LevelService {
-  async levelCollection(query: GetLevelCollectionQuery): Promise<CollectionResponse<LevelListItemData>> {
+  async levelCollection(
+    query: GetLevelCollectionQuery
+  ): Promise<CollectionResponse<LevelListItemData>> {
     const { page, limit } = query.pagination
     const { q } = query.search
 

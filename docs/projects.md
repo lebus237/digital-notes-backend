@@ -575,13 +575,13 @@ Uploaded: Sept 12
 
 Admin should be able to:
 
-* upload PDF
-* associate it with a course
-* set price
-* add description
-* preview
-* publish/unpublish
-* delete/archive
+- upload PDF
+- associate it with a course
+- set price
+- add description
+- preview
+- publish/unpublish
+- delete/archive
 
 ---
 
@@ -847,19 +847,19 @@ This is important.
 
 Don't build:
 
-* native mobile applications
-* recommendation engine
-* AI-generated notes
-* AI summarization
-* social feeds
-* messaging
-* reviews/ratings
-* complicated contributor marketplace
-* subscriptions
-* university integrations
-* sophisticated analytics
-* multi-country support
-* elaborate referral systems
+- native mobile applications
+- recommendation engine
+- AI-generated notes
+- AI summarization
+- social feeds
+- messaging
+- reviews/ratings
+- complicated contributor marketplace
+- subscriptions
+- university integrations
+- sophisticated analytics
+- multi-country support
+- elaborate referral systems
 
 Those things might eventually be useful, but they don't validate the fundamental business hypothesis.
 

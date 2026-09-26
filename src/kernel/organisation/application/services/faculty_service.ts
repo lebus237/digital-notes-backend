@@ -21,7 +21,9 @@ export type FacultyData = {
 }
 
 export interface FacultyService {
-  facultyCollection(query: GetFacultyCollectionQuery): Promise<CollectionResponse<FacultyListItemData>>
+  facultyCollection(
+    query: GetFacultyCollectionQuery
+  ): Promise<CollectionResponse<FacultyListItemData>>
 
   viewFaculty(query: GetFacultyQuery): Promise<FacultyData>
 }

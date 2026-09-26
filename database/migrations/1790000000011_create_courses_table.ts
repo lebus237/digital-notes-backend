@@ -6,9 +6,19 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().unique().notNullable()
-      table.uuid('department_id').notNullable().references('id').inTable('departments').onDelete('CASCADE')
+      table
+        .uuid('department_id')
+        .notNullable()
+        .references('id')
+        .inTable('departments')
+        .onDelete('CASCADE')
       table.uuid('level_id').notNullable().references('id').inTable('levels').onDelete('RESTRICT')
-      table.uuid('semester_id').notNullable().references('id').inTable('semesters').onDelete('RESTRICT')
+      table
+        .uuid('semester_id')
+        .notNullable()
+        .references('id')
+        .inTable('semesters')
+        .onDelete('RESTRICT')
       table.string('code').notNullable()
       table.string('name').notNullable()
       table.text('description').nullable()

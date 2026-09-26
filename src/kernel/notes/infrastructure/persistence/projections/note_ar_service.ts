@@ -12,7 +12,9 @@ import { CollectionResponse } from '#shared/application/collection/collection_re
 import { mapPaginatedResult } from '#shared/infrastructure/collection/paginated_result'
 
 export class NoteARService implements NoteService {
-  async noteCollection(query: GetNoteCollectionQuery): Promise<CollectionResponse<NoteListItemData>> {
+  async noteCollection(
+    query: GetNoteCollectionQuery
+  ): Promise<CollectionResponse<NoteListItemData>> {
     const { page, limit } = query.pagination
     const { q } = query.search
 

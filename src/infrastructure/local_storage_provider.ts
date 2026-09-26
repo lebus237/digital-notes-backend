@@ -1,10 +1,6 @@
 import * as path from 'node:path'
 import { DateTime } from 'luxon'
-import {
-  FileInfo,
-  UploadOptions,
-  UploadResult,
-} from '#shared/application/services/upload/types'
+import { FileInfo, UploadOptions, UploadResult } from '#shared/application/services/upload/types'
 import {
   DEFAULT_DOCUMENT_STORAGE_PATH,
   DEFAULT_IMAGE_STORAGE_PATH,
@@ -54,11 +50,10 @@ export class LocalStorageProvider implements StorageProviderInterface {
     try {
       const fileName = this.generateFileName(fileInfo.originalName)
       const relativeKey = path.join(
-        resolveStorageSubPath(
-          fileInfo.type,
-          fileInfo.storagePath ?? _options?.storagePath,
-          { image: this.imageBasePath, document: this.documentBasePath }
-        ),
+        resolveStorageSubPath(fileInfo.type, fileInfo.storagePath ?? _options?.storagePath, {
+          image: this.imageBasePath,
+          document: this.documentBasePath,
+        }),
         fileName
       )
 

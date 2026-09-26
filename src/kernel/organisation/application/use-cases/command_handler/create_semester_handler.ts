@@ -7,9 +7,7 @@ export class CreateSemesterHandler implements CommandHandler<CreateSemesterComma
   constructor(private readonly repository: SemesterRepository) {}
 
   async handle(command: CreateSemesterCommand): Promise<string> {
-    const id = (await this.repository.save(
-      new Semester(null, command.name, null, null)
-    )) as string
+    const id = (await this.repository.save(new Semester(null, command.name, null, null))) as string
 
     return id
   }

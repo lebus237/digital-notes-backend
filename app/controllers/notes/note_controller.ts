@@ -10,11 +10,9 @@ import { GetNoteDetailQuery } from '#kernel/notes/application/query/get_note_det
 import { AppId } from '#shared/domain/app_id'
 import { AppFile } from '#shared/domain/app_file'
 import { NoteType } from '#kernel/notes/domain/entity/note'
-import {
-  uploadNoteSchema,
-  updateNoteMetadataSchema,
-} from '#validators/note_validator'
+import { uploadNoteSchema, updateNoteMetadataSchema } from '#validators/note_validator'
 import type User from '#database/active-records/user'
+import type { NoteService } from '#kernel/notes/application/services/note_service'
 
 export default class NoteController extends AppAbstractController {
   constructor() {
@@ -23,7 +21,7 @@ export default class NoteController extends AppAbstractController {
 
   async index({ request, response }: HttpContext) {
     const qs = request.qs()
-    const service = await this.getService('NoteService')
+    const service = (await this.getService('NoteService')) as NoteService
     const result = await service.noteCollection(
       new GetNoteCollectionQuery(
         AppId.fromString(request.param('courseId') ?? qs.courseId),
@@ -37,12 +35,9 @@ export default class NoteController extends AppAbstractController {
 
   async show({ auth, request, response }: HttpContext) {
     const user = auth.user as User | undefined
-    const service = await this.getService('NoteService')
+    const service = (await this.getService('NoteService')) as NoteService
     const result = await service.viewNote(
-      new GetNoteDetailQuery(
-        AppId.fromString(request.param('id')),
-        user?.role === 'administrator'
-      )
+      new GetNoteDetailQuery(AppId.fromString(request.param('id')), user?.role === 'administrator')
     )
     return response.ok(result)
   }

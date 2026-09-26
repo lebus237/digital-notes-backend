@@ -94,10 +94,7 @@ test.group('HttpExceptionHandler', () => {
     await handler.handle(new UploadNotOwnedError(), ctx)
 
     assert.equal(sent.status, 403)
-    assert.equal(
-      (sent.body as { error: { code: string } }).error.code,
-      'MEDIA_NOT_OWNED'
-    )
+    assert.equal((sent.body as { error: { code: string } }).error.code, 'MEDIA_NOT_OWNED')
   })
 
   test('maps invalid status transitions to conflict with the domain message', async ({

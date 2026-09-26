@@ -14,7 +14,11 @@ export class ModelQueryBuilderHelper<TModel extends LucidModel = any> {
     return builder
   }
 
-  applySort(sort: Order, sortableFields: Array<string>, builder: ModelQueryBuilderContract<TModel>) {
+  applySort(
+    sort: Order,
+    sortableFields: Array<string>,
+    builder: ModelQueryBuilderContract<TModel>
+  ) {
     for (const [column, direction] of Object.entries(sort.entries)) {
       if (sortableFields.includes(column)) {
         builder.orderBy(column, direction)

@@ -4,11 +4,7 @@ import { cuid as uuidv4 } from '@adonisjs/core/helpers'
 import { MultipartFile } from '@adonisjs/core/bodyparser'
 import drive from '@adonisjs/drive/services/main'
 import { StorageProviderInterface } from '#shared/application/services/upload/storage_provider_interface'
-import {
-  FileInfo,
-  UploadOptions,
-  UploadResult,
-} from '#shared/application/services/upload/types'
+import { FileInfo, UploadOptions, UploadResult } from '#shared/application/services/upload/types'
 import {
   DEFAULT_DOCUMENT_STORAGE_PATH,
   DEFAULT_IMAGE_STORAGE_PATH,

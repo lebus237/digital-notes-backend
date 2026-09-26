@@ -179,13 +179,7 @@ test.group('StoreUploadHandler', () => {
 
     const handler = new StoreUploadHandler(createMockRepository(), mockMediaManager)
     await handler.handle(
-      new StoreUploadCommand(
-        'user-1',
-        createMockAppFile(),
-        'Test',
-        null,
-        StoragePath.DOCUMENTS
-      )
+      new StoreUploadCommand('user-1', createMockAppFile(), 'Test', null, StoragePath.DOCUMENTS)
     )
 
     assert.equal(capturedFileInfo.storagePath, StoragePath.DOCUMENTS)

@@ -12,9 +12,16 @@ export default class extends BaseSchema {
       table.string('file_key').notNullable()
       table.integer('file_size').nullable()
       table.string('mime_type').nullable()
-      table.enum('note_type', ['LECTURE_NOTES', 'SUMMARY', 'REVISION', 'PAST_EXAM', 'EXERCISES']).notNullable().defaultTo('LECTURE_NOTES')
+      table
+        .enum('note_type', ['LECTURE_NOTES', 'SUMMARY', 'REVISION', 'PAST_EXAM', 'EXERCISES'])
+        .notNullable()
+        .defaultTo('LECTURE_NOTES')
       table.integer('price').notNullable().defaultTo(0)
-      table.enum('status', ['DRAFT', 'PENDING_REVIEW', 'PUBLISHED', 'REJECTED', 'ARCHIVED']).notNullable().defaultTo('DRAFT').index()
+      table
+        .enum('status', ['DRAFT', 'PENDING_REVIEW', 'PUBLISHED', 'REJECTED', 'ARCHIVED'])
+        .notNullable()
+        .defaultTo('DRAFT')
+        .index()
       table.uuid('uploaded_by').nullable().references('id').inTable('users').onDelete('SET NULL')
       table.timestamp('published_at').nullable()
 
