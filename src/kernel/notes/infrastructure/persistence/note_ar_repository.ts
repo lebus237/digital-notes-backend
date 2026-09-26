@@ -1,5 +1,5 @@
-import { NoteRepository, NoteFilters, PaginationOptions } from '#kernel/notes/domain/note_repository'
-import { Note, NoteStatus, NoteType } from '#kernel/notes/domain/note'
+import { NoteRepository } from '#kernel/notes/domain/repository/note_repository'
+import { Note, NoteStatus, NoteType } from '#kernel/notes/domain/entity/note'
 import { default as NoteRecord } from '#database/active-records/note'
 import { AppId } from '#shared/domain/app_id'
 
@@ -36,27 +36,9 @@ export class NoteARRepository implements NoteRepository {
     return this.toNote(record)
   }
 
-  async list(filters: NoteFilters, pagination: PaginationOptions): Promise<Note[]> {
-    const query = NoteRecord.query()
-
-    query.where('course_id', filters.courseId)
-
-    if (!filters.includeUnpublished) {
-      query.where('status', NoteStatus.PUBLISHED)
-    }
-
-    if (filters.noteType) {
-      query.where('note_type', filters.noteType)
-    }
-
-    if (filters.search) {
-      query.where((builder) => {
-        builder.whereILike('title', `%${filters.search}%`)
-      })
-    }
-
-    const records = await query.paginate(pagination.page, pagination.limit)
-    return records.map((record) => this.toNote(record))
+  async delete(id: string): Promise<void> {
+    const record = await NoteRecord.findOrFail(id)
+    await record.delete()
   }
 
   private toNote(record: NoteRecord): Note {

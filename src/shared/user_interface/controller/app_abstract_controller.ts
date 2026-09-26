@@ -26,22 +26,24 @@ export class AppAbstractController {
     return await app.container.make(service)
   }
 
-  protected parseQuerySearch(query: Record<string, any>) {
+  //Query resolver
+
+  protected getQuerySearch(query: Record<string, any>) {
     return new Search(query.q || query.search)
   }
 
-  protected parseQueryPagination(query: Record<string, any>) {
+  protected getQueryPagination(query: Record<string, any>) {
     const page = query.page || query['page[offset]']
     const limit = query.limit || query['page[limit]']
 
     return new Pagination(page, limit)
   }
 
-  protected parseQueryOrder(query: Record<string, any>) {
+  protected getQuerySort(query: Record<string, any>) {
     return new Order(query['sort'] as Record<string, SortDirection>)
   }
 
-  protected parseQueryDateRange(query: Record<string, any>) {
+  protected getQueryDateRange(query: Record<string, any>) {
     const fromDate = DateTimeUtils.parseISODateOrNull(query['fromDate'])
     const toDate = DateTimeUtils.parseISODateOrNull(query['toDate'])
 

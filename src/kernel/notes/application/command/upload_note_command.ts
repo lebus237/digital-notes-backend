@@ -1,7 +1,7 @@
 import { Command } from '#shared/application/use-cases/command'
 import { DateTime } from 'luxon'
 import { AppFile } from '#shared/domain/app_file'
-import { NoteType } from '#kernel/notes/domain/note'
+import { NoteType } from '#kernel/notes/domain/entity/note'
 
 export class UploadNoteCommand implements Command {
   readonly timestamp: DateTime

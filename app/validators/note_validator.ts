@@ -1,5 +1,5 @@
 import vine from '@vinejs/vine'
-import { NoteType } from '#kernel/notes/domain/note'
+import { NoteType } from '#kernel/notes/domain/entity/note'
 
 export const uploadNoteSchema = vine.compile(
   vine.object({

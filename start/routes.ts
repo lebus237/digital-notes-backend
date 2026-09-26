@@ -11,15 +11,15 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 import { authThrottle, uploadDestroyThrottle, uploadStoreThrottle } from '#start/limiter'
 
-const UploadsController = () => import('#controllers/uploads/uploads_controller')
+const UploadController = () => import('#controllers/uploads/upload_controller')
 const AuthController = () => import('#controllers/authentication/auth_controller')
-const UniversitiesController = () => import('#controllers/organisation/universities_controller')
-const FacultiesController = () => import('#controllers/organisation/faculties_controller')
-const DepartmentsController = () => import('#controllers/organisation/departments_controller')
-const LevelsController = () => import('#controllers/organisation/levels_controller')
-const SemestersController = () => import('#controllers/organisation/semesters_controller')
-const CoursesController = () => import('#controllers/organisation/courses_controller')
-const NotesController = () => import('#controllers/notes/notes_controller')
+const UniversitiesController = () => import('#controllers/organisation/university_controller')
+const FacultyController = () => import('#controllers/organisation/faculty_controller')
+const DepartmentController = () => import('#controllers/organisation/department_controller')
+const LevelController = () => import('#controllers/organisation/level_controller')
+const SemesterController = () => import('#controllers/organisation/semester_controller')
+const CourseController = () => import('#controllers/organisation/course_controller')
+const NoteController = () => import('#controllers/notes/note_controller')
 
 router
   .group(() => {
@@ -34,7 +34,7 @@ router
 
     router.group(() => {
       router
-        .resource('uploads', UploadsController)
+        .resource('uploads', UploadController)
         .apiOnly()
         .only(['store', 'destroy'])
         .use('store', [middleware.auth(), uploadStoreThrottle])
@@ -46,33 +46,33 @@ router
 router
   .group(() => {
     router.get('/universities', [UniversitiesController, 'index'])
-    router.get('/faculties', [FacultiesController, 'index'])
-    router.get('/departments', [DepartmentsController, 'index'])
-    router.get('/levels', [LevelsController, 'index'])
-    router.get('/semesters', [SemestersController, 'index'])
-    router.get('/courses', [CoursesController, 'index'])
-    router.get('/courses/:id', [CoursesController, 'show'])
+    router.get('/faculties', [FacultyController, 'index'])
+    router.get('/departments', [DepartmentController, 'index'])
+    router.get('/levels', [LevelController, 'index'])
+    router.get('/semesters', [SemesterController, 'index'])
+    router.get('/courses', [CourseController, 'index'])
+    router.get('/courses/:id', [CourseController, 'show'])
 
-    router.get('/courses/:courseId/notes', [NotesController, 'index'])
-    router.get('/notes/:id', [NotesController, 'show'])
+    router.get('/courses/:courseId/notes', [NoteController, 'index'])
+    router.get('/notes/:id', [NoteController, 'show'])
 
     router
       .group(() => {
         router.post('/universities', [UniversitiesController, 'store'])
-        router.post('/faculties', [FacultiesController, 'store'])
-        router.post('/departments', [DepartmentsController, 'store'])
-        router.post('/levels', [LevelsController, 'store'])
-        router.post('/semesters', [SemestersController, 'store'])
+        router.post('/faculties', [FacultyController, 'store'])
+        router.post('/departments', [DepartmentController, 'store'])
+        router.post('/levels', [LevelController, 'store'])
+        router.post('/semesters', [SemesterController, 'store'])
 
-        router.post('/courses', [CoursesController, 'store'])
-        router.patch('/courses/:id', [CoursesController, 'update'])
-        router.post('/courses/:id/archive', [CoursesController, 'archive'])
+        router.post('/courses', [CourseController, 'store'])
+        router.patch('/courses/:id', [CourseController, 'update'])
+        router.post('/courses/:id/archive', [CourseController, 'archive'])
 
-        router.post('/notes', [NotesController, 'store']).use(uploadStoreThrottle)
-        router.patch('/notes/:id', [NotesController, 'update'])
-        router.post('/notes/:id/publish', [NotesController, 'publish'])
-        router.post('/notes/:id/reject', [NotesController, 'reject'])
-        router.post('/notes/:id/archive', [NotesController, 'archive'])
+        router.post('/notes', [NoteController, 'store']).use(uploadStoreThrottle)
+        router.patch('/notes/:id', [NoteController, 'update'])
+        router.post('/notes/:id/publish', [NoteController, 'publish'])
+        router.post('/notes/:id/reject', [NoteController, 'reject'])
+        router.post('/notes/:id/archive', [NoteController, 'archive'])
       })
       .prefix('/admin')
       .use([middleware.auth(), middleware.role({ roles: ['administrator'] })])

@@ -5,8 +5,8 @@ import HttpExceptionHandler from '#exceptions/handler'
 import { UploadNotFoundError } from '#kernel/uploads/domain/errors/upload_not_found_error'
 import { UploadNotOwnedError } from '#kernel/uploads/domain/errors/upload_not_owned_error'
 import { AppId } from '#shared/domain/app_id'
-import { Note } from '#kernel/notes/domain/note'
-import { NoteStatus, NoteType } from '#kernel/notes/domain/note'
+import { Note } from '#kernel/notes/domain/entity/note'
+import { NoteStatus, NoteType } from '#kernel/notes/domain/entity/note'
 
 class ProbeHandler extends HttpExceptionHandler {
   isDebug() {

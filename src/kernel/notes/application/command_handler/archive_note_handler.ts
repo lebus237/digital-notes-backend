@@ -1,6 +1,6 @@
 import { CommandHandler } from '#shared/application/use-cases/command_handler'
 import { ArchiveNoteCommand } from '#kernel/notes/application/command/archive_note_command'
-import { NoteRepository } from '#kernel/notes/domain/note_repository'
+import { NoteRepository } from '#kernel/notes/domain/repository/note_repository'
 import { NoteNotFoundError } from '#kernel/notes/domain/errors/note_not_found_error'
 
 export class ArchiveNoteHandler implements CommandHandler<ArchiveNoteCommand, void> {
