@@ -1,5 +1,11 @@
 import { test } from '@japa/runner'
-import { registerSchema, loginSchema } from '#validators/auth_validator'
+import {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  registerSchema,
+  loginSchema,
+  resetPasswordSchema,
+} from '#validators/auth_validator'
 
 test.group('registerSchema', () => {
   test('should validate valid registration data', async ({ assert }) => {
@@ -225,5 +231,82 @@ test.group('loginSchema', () => {
     const result = await loginSchema.validate(data)
 
     assert.equal(result.password, 'x')
+  })
+})
+
+test.group('forgotPasswordSchema', () => {
+  test('should validate email and normalize to lowercase', async ({ assert }) => {
+    const result = await forgotPasswordSchema.validate({ email: 'TEST@EXAMPLE.COM' })
+
+    assert.equal(result.email, 'test@example.com')
+  })
+
+  test('should accept phoneNumber without email', async ({ assert }) => {
+    const result = await forgotPasswordSchema.validate({ phoneNumber: '0712345678' })
+
+    assert.equal(result.phoneNumber, '0712345678')
+  })
+
+  test('should reject invalid email format', async ({ assert }) => {
+    try {
+      await forgotPasswordSchema.validate({ email: 'invalid-email' })
+      assert.fail('Should have thrown validation error')
+    } catch (error) {
+      assert.instanceOf(error, Error)
+    }
+  })
+})
+
+test.group('resetPasswordSchema', () => {
+  test('should validate token and password', async ({ assert }) => {
+    const result = await resetPasswordSchema.validate({
+      token: 'some-token',
+      password: 'Password123',
+    })
+
+    assert.equal(result.token, 'some-token')
+    assert.equal(result.password, 'Password123')
+  })
+
+  test('should reject weak password', async ({ assert }) => {
+    try {
+      await resetPasswordSchema.validate({ token: 'some-token', password: 'weak' })
+      assert.fail('Should have thrown validation error')
+    } catch (error) {
+      assert.instanceOf(error, Error)
+    }
+  })
+
+  test('should reject missing token', async ({ assert }) => {
+    try {
+      await resetPasswordSchema.validate({ password: 'Password123' })
+      assert.fail('Should have thrown validation error')
+    } catch (error) {
+      assert.instanceOf(error, Error)
+    }
+  })
+})
+
+test.group('changePasswordSchema', () => {
+  test('should validate current and new passwords', async ({ assert }) => {
+    const result = await changePasswordSchema.validate({
+      currentPassword: 'OldPassword123',
+      newPassword: 'NewPassword123',
+    })
+
+    assert.equal(result.currentPassword, 'OldPassword123')
+    assert.equal(result.newPassword, 'NewPassword123')
+  })
+
+  test('should reject weak new password', async ({ assert }) => {
+    try {
+      await changePasswordSchema.validate({
+        currentPassword: 'OldPassword123',
+        newPassword: 'weak',
+      })
+      assert.fail('Should have thrown validation error')
+    } catch (error) {
+      assert.instanceOf(error, Error)
+    }
   })
 })

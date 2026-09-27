@@ -29,4 +29,32 @@ test.group('AuthController', () => {
     assert.property(controller, 'logout')
     assert.typeOf(controller.logout, 'function')
   })
+
+  test('should have forgotPassword method', ({ assert }) => {
+    const controller = new AuthController()
+
+    assert.property(controller, 'forgotPassword')
+    assert.typeOf(controller.forgotPassword, 'function')
+  })
+
+  test('should have resetPassword method', ({ assert }) => {
+    const controller = new AuthController()
+
+    assert.property(controller, 'resetPassword')
+    assert.typeOf(controller.resetPassword, 'function')
+  })
+
+  test('should have changePassword method', ({ assert }) => {
+    const controller = new AuthController()
+
+    assert.property(controller, 'changePassword')
+    assert.typeOf(controller.changePassword, 'function')
+  })
+
+  test('should have adminResetPassword method', ({ assert }) => {
+    const controller = new AuthController()
+
+    assert.property(controller, 'adminResetPassword')
+    assert.typeOf(controller.adminResetPassword, 'function')
+  })
 })

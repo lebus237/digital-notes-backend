@@ -1,5 +1,10 @@
 import vine from '@vinejs/vine'
 
+const passwordRule = vine
+  .string()
+  .minLength(10)
+  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+
 export const registerSchema = vine.compile(
   vine.object({
     email: vine
@@ -16,10 +21,7 @@ export const registerSchema = vine.compile(
         return !match
       }),
 
-    password: vine
-      .string()
-      .minLength(10)
-      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/),
+    password: passwordRule,
     fullName: vine.string(),
     phoneNumber: vine
       .string()
@@ -41,5 +43,26 @@ export const loginSchema = vine.compile(
     email: vine.string().email().optional(),
     password: vine.string(),
     phoneNumber: vine.string().optional(),
+  })
+)
+
+export const forgotPasswordSchema = vine.compile(
+  vine.object({
+    email: vine.string().email().normalizeEmail({ all_lowercase: true }).optional(),
+    phoneNumber: vine.string().optional(),
+  })
+)
+
+export const resetPasswordSchema = vine.compile(
+  vine.object({
+    token: vine.string(),
+    password: passwordRule,
+  })
+)
+
+export const changePasswordSchema = vine.compile(
+  vine.object({
+    currentPassword: vine.string(),
+    newPassword: passwordRule,
   })
 )

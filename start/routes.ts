@@ -26,10 +26,15 @@ router
     router.group(() => {
       router.post('/register', [AuthController, 'register']).use(authThrottle)
       router.post('/login', [AuthController, 'login']).use(authThrottle)
+      router.post('/forgot-password', [AuthController, 'forgotPassword']).use(authThrottle)
+      router.post('/reset-password', [AuthController, 'resetPassword']).use(authThrottle)
 
       router.get('/me', [AuthController, 'me']).use(middleware.auth())
 
       router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
+      router
+        .post('/change-password', [AuthController, 'changePassword'])
+        .use([middleware.auth(), authThrottle])
     })
 
     router.group(() => {
@@ -67,6 +72,10 @@ router
         router.post('/courses', [CourseController, 'store'])
         router.patch('/courses/:id', [CourseController, 'update'])
         router.post('/courses/:id/archive', [CourseController, 'archive'])
+
+        router
+          .post('/users/:id/reset-password', [AuthController, 'adminResetPassword'])
+          .use(authThrottle)
 
         router.post('/notes', [NoteController, 'store']).use(uploadStoreThrottle)
         router.patch('/notes/:id', [NoteController, 'update'])
