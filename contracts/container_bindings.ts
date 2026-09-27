@@ -8,6 +8,7 @@ import type { DepartmentService } from '#kernel/organisation/application/service
 import type { LevelService } from '#kernel/organisation/application/services/level_service'
 import type { SemesterService } from '#kernel/organisation/application/services/semester_service'
 import type { CourseService } from '#kernel/organisation/application/services/course_service'
+import type { EmployeeService } from '#kernel/employee/application/services/employee_service'
 import type { NoteService } from '#kernel/notes/application/services/note_service'
 
 declare module '@adonisjs/core/types' {
@@ -23,6 +24,8 @@ declare module '@adonisjs/core/types' {
     'LevelRepository': RepositoryInterface
     'SemesterRepository': RepositoryInterface
     'CourseRepository': RepositoryInterface
+    'EmployeeRepository': RepositoryInterface
+    'UserRepository': RepositoryInterface
     'NoteRepository': RepositoryInterface
 
     //SERVICE
@@ -33,6 +36,7 @@ declare module '@adonisjs/core/types' {
     'LevelService': LevelService
     'SemesterService': SemesterService
     'CourseService': CourseService
+    'EmployeeService': EmployeeService
     'NoteService': NoteService
   }
 }

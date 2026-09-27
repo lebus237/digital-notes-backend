@@ -15,6 +15,7 @@ import { CreateLevelHandler } from '#kernel/organisation/application/use-cases/c
 import { CreateSemesterHandler } from '#kernel/organisation/application/use-cases/command_handler/create_semester_handler'
 import { CreateCourseHandler } from '#kernel/organisation/application/use-cases/command_handler/create_course_handler'
 import { UpdateCourseHandler } from '#kernel/organisation/application/use-cases/command_handler/update_course_handler'
+import { CreateEmployeeHandler } from '#kernel/employee/application/use-cases/command_handler/create_employee_handler'
 import { ArchiveCourseHandler } from '#kernel/organisation/application/use-cases/command_handler/archive_course_handler'
 
 export default class CqrsProvider {
@@ -59,6 +60,13 @@ export default class CqrsProvider {
       ])
       commandBus.register('UpdateCourseCommand', UpdateCourseHandler, ['CourseRepository'])
       commandBus.register('ArchiveCourseCommand', ArchiveCourseHandler, ['CourseRepository'])
+
+      //EMPLOYEE COMMANDS
+      commandBus.register('CreateEmployeeCommand', CreateEmployeeHandler, [
+        'EmployeeRepository',
+        'UniversityRepository',
+        'UserRepository',
+      ])
 
       //NOTES COMMANDS
       commandBus.register('UploadNoteCommand', UploadNoteHandler, [

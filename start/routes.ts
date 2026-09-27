@@ -19,6 +19,7 @@ const DepartmentController = () => import('#controllers/organisation/department_
 const LevelController = () => import('#controllers/organisation/level_controller')
 const SemesterController = () => import('#controllers/organisation/semester_controller')
 const CourseController = () => import('#controllers/organisation/course_controller')
+const EmployeeController = () => import('#controllers/employee/employee_controller')
 const NoteController = () => import('#controllers/notes/note_controller')
 
 router
@@ -72,6 +73,10 @@ router
         router.post('/courses', [CourseController, 'store'])
         router.patch('/courses/:id', [CourseController, 'update'])
         router.post('/courses/:id/archive', [CourseController, 'archive'])
+
+        router.get('/employees', [EmployeeController, 'index'])
+        router.get('/employees/:id', [EmployeeController, 'show'])
+        router.post('/employees', [EmployeeController, 'store'])
 
         router
           .post('/users/:id/reset-password', [AuthController, 'adminResetPassword'])

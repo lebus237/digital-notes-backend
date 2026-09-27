@@ -1,0 +1,31 @@
+meta {
+  name: Create Employee
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/employees
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "universityId": "7a66f91f-aaa2-4886-8613-1c8a85b73d4f",
+    "fullName": "John Doe",
+    "email": "john.doe@example.com",
+    "phoneNumber": "655000003",
+    "role": "contributor"
+  }
+}
+
+tests {
+  test("should return 201 on success", function() {
+    expect(res.status).toBe(201);
+  });
+  
+  test("should return created id", function() {
+    expect(res.body.id).toBeTruthy();
+  });
+}

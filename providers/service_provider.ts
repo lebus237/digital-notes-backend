@@ -6,6 +6,7 @@ import { DepartmentARService } from '#kernel/organisation/infrastructure/persist
 import { LevelARService } from '#kernel/organisation/infrastructure/persistence/projections/level_ar_service'
 import { SemesterARService } from '#kernel/organisation/infrastructure/persistence/projections/semester_ar_service'
 import { CourseARService } from '#kernel/organisation/infrastructure/persistence/projections/course_ar_service'
+import { EmployeeARService } from '#kernel/employee/infrastructure/persistence/projections/employee_ar_service'
 import { NoteARService } from '#kernel/notes/infrastructure/persistence/projections/note_ar_service'
 import UniversityController from '#controllers/organisation/university_controller'
 import FacultyController from '#controllers/organisation/faculty_controller'
@@ -13,6 +14,7 @@ import DepartmentController from '#controllers/organisation/department_controlle
 import LevelController from '#controllers/organisation/level_controller'
 import SemesterController from '#controllers/organisation/semester_controller'
 import CourseController from '#controllers/organisation/course_controller'
+import EmployeeController from '#controllers/employee/employee_controller'
 import { ApplicationService } from '@adonisjs/core/types'
 
 export default class ServiceProvider {
@@ -37,6 +39,9 @@ export default class ServiceProvider {
     this.app.container.singleton('CourseService', () => {
       return new CourseARService()
     })
+    this.app.container.singleton('EmployeeService', () => {
+      return new EmployeeARService()
+    })
     this.app.container.singleton('NoteService', () => {
       return new NoteARService()
     })
@@ -58,6 +63,9 @@ export default class ServiceProvider {
     })
     this.app.container.bind(CourseController, async (resolver) => {
       return new CourseController(await resolver.make('CourseService'))
+    })
+    this.app.container.bind(EmployeeController, async (resolver) => {
+      return new EmployeeController(await resolver.make('EmployeeService'))
     })
 
     if (this.app.nodeEnvironment !== 'test') {

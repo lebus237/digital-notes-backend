@@ -6,6 +6,8 @@ import { DepartmentARRepository } from '#kernel/organisation/infrastructure/pers
 import { LevelARRepository } from '#kernel/organisation/infrastructure/persistence/aggregates/level_ar_repository'
 import { SemesterARRepository } from '#kernel/organisation/infrastructure/persistence/aggregates/semester_ar_repository'
 import { CourseARRepository } from '#kernel/organisation/infrastructure/persistence/aggregates/course_ar_repository'
+import { EmployeeARRepository } from '#kernel/employee/infrastructure/persistence/aggregates/employee_ar_repository'
+import { UserARRepository } from '#kernel/user/infrastructure/persistence/aggregates/user_ar_repository'
 import { NoteARRepository } from '#kernel/notes/infrastructure/persistence/note_ar_repository'
 
 export default class AggregateProvider {
@@ -33,6 +35,12 @@ export default class AggregateProvider {
       })
       this.app.container.bind('CourseRepository', () => {
         return new CourseARRepository()
+      })
+      this.app.container.bind('EmployeeRepository', () => {
+        return new EmployeeARRepository()
+      })
+      this.app.container.bind('UserRepository', () => {
+        return new UserARRepository()
       })
       this.app.container.bind('NoteRepository', () => {
         return new NoteARRepository()
