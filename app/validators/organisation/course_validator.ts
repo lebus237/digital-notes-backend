@@ -9,6 +9,7 @@ export const createCourseSchema = vine.compile(
     code: sharedOrganisationRules.courseCode,
     name: sharedOrganisationRules.name,
     description: vine.string().optional(),
+    lecturerName: vine.string().minLength(2).maxLength(255).optional(),
   })
 )
 
@@ -17,5 +18,6 @@ export const updateCourseSchema = vine.compile(
     code: sharedOrganisationRules.courseCode.optional(),
     name: sharedOrganisationRules.name.optional(),
     description: vine.string().nullable().optional(),
+    lecturerName: vine.string().minLength(2).maxLength(255).nullable().optional(),
   })
 )

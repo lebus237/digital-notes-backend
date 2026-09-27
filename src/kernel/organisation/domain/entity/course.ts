@@ -10,6 +10,7 @@ export class Course {
     private readonly code: string,
     private readonly name: string,
     private readonly description: string | null,
+    private readonly lecturerName: string | null,
     private isArchived: boolean,
     private readonly createdAt: DateTime | null,
     private readonly updatedAt: DateTime | null
@@ -41,6 +42,10 @@ export class Course {
 
   getDescription(): string | null {
     return this.description
+  }
+
+  getLecturerName(): string | null {
+    return this.lecturerName
   }
 
   getIsArchived(): boolean {

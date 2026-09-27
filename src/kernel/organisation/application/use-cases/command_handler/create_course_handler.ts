@@ -50,6 +50,7 @@ export class CreateCourseHandler implements CommandHandler<CreateCourseCommand, 
         command.code,
         command.name,
         command.description,
+        command.lecturerName,
         false,
         null,
         null

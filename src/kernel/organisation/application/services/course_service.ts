@@ -9,6 +9,8 @@ export type CourseListItemData = {
   semesterName: string
   code: string
   name: string
+  lecturerName: string | null
+  isArchived: boolean
   createdAt: string
   updatedAt: string
 }
@@ -24,6 +26,7 @@ export type CourseData = {
   code: string
   name: string
   description: string | null
+  lecturerName: string | null
   isArchived: boolean
   createdAt: string
   updatedAt: string

@@ -31,6 +31,9 @@ export default class Course extends BaseModel {
   @column()
   declare description: string | null
 
+  @column({ columnName: 'lecturer_name' })
+  declare lecturerName: string | null
+
   @column({ columnName: 'is_archived' })
   declare isArchived: boolean
 

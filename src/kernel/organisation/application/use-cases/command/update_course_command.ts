@@ -9,7 +9,8 @@ export class UpdateCourseCommand implements Command {
     public readonly id: AppId,
     public readonly code?: string,
     public readonly name?: string,
-    public readonly description?: string | null
+    public readonly description?: string | null,
+    public readonly lecturerName?: string | null
   ) {
     this.timestamp = DateTime.now()
   }

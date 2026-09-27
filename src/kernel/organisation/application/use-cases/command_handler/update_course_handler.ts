@@ -23,6 +23,7 @@ export class UpdateCourseHandler implements CommandHandler<UpdateCourseCommand, 
         command.code ?? course.getCode(),
         command.name ?? course.getName(),
         command.description !== undefined ? command.description : course.getDescription(),
+        command.lecturerName !== undefined ? command.lecturerName : course.getLecturerName(),
         course.getIsArchived(),
         null,
         null

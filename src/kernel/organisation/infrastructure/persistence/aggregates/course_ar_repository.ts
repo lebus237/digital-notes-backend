@@ -12,6 +12,7 @@ export class CourseARRepository implements CourseRepository {
       code: entity.getCode(),
       name: entity.getName(),
       description: entity.getDescription(),
+      lecturerName: entity.getLecturerName(),
       isArchived: entity.getIsArchived(),
       createdAt: entity.getCreatedAt() as any,
       updatedAt: entity.getUpdatedAt() as any,
@@ -37,6 +38,7 @@ export class CourseARRepository implements CourseRepository {
       record.code,
       record.name,
       record.description,
+      record.lecturerName,
       record.isArchived,
       record.createdAt as any,
       record.updatedAt as any

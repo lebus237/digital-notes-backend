@@ -11,7 +11,8 @@ export class CreateCourseCommand implements Command {
     public readonly semesterId: AppId,
     public readonly code: string,
     public readonly name: string,
-    public readonly description: string | null = null
+    public readonly description: string | null = null,
+    public readonly lecturerName: string | null = null
   ) {
     this.timestamp = DateTime.now()
   }

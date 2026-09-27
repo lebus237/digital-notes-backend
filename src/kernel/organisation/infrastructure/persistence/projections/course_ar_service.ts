@@ -37,7 +37,10 @@ export class CourseARService implements CourseService {
 
     if (q) {
       builder.where((scoped) => {
-        scoped.whereILike('name', `%${q}%`).orWhereILike('code', `%${q}%`)
+        scoped
+          .whereILike('name', `%${q}%`)
+          .orWhereILike('code', `%${q}%`)
+          .orWhereILike('lecturer_name', `%${q}%`)
       })
     }
 
@@ -50,7 +53,7 @@ export class CourseARService implements CourseService {
       semesterName: item.semester?.name ?? '',
       code: item.code,
       name: item.name,
-      description: item.description,
+      lecturerName: item.lecturerName,
       isArchived: item.isArchived,
       createdAt: item.createdAt.toISO()!,
       updatedAt: item.updatedAt.toISO()!,
@@ -80,6 +83,7 @@ export class CourseARService implements CourseService {
       code: course.code,
       name: course.name,
       description: course.description,
+      lecturerName: course.lecturerName,
       isArchived: course.isArchived,
       createdAt: course.createdAt.toISO()!,
       updatedAt: course.updatedAt.toISO()!,

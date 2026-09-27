@@ -44,7 +44,8 @@ export default class CourseController extends AppAbstractController {
         AppId.fromString(payload.semesterId),
         payload.code,
         payload.name,
-        payload.description ?? null
+        payload.description ?? null,
+        payload.lecturerName ?? null
       )
     )
     return response.created({ id })
@@ -57,7 +58,8 @@ export default class CourseController extends AppAbstractController {
         AppId.fromString(request.param('id')),
         payload.code,
         payload.name,
-        payload.description
+        payload.description,
+        payload.lecturerName
       )
     )
     return response.noContent()
