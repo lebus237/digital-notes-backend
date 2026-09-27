@@ -8,7 +8,7 @@ import * as crypto from 'node:crypto'
 import { UserRole } from '#kernel/user/domain/types/user_role'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
-  uids: ['email', 'phone_number'],
+  uids: ['email', 'phoneNumber'],
   passwordColumnName: 'password',
 })
 
