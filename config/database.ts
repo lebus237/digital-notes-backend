@@ -3,7 +3,11 @@ import { defineConfig } from '@adonisjs/lucid'
 
 const nodeEnv = env.get('NODE_ENV')
 const dbDriver = env.get('DB_DRIVER')
-const dbSsl = env.get('DB_SSL') ?? 'false'
+const dbSsl = env.get('DB_SSL') ?? 'true'
+
+if ((nodeEnv === 'production' || nodeEnv === 'stage') && dbSsl === 'false') {
+  throw new Error("DB_SSL must be 'true' or 'no-verify' in production/stage (plaintext DB connections are refused)")
+}
 
 if (!dbDriver && env.get('DATABASE_URL')) {
   console.warn(

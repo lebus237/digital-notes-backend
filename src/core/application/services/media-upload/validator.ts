@@ -84,7 +84,6 @@ export class FileValidator {
       'image/png': 'png',
       'image/gif': 'gif',
       'image/webp': 'webp',
-      'image/svg+xml': 'svg',
       'application/pdf': 'pdf',
       'application/msword': 'doc',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',

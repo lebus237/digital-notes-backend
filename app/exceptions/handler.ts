@@ -36,12 +36,13 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     }
 
     if (error instanceof AppError && error.category !== ErrorCategory.INTERNAL) {
+      // details are logged server-side in report() and never sent to clients
+      // (prevents ID leakage and existence oracles).
       return ctx.response.status(CATEGORY_STATUS[error.category]).send({
         status: 'error',
         error: {
           code: error.code,
           message: error.message,
-          ...(error.details !== undefined ? { details: error.details } : {}),
         },
       })
     }

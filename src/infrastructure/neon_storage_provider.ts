@@ -3,6 +3,9 @@ import { DateTime } from 'luxon'
 import { cuid as uuidv4 } from '@adonisjs/core/helpers'
 import { MultipartFile } from '@adonisjs/core/bodyparser'
 import drive from '@adonisjs/drive/services/main'
+import env from '#start/env'
+
+const DEFAULT_SIGNED_URL_TTL_SECONDS = 900
 import { StorageProviderInterface } from '#shared/application/services/upload/storage_provider_interface'
 import {
   FileInfo,
@@ -66,8 +69,8 @@ export interface NeonProviderDisks {
  * Both buckets are private, but uploads keep the sibling providers' behaviour:
  * `upload.url` is the same unsigned endpoint the Railway/Contabo providers
  * return — it 403s for anonymous clients and is only useful as an opaque
- * reference. Real reads always go through `getSignedUrl`, which is also what
- * `POST /api/media` returns as `signedUrl`. Rows stay portable across branches
+ * reference. Real reads always go through `getSignedUrl` (short-lived,
+ * read-only URLs); `store` responses carry no signed URL. Rows stay portable across branches
  * this way (the persisted URL never embeds an expiring signature); just never
  * hand `url` to a consumer expecting a viewable image.
  */
@@ -157,15 +160,12 @@ export class NeonStorageProvider implements StorageProviderInterface {
   }
 
   async getSignedUrl(key: string, expiresIn?: number): Promise<string> {
+    const ttl = expiresIn ?? env.get('SIGNED_URL_TTL_SECONDS', DEFAULT_SIGNED_URL_TTL_SECONDS)
     const primary = this.diskForKey(key)
     try {
-      return await primary.getSignedUrl(key, {
-        expiresIn: expiresIn ?? 60 * 60 * 24, // default: 24 hours
-      })
+      return await primary.getSignedUrl(key, { expiresIn: ttl })
     } catch {
-      return this.otherDisk(primary).getSignedUrl(key, {
-        expiresIn: expiresIn ?? 60 * 60 * 24,
-      })
+      return this.otherDisk(primary).getSignedUrl(key, { expiresIn: ttl })
     }
   }
 

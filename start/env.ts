@@ -122,4 +122,13 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   MAX_FILE_SIZE_MB: Env.schema.number.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Signed-URL lifetime in seconds (default 900 = 15 minutes).
+  | Read-only flow: store responses carry no signed URL; clients
+  | request a fresh URL on read.
+  |----------------------------------------------------------
+  */
+  SIGNED_URL_TTL_SECONDS: Env.schema.number.optional(),
 })

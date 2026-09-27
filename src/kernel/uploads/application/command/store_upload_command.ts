@@ -6,7 +6,6 @@ import type { StoragePath } from '#shared/application/services/upload/storage_pa
 export type StoreUploadCommandReturnType = {
   id: string
   url: string
-  signedUrl: string
   type: string
 }
 

@@ -22,3 +22,11 @@ export const uploadStoreThrottle = limiter.define('uploadStore', () => {
 export const uploadDestroyThrottle = limiter.define('uploadDestroy', () => {
   return requestsOrNone(30)
 })
+
+export const publicReadThrottle = limiter.define('publicRead', () => {
+  return requestsOrNone(120)
+})
+
+export const adminWriteThrottle = limiter.define('adminWrite', () => {
+  return requestsOrNone(30)
+})

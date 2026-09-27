@@ -1,3 +1,4 @@
+import { fileTypeFromBuffer } from 'file-type'
 import { StorageProviderInterface } from '#shared/application/services/upload/storage_provider_interface'
 import {
   FileInfo,
@@ -38,8 +39,45 @@ export class MediaUploadService implements MediaManagerInterface {
     file?: MultipartFile,
     options?: UploadOptions
   ): Promise<UploadResult> {
-    // Validate file
-    const validation = FileValidator.validate(fileInfo.mimeType, fileInfo.size, options)
+    // 1. Verify bytes server-side: magic-byte sniffing beats the client-supplied
+    // multipart Content-Type. file-type returns undefined for plain-text and
+    // some office formats, which fall through to the allowlist + extension
+    // check below instead of hard-failing.
+    let effectiveMime = fileInfo.mimeType
+    try {
+      if (fileInfo.buffer && fileInfo.buffer.length > 0) {
+        const detected = await fileTypeFromBuffer(fileInfo.buffer)
+        if (detected) {
+          if (detected.mime !== fileInfo.mimeType) {
+            return {
+              success: false,
+              error: `MIME mismatch: claimed '${fileInfo.mimeType}' but content is '${detected.mime}'`,
+            }
+          }
+          effectiveMime = detected.mime
+        }
+      }
+    } catch {
+      return { success: false, error: 'Could not verify file content' }
+    }
+
+    // 2. Extension ↔ MIME consistency (case-insensitive, jpg/jpeg aliased).
+    const claimedExt = fileInfo.originalName.split('.').pop()?.toLowerCase() ?? ''
+    const expectedExt = FileValidator.getExtensionFromMimeType(effectiveMime)
+    if (expectedExt !== 'bin' && claimedExt && claimedExt !== expectedExt) {
+      const aliasOk =
+        (expectedExt === 'jpg' && claimedExt === 'jpeg') ||
+        (expectedExt === 'jpeg' && claimedExt === 'jpg')
+      if (!aliasOk) {
+        return {
+          success: false,
+          error: `Extension '.${claimedExt}' does not match MIME '${effectiveMime}' (expected '.${expectedExt}')`,
+        }
+      }
+    }
+
+    // 3. Allowlist + size check on the verified MIME.
+    const validation = FileValidator.validate(effectiveMime, fileInfo.size, options)
 
     if (!validation.valid) {
       return {
@@ -48,9 +86,13 @@ export class MediaUploadService implements MediaManagerInterface {
       }
     }
 
-    // Upload using the current provider
+    // Upload using the current provider with the verified MIME type.
     return await this.provider.upload(
-      { ...fileInfo, type: this.getMediaType(fileInfo.mimeType) as MediaType },
+      {
+        ...fileInfo,
+        mimeType: effectiveMime,
+        type: this.getMediaType(effectiveMime) as MediaType,
+      },
       file,
       options
     )

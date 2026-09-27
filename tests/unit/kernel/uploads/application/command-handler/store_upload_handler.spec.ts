@@ -53,7 +53,9 @@ test.group('StoreUploadHandler', () => {
     delete: async () => {},
   })
 
-  test('should store an image and return id, url, signedUrl and type', async ({ assert }) => {
+  test('should store an image and return id, url and type (no in-band signedUrl)', async ({
+    assert,
+  }) => {
     const handler = new StoreUploadHandler(createMockRepository(), createMockMediaManager())
     const command = new StoreUploadCommand('user-1', createMockAppFile(), 'Test Image', 'A caption')
 
@@ -61,7 +63,7 @@ test.group('StoreUploadHandler', () => {
 
     assert.equal(result.id, 'upload-123')
     assert.equal(result.url, 'https://cdn.example.com/media/test-image.jpg')
-    assert.equal(result.signedUrl, 'https://signed-url.example.com/media.jpg')
+    assert.notProperty(result, 'signedUrl')
     assert.equal(result.type, MediaType.IMAGE)
   })
 

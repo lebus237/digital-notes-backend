@@ -58,7 +58,6 @@ export class StoreUploadHandler implements CommandHandler<
     return {
       id,
       url: upload.url as string,
-      signedUrl: await this.uploadService.getSignedUrl(upload.key as string),
       type,
     }
   }

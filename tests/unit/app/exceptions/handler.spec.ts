@@ -70,7 +70,7 @@ test.group('HttpExceptionHandler', () => {
     assert.equal(handler.isDebug(), app.inDev)
   })
 
-  test('returns the domain 404 message and details', async ({ assert }) => {
+  test('returns the domain 404 message without details', async ({ assert }) => {
     const handler = new HttpExceptionHandler()
     const { sent, ctx } = captureContext()
 
@@ -82,19 +82,24 @@ test.group('HttpExceptionHandler', () => {
       error: {
         code: 'MEDIA_NOT_FOUND',
         message: 'Media not found',
-        details: { uploadId: 'media-id' },
       },
     })
   })
 
-  test('maps ownership failures to forbidden', async ({ assert }) => {
+  test('maps ownership failures to the same 404 (no oracle)', async ({ assert }) => {
     const handler = new HttpExceptionHandler()
     const { sent, ctx } = captureContext()
 
     await handler.handle(new UploadNotOwnedError(), ctx)
 
-    assert.equal(sent.status, 403)
-    assert.equal((sent.body as { error: { code: string } }).error.code, 'MEDIA_NOT_OWNED')
+    assert.equal(sent.status, 404)
+    assert.deepEqual(sent.body, {
+      status: 'error',
+      error: {
+        code: 'MEDIA_NOT_FOUND',
+        message: 'Media not found',
+      },
+    })
   })
 
   test('maps invalid status transitions to conflict with the domain message', async ({

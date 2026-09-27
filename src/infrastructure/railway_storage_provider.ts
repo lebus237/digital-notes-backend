@@ -3,7 +3,10 @@ import { DateTime } from 'luxon'
 import { cuid as uuidv4 } from '@adonisjs/core/helpers'
 import { MultipartFile } from '@adonisjs/core/bodyparser'
 import drive from '@adonisjs/drive/services/main'
+import env from '#start/env'
 import { StorageProviderInterface } from '#shared/application/services/upload/storage_provider_interface'
+
+const DEFAULT_SIGNED_URL_TTL_SECONDS = 900
 import { FileInfo, UploadOptions, UploadResult } from '#shared/application/services/upload/types'
 import {
   DEFAULT_DOCUMENT_STORAGE_PATH,
@@ -110,7 +113,7 @@ export class RailwayStorageProvider implements StorageProviderInterface {
 
   async getSignedUrl(key: string, expiresIn?: number): Promise<string> {
     return this.disk.getSignedUrl(key, {
-      expiresIn: expiresIn ?? 60 * 60 * 24, // default: 24 hours
+      expiresIn: expiresIn ?? env.get('SIGNED_URL_TTL_SECONDS', DEFAULT_SIGNED_URL_TTL_SECONDS),
     })
   }
 

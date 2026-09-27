@@ -9,7 +9,13 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
-import { authThrottle, uploadDestroyThrottle, uploadStoreThrottle } from '#start/limiter'
+import {
+  adminWriteThrottle,
+  authThrottle,
+  publicReadThrottle,
+  uploadDestroyThrottle,
+  uploadStoreThrottle,
+} from '#start/limiter'
 
 const UploadController = () => import('#controllers/uploads/upload_controller')
 const AuthController = () => import('#controllers/authentication/auth_controller')
@@ -51,42 +57,42 @@ router
 
 router
   .group(() => {
-    router.get('/universities', [UniversitiesController, 'index'])
-    router.get('/faculties', [FacultyController, 'index'])
-    router.get('/departments', [DepartmentController, 'index'])
-    router.get('/levels', [LevelController, 'index'])
-    router.get('/semesters', [SemesterController, 'index'])
-    router.get('/courses', [CourseController, 'index'])
-    router.get('/courses/:id', [CourseController, 'show'])
+    router.get('/universities', [UniversitiesController, 'index']).use(publicReadThrottle)
+    router.get('/faculties', [FacultyController, 'index']).use(publicReadThrottle)
+    router.get('/departments', [DepartmentController, 'index']).use(publicReadThrottle)
+    router.get('/levels', [LevelController, 'index']).use(publicReadThrottle)
+    router.get('/semesters', [SemesterController, 'index']).use(publicReadThrottle)
+    router.get('/courses', [CourseController, 'index']).use(publicReadThrottle)
+    router.get('/courses/:id', [CourseController, 'show']).use(publicReadThrottle)
 
-    router.get('/courses/:courseId/notes', [NoteController, 'index'])
-    router.get('/notes/:id', [NoteController, 'show'])
+    router.get('/courses/:courseId/notes', [NoteController, 'index']).use(publicReadThrottle)
+    router.get('/notes/:id', [NoteController, 'show']).use(publicReadThrottle)
 
     router
       .group(() => {
-        router.post('/universities', [UniversitiesController, 'store'])
-        router.post('/faculties', [FacultyController, 'store'])
-        router.post('/departments', [DepartmentController, 'store'])
-        router.post('/levels', [LevelController, 'store'])
-        router.post('/semesters', [SemesterController, 'store'])
+        router.post('/universities', [UniversitiesController, 'store']).use(adminWriteThrottle)
+        router.post('/faculties', [FacultyController, 'store']).use(adminWriteThrottle)
+        router.post('/departments', [DepartmentController, 'store']).use(adminWriteThrottle)
+        router.post('/levels', [LevelController, 'store']).use(adminWriteThrottle)
+        router.post('/semesters', [SemesterController, 'store']).use(adminWriteThrottle)
 
-        router.post('/courses', [CourseController, 'store'])
-        router.patch('/courses/:id', [CourseController, 'update'])
-        router.post('/courses/:id/archive', [CourseController, 'archive'])
+        router.post('/courses', [CourseController, 'store']).use(adminWriteThrottle)
+        router.patch('/courses/:id', [CourseController, 'update']).use(adminWriteThrottle)
+        router.post('/courses/:id/archive', [CourseController, 'archive']).use(adminWriteThrottle)
 
-        router.get('/employees', [EmployeeController, 'index'])
-        router.get('/employees/:id', [EmployeeController, 'show'])
-        router.post('/employees', [EmployeeController, 'store'])
+        router.get('/employees', [EmployeeController, 'index']).use(publicReadThrottle)
+        router.get('/employees/:id', [EmployeeController, 'show']).use(publicReadThrottle)
+        router.post('/employees', [EmployeeController, 'store']).use(adminWriteThrottle)
 
         router
           .post('/users/:id/reset-password', [AuthController, 'adminResetPassword'])
           .use(authThrottle)
 
         router.post('/notes', [NoteController, 'store']).use(uploadStoreThrottle)
-        router.patch('/notes/:id', [NoteController, 'update'])
-        router.post('/notes/:id/publish', [NoteController, 'publish'])
-        router.post('/notes/:id/reject', [NoteController, 'reject'])
-        router.post('/notes/:id/archive', [NoteController, 'archive'])
+        router.patch('/notes/:id', [NoteController, 'update']).use(adminWriteThrottle)
+        router.post('/notes/:id/publish', [NoteController, 'publish']).use(adminWriteThrottle)
+        router.post('/notes/:id/reject', [NoteController, 'reject']).use(adminWriteThrottle)
+        router.post('/notes/:id/archive', [NoteController, 'archive']).use(adminWriteThrottle)
       })
       .prefix('/admin')
       .use([middleware.auth(), middleware.role({ roles: ['administrator'] })])

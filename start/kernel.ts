@@ -26,6 +26,9 @@ server.use([
   () => import('#middleware/container_bindings_middleware'),
   () => import('#middleware/force_json_response_middleware'),
   () => import('@adonisjs/cors/cors_middleware'),
+  // Early size gate: must stay BEFORE the bodyparser (router stack) so
+  // oversized bodies are rejected before the parser buffers them (GHSA-xx9g).
+  () => import('#middleware/request_size_guard_middleware'),
 ])
 
 /**
@@ -34,6 +37,9 @@ server.use([
  */
 router.use([
   () => import('@adonisjs/core/bodyparser_middleware'),
+  // Post-parse guard: must stay AFTER the bodyparser, rejects dangerous
+  // field names and detects prototype pollution (GHSA-f5x2).
+  () => import('#middleware/body_guard_middleware'),
   () => import('@adonisjs/auth/initialize_auth_middleware'),
 ])
 

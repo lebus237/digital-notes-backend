@@ -13,7 +13,6 @@ export enum ImageFormat {
   PNG = 'image/png',
   GIF = 'image/gif',
   WEBP = 'image/webp',
-  SVG = 'image/svg+xml',
 }
 
 export enum DocumentFormat {
