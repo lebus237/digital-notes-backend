@@ -16,7 +16,7 @@ function allowedOrigins(): string[] {
  */
 const corsConfig = defineConfig({
   enabled: true,
-  origin: (origin) => allowedOrigins().includes(origin),
+  origin: true,
   methods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE'],
   headers: true,
   exposeHeaders: [],
