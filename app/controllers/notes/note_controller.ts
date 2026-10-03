@@ -27,9 +27,9 @@ export default class NoteController extends AppAbstractController {
     const result = await service.noteCollection(
       new GetNoteCollectionQuery(
         AppId.fromString(request.param('courseId') ?? qs.courseId),
-        (qs.noteType as NoteType) ?? null,
         this.getQueryPagination(qs),
-        this.getQuerySearch(qs)
+        this.getQuerySearch(qs),
+        this.getQueryFilter(qs)
       )
     )
     return response.ok(result)

@@ -8,6 +8,7 @@ import _ from 'lodash'
 import { Order, SortDirection } from '#shared/application/read-model/order'
 import { DateTimeUtils } from '#lib/date_time'
 import { DateRange } from '#shared/application/read-model/date_range'
+import { Filter } from '#shared/application/read-model/filter'
 
 export class AppAbstractController {
   protected async handleCommand<ReturnType>(command: Command) {
@@ -33,14 +34,23 @@ export class AppAbstractController {
   }
 
   protected getQueryPagination(query: Record<string, any>) {
-    const page = query.page || query['page[offset]']
-    const limit = query.limit || query['page[limit]']
+    const page = query.page.offset || query.page
+    const limit = query.page.limit || query.limit
 
     return new Pagination(page, limit)
   }
 
   protected getQuerySort(query: Record<string, any>) {
     return new Order(query['sort'] as Record<string, SortDirection>)
+  }
+
+  protected getQueryFilter(query: Record<string, any>) {
+    delete query.page
+    delete query.limit
+    delete query.fromDate
+    delete query.toDate
+    delete query.q
+    return new Filter(query)
   }
 
   protected getQueryDateRange(query: Record<string, any>) {

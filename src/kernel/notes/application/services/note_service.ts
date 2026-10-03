@@ -14,16 +14,12 @@ export type NotePageData = {
 
 export type NoteListItemData = {
   id: string
-  courseId: string
   title: string
-  description: string | null
   noteType: NoteType
   price: number
   status: NoteStatus
   uploadedBy: string
   providedAt: string | null
-  publishedAt: string | null
-  archivedAt: string | null
   pageCount: number
   createdAt: string
   updatedAt: string

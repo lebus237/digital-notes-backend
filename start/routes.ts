@@ -96,5 +96,12 @@ router
       })
       .prefix('/admin')
       .use([middleware.auth(), middleware.role({ roles: ['administrator'] })])
+
+    router
+      .group(() => {
+        router.post('/notes', [NoteController, 'store']).use(uploadStoreThrottle)
+        router.patch('/notes/:id', [NoteController, 'update']).use(adminWriteThrottle)
+      })
+      .use([middleware.auth(), middleware.role({ roles: ['administrator', 'contributor'] })])
   })
   .prefix('/api/v1')
