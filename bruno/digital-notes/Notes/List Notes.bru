@@ -5,24 +5,38 @@ meta {
 }
 
 get {
-  url: {{base_url}}/api/v1/courses/:courseId/notes
+  url: {{base_url}}/api/v1/courses/:courseId/notes?page[offset]=1&page[limit]=20
   body: none
   auth: none
 }
 
-params:path {
-  courseId: 00000000-0000-0000-0000-000000000000
+params:query {
+  page[offset]: 1
+  page[limit]: 20
+  ~q: 
+  ~noteType: LECTURE_NOTES
+  ~status: PUBLISHED
 }
 
-params:query {
-  page: 1
-  limit: 20
-  q:
-  noteType:
+params:path {
+  courseId: b3bdc8af-be94-41be-b895-77c93201c105
 }
 
 tests {
   test("should return 200 on success", function() {
     expect(res.status).toBe(200);
   });
+  
+  test("should return items with pageCount", function() {
+    const items = res.body.data ?? res.body.items ?? res.body;
+    if (Array.isArray(items) && items.length > 0) {
+      expect(items[0].pageCount).toBeDefined();
+    }
+  });
+}
+
+docs {
+  Lists PUBLISHED notes for a course. Each item carries pageCount
+  plus providedAt/publishedAt/archivedAt (no inline file fields;
+  fetch pages via Get Note).
 }

@@ -11,11 +11,24 @@ get {
 }
 
 params:path {
-  id: 00000000-0000-0000-0000-000000000000
+  id: e54481f6-7831-4920-8e5f-4858d5f56000
 }
 
 tests {
   test("should return 200 on success", function() {
     expect(res.status).toBe(200);
   });
+  
+  test("should return ordered pages", function() {
+    if (Array.isArray(res.body.pages) && res.body.pages.length > 1) {
+      const orders = res.body.pages.map((p) => p.sortOrder);
+      expect(orders).toEqual([...orders].sort((a, b) => a - b));
+    }
+  });
+}
+
+docs {
+  Returns a note with its ordered pages[] (each page: id, uploadId,
+  url, mimeType, size, sortOrder). Unpublished notes require an
+  administrator token.
 }

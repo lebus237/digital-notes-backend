@@ -1,0 +1,40 @@
+meta {
+  name: Create Note
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/v1/notes
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  pages: @file(C:\Users\445R G6\Downloads\Documents\clinique heaven grille tarifaire.pdf) @contentType(application/pdf)
+  courseId: b3bdc8af-be94-41be-b895-77c93201c105
+  title: Introduction to Programming - Lecture 1
+  description: First lecture notes
+  noteType: LECTURE_NOTES
+  price: 0
+  providedAt: 2026-09-27
+  pages: @file(C:\Users\445R G6\Downloads\Documents\Grille tarifaire pour chaque prestation clinique Reaven.pdf) @contentType(application/pdf)
+}
+
+tests {
+  test("should return 201 on success", function() {
+    expect(res.status).toBe(201);
+  });
+  
+  test("should return created id", function() {
+    expect(res.body.id).toBeTruthy();
+  });
+}
+
+docs {
+  Creates a multi-page note. Send one `pages` file field per page
+  (10mb max each; jpg/jpeg/png/gif/webp/pdf/doc/docx/xls/xlsx/txt).
+  Page order follows file order. noteType is one of
+  LECTURE_NOTES/SUMMARY/REVISION/PAST_EXAM/EXERCISES. New notes start
+  at DRAFT.
+}
