@@ -6,7 +6,8 @@ import { UploadNotFoundError } from '#kernel/uploads/domain/errors/upload_not_fo
 import { UploadNotOwnedError } from '#kernel/uploads/domain/errors/upload_not_owned_error'
 import { AppId } from '#shared/domain/app_id'
 import { Note } from '#kernel/notes/domain/entity/note'
-import { NoteStatus, NoteType } from '#kernel/notes/domain/entity/note'
+import { NoteStatus, NoteType } from '#kernel/organisation/domain/types/index'
+import { DateTime } from 'luxon'
 
 class ProbeHandler extends HttpExceptionHandler {
   isDebug() {
@@ -47,15 +48,15 @@ function captureContext() {
 function draftNote() {
   return new Note(
     null,
-    'course-id',
+    AppId.fromString('11111111-1111-4111-8111-111111111111'),
     'title',
     null,
-    'file-key',
-    100,
-    'application/pdf',
     NoteType.SUMMARY,
     0,
     NoteStatus.DRAFT,
+    [],
+    AppId.fromString('22222222-2222-4222-8222-222222222222'),
+    DateTime.now(),
     null,
     null,
     null,

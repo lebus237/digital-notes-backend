@@ -3,7 +3,7 @@ import { QueryBus } from '#shared/infrastructure/bus/query_bus'
 import { ApplicationService } from '@adonisjs/core/types'
 import { StoreUploadHandler } from '#kernel/uploads/application/command_handler/store_upload.handler'
 import { DeleteUploadHandler } from '#kernel/uploads/application/command_handler/delete_upload_handler'
-import { UploadNoteHandler } from '#kernel/notes/application/command_handler/upload_note_handler'
+import { CreateNoteHandler } from '#kernel/notes/application/command_handler/create_note_handler'
 import { PublishNoteHandler } from '#kernel/notes/application/command_handler/publish_note_handler'
 import { RejectNoteHandler } from '#kernel/notes/application/command_handler/reject_note_handler'
 import { ArchiveNoteHandler } from '#kernel/notes/application/command_handler/archive_note_handler'
@@ -69,9 +69,10 @@ export default class CqrsProvider {
       ])
 
       //NOTES COMMANDS
-      commandBus.register('UploadNoteCommand', UploadNoteHandler, [
+      commandBus.register('CreateNoteCommand', CreateNoteHandler, [
         'NoteRepository',
         'CourseRepository',
+        'UploadRepository',
         'MediaUploadService',
       ])
       commandBus.register('PublishNoteCommand', PublishNoteHandler, ['NoteRepository'])

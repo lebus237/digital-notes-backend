@@ -2,37 +2,23 @@ import { AppId } from '#shared/domain/app_id'
 import { DateTime } from 'luxon'
 import { ErrorCategory } from '#shared/domain/errors/app_error'
 import { DomainError } from '#shared/domain/errors/domain_error'
-
-export enum NoteType {
-  LECTURE_NOTES = 'LECTURE_NOTES',
-  SUMMARY = 'SUMMARY',
-  REVISION = 'REVISION',
-  PAST_EXAM = 'PAST_EXAM',
-  EXERCISES = 'EXERCISES',
-}
-
-export enum NoteStatus {
-  DRAFT = 'DRAFT',
-  PENDING_REVIEW = 'PENDING_REVIEW',
-  PUBLISHED = 'PUBLISHED',
-  REJECTED = 'REJECTED',
-  ARCHIVED = 'ARCHIVED',
-}
+import { NoteStatus, NoteType } from '#kernel/organisation/domain/types/index'
+import { NotePage } from './note_page'
 
 export class Note {
   constructor(
     private readonly id: AppId | null,
-    private readonly courseId: string,
+    private readonly courseId: AppId,
     private title: string,
     private description: string | null,
-    private readonly fileKey: string,
-    private readonly fileSize: number | null,
-    private readonly mimeType: string | null,
     private readonly noteType: NoteType,
     private price: number,
     private status: NoteStatus,
-    private readonly uploadedBy: string | null,
+    private readonly pages: NotePage[],
+    private readonly uploadedBy: AppId,
+    private readonly providedAt: DateTime,
     private publishedAt: DateTime | null,
+    private archivedAt: DateTime | null,
     private readonly createdAt: DateTime | null,
     private readonly updatedAt: DateTime | null
   ) {}
@@ -41,7 +27,7 @@ export class Note {
     return this.id?.value
   }
 
-  getCourseId(): string {
+  getCourseId(): AppId {
     return this.courseId
   }
 
@@ -51,18 +37,6 @@ export class Note {
 
   getDescription(): string | null {
     return this.description
-  }
-
-  getKey(): string {
-    return this.fileKey
-  }
-
-  getFileSize(): number | null {
-    return this.fileSize
-  }
-
-  getMimeType(): string | null {
-    return this.mimeType
   }
 
   getNoteType(): NoteType {
@@ -77,7 +51,11 @@ export class Note {
     return this.status
   }
 
-  getUploadedBy(): string | null {
+  getPages(): NotePage[] {
+    return this.pages
+  }
+
+  getUploadedBy(): AppId {
     return this.uploadedBy
   }
 
@@ -91,6 +69,14 @@ export class Note {
 
   getUpdatedAt(): DateTime | null {
     return this.updatedAt
+  }
+
+  getProvidedAt(): DateTime {
+    return this.providedAt
+  }
+
+  getArchivedAt(): DateTime | null {
+    return this.archivedAt
   }
 
   isVisibleToStudents(): boolean {
@@ -128,5 +114,6 @@ export class Note {
 
   archive() {
     this.status = NoteStatus.ARCHIVED
+    this.archivedAt = DateTime.now()
   }
 }

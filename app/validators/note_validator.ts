@@ -1,5 +1,5 @@
 import vine from '@vinejs/vine'
-import { NoteType } from '#kernel/notes/domain/entity/note'
+import { NoteType } from '#kernel/organisation/domain/types/index'
 
 const ALLOWED_EXTNAMES = [
   'jpg',
@@ -15,14 +15,22 @@ const ALLOWED_EXTNAMES = [
   'txt',
 ]
 
-export const uploadNoteSchema = vine.compile(
+export const createNoteSchema = vine.compile(
   vine.object({
     courseId: vine.string().uuid(),
     title: vine.string().minLength(2).maxLength(255),
     description: vine.string().optional(),
     noteType: vine.enum(Object.values(NoteType)).optional(),
     price: vine.number().min(0).optional(),
-    file: vine.file({ size: '10mb', extnames: ALLOWED_EXTNAMES }),
+    providedAt: vine.date().optional(),
+  })
+)
+
+export const createNoteFilesSchema = vine.compile(
+  vine.object({
+    pages: vine
+      .array(vine.file({ size: '10mb', extnames: ALLOWED_EXTNAMES }).optional())
+      .minLength(1),
   })
 )
 

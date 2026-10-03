@@ -1,7 +1,7 @@
 import { Pagination } from '#shared/application/read-model/pagination'
 import { Search } from '#shared/application/read-model/search'
 import { AppId } from '#shared/domain/app_id'
-import { NoteType } from '#kernel/notes/domain/entity/note'
+import { NoteType } from '#kernel/organisation/domain/types/index'
 import { Query } from '#shared/application/use-cases/query'
 import { DateTime } from 'luxon'
 
