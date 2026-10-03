@@ -83,10 +83,16 @@ export class Note {
     return this.status === NoteStatus.PUBLISHED
   }
 
-  updateMetadata(title: string, description: string | null, price: number) {
-    this.title = title
-    this.description = description
-    this.price = price
+  update(title?: string, description?: string | null, price?: number) {
+    if (title !== undefined) {
+      this.title = title
+    }
+    if (description !== undefined) {
+      this.description = description
+    }
+    if (price !== undefined) {
+      this.price = price
+    }
   }
 
   publish() {

@@ -4,13 +4,13 @@ import { CreateNoteCommand } from '#kernel/notes/application/command/create_note
 import { PublishNoteCommand } from '#kernel/notes/application/command/publish_note_command'
 import { RejectNoteCommand } from '#kernel/notes/application/command/reject_note_command'
 import { ArchiveNoteCommand } from '#kernel/notes/application/command/archive_note_command'
-import { UpdateNoteMetadataCommand } from '#kernel/notes/application/command/update_note_metadata_command'
+import { UpdateNoteCommand } from '#kernel/notes/application/command/update_note_command'
 import { GetNoteCollectionQuery } from '#kernel/notes/application/query/get_note_collection_query'
 import { GetNoteDetailQuery } from '#kernel/notes/application/query/get_note_detail_query'
 import { AppId } from '#shared/domain/app_id'
 import { AppFile } from '#shared/domain/app_file'
 import { NoteType } from '#kernel/organisation/domain/types/index'
-import { createNoteSchema, updateNoteMetadataSchema } from '#validators/note_validator'
+import { createNoteSchema, updateNoteSchema } from '#validators/note_validator'
 import { DateTime } from 'luxon'
 import type User from '#database/active-records/user'
 import type { NoteService } from '#kernel/notes/application/services/note_service'
@@ -68,12 +68,12 @@ export default class NoteController extends AppAbstractController {
   }
 
   async update({ request, response }: HttpContext) {
-    const payload = await request.validateUsing(updateNoteMetadataSchema)
+    const payload = await request.validateUsing(updateNoteSchema)
     await this.handleCommand<void>(
-      new UpdateNoteMetadataCommand(
+      new UpdateNoteCommand(
         AppId.fromString(request.param('id')),
         payload.title,
-        payload.description ?? null,
+        payload.description,
         payload.price
       )
     )

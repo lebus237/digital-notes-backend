@@ -12,11 +12,11 @@ export const createNoteSchema = vine.compile(
   })
 )
 
-export const updateNoteMetadataSchema = vine.compile(
+export const updateNoteSchema = vine.compile(
   vine.object({
-    title: vine.string().minLength(2).maxLength(255),
+    title: vine.string().minLength(2).maxLength(255).optional(),
     description: vine.string().nullable().optional(),
-    price: vine.number().min(0),
+    price: vine.number().min(0).optional(),
   })
 )
 
