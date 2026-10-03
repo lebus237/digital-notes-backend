@@ -16,6 +16,7 @@ import SemesterController from '#controllers/organisation/semester_controller'
 import CourseController from '#controllers/organisation/course_controller'
 import EmployeeController from '#controllers/employee/employee_controller'
 import { ApplicationService } from '@adonisjs/core/types'
+import NoteController from '#controllers/notes/note_controller'
 
 export default class ServiceProvider {
   constructor(protected app: ApplicationService) {}
@@ -66,6 +67,9 @@ export default class ServiceProvider {
     })
     this.app.container.bind(EmployeeController, async (resolver) => {
       return new EmployeeController(await resolver.make('EmployeeService'))
+    })
+    this.app.container.bind(NoteController, async (resolver) => {
+      return new NoteController(await resolver.make('NoteService'))
     })
 
     if (this.app.nodeEnvironment !== 'test') {

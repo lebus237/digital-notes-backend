@@ -12,19 +12,18 @@ import { AppFile } from '#shared/domain/app_file'
 import { NoteType } from '#kernel/organisation/domain/types/index'
 import { createNoteSchema, updateNoteMetadataSchema } from '#validators/note_validator'
 import { DateTime } from 'luxon'
-import type { AppId as AppIdType } from '#shared/domain/app_id'
 import type User from '#database/active-records/user'
 import type { NoteService } from '#kernel/notes/application/services/note_service'
+import { ALLOWED_RAW_UPLOAD_EXTNAMES } from '#kernel/notes/domain/constants/index'
 
 export default class NoteController extends AppAbstractController {
-  constructor() {
+  constructor(private service: NoteService) {
     super()
   }
 
   async index({ request, response }: HttpContext) {
     const qs = request.qs()
-    const service = (await this.getService('NoteService')) as NoteService
-    const result = await service.noteCollection(
+    const result = await this.service.noteCollection(
       new GetNoteCollectionQuery(
         AppId.fromString(request.param('courseId') ?? qs.courseId),
         this.getQueryPagination(qs),
@@ -37,8 +36,7 @@ export default class NoteController extends AppAbstractController {
 
   async show({ auth, request, response }: HttpContext) {
     const user = auth.user as User | undefined
-    const service = (await this.getService('NoteService')) as NoteService
-    const result = await service.viewNote(
+    const result = await this.service.viewNote(
       new GetNoteDetailQuery(AppId.fromString(request.param('id')), user?.role === 'administrator')
     )
     return response.ok(result)
@@ -47,28 +45,19 @@ export default class NoteController extends AppAbstractController {
   async store({ auth, request, response }: HttpContext) {
     const user = auth.user as User
     const payload = await request.validateUsing(createNoteSchema)
-    const pageFiles = request.files('pages', {
-      size: '10mb',
-      extnames: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'],
-    })
+    const pageFiles = request.files('pages')
 
-    if (!pageFiles || pageFiles.length === 0) {
-      return response.badRequest({
-        errors: [{ field: 'pages', message: 'At least one page file is required' }],
-      })
-    }
-
-    const pages = pageFiles.map((file, index) => ({
+    const pages = pageFiles?.map((file, index) => ({
       file: new AppFile(file),
       sortOrder: index,
     }))
 
-    const id: AppIdType = await this.handleCommand<AppIdType>(
+    const id = await this.handleCommand<AppId>(
       new CreateNoteCommand(
         AppId.fromString(payload.courseId),
         payload.title,
         payload.description ?? null,
-        (payload.noteType as NoteType) ?? NoteType.LECTURE_NOTES,
+        payload.noteType as NoteType,
         payload.price ?? 0,
         AppId.fromString(String(user.id)),
         payload.providedAt ? DateTime.fromJSDate(payload.providedAt) : DateTime.now(),

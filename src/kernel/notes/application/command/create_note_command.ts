@@ -12,7 +12,7 @@ export class CreateNoteCommand implements Command {
     public readonly title: string,
     public readonly description: string | null,
     public readonly noteType: NoteType,
-    public readonly price: number = 0,
+    public readonly price: number,
     public readonly uploadedBy: AppId,
     public readonly providedAt: DateTime,
     public readonly pages: Array<{ file: AppFile; sortOrder: number }>
