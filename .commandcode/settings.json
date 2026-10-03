@@ -1,3 +1,12 @@
 {
-  "tasteLearning": true
+  "tasteLearning": true,
+  "permissions": {
+    "allow": [
+      "Shell(Select-String:*)",
+      "Shell(Write-Host:*)",
+      "Shell(git:*)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
 }
