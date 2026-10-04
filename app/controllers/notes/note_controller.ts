@@ -14,7 +14,6 @@ import { createNoteSchema, updateNoteSchema } from '#validators/note_validator'
 import { DateTime } from 'luxon'
 import type User from '#database/active-records/user'
 import type { NoteService } from '#kernel/notes/application/services/note_service'
-import { ALLOWED_RAW_UPLOAD_EXTNAMES } from '#kernel/notes/domain/constants/index'
 
 export default class NoteController extends AppAbstractController {
   constructor(private service: NoteService) {
