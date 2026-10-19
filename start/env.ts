@@ -27,7 +27,12 @@ export default await Env.create(new URL('../', import.meta.url), {
   */
   DB_DRIVER: Env.schema.enum.optional(['neon', 'postgres'] as const),
   DATABASE_URL: Env.schema.string.optional(),
-  DB_SSL: Env.schema.enum.optional(['true', 'false', 'no-verify'] as const),
+  /*
+   * No enum here: the env validator casts the strings "true"/"false" to
+   * booleans before matching, which could never satisfy the literal
+   * choices. Allowed values are enforced in config/database.ts.
+   */
+  DB_SSL: Env.schema.string.optional(),
 
   DB_HOST: Env.schema.string.optional({ format: 'host' }),
   DB_PORT: Env.schema.number.optional(),

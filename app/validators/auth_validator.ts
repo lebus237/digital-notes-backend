@@ -2,7 +2,7 @@ import vine from '@vinejs/vine'
 
 const passwordRule = vine
   .string()
-  .minLength(10)
+  .minLength(6)
   .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
 
 export const registerSchema = vine.compile(

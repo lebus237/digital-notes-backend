@@ -5,6 +5,10 @@ const nodeEnv = env.get('NODE_ENV')
 const dbDriver = env.get('DB_DRIVER')
 const dbSsl = env.get('DB_SSL') ?? 'true'
 
+if (dbSsl && !['true', 'false', 'no-verify'].includes(dbSsl)) {
+  throw new Error(`DB_SSL must be one of 'true', 'false', 'no-verify' (received: '${dbSsl}')`)
+}
+
 if ((nodeEnv === 'production' || nodeEnv === 'stage') && dbSsl === 'false') {
   throw new Error("DB_SSL must be 'true' or 'no-verify' in production/stage (plaintext DB connections are refused)")
 }
