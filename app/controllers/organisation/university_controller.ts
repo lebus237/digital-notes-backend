@@ -22,9 +22,7 @@ export default class UniversityController extends AppAbstractController {
 
   async store({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createUniversitySchema)
-    const id = await this.handleCommand<string>(
-      new CreateUniversityCommand(payload.name, payload.slug)
-    )
+    const id = await this.handleCommand<string>(new CreateUniversityCommand(payload.name))
     return response.created({ id })
   }
 }

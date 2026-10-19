@@ -5,6 +5,5 @@ export const createDepartmentSchema = vine.compile(
   vine.object({
     facultyId: vine.string().uuid(),
     name: sharedOrganisationRules.name,
-    slug: sharedOrganisationRules.slug,
   })
 )

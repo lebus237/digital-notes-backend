@@ -7,8 +7,7 @@ export class CreateFacultyCommand implements Command {
 
   constructor(
     public readonly universityId: AppId,
-    public readonly name: string,
-    public readonly slug: string
+    public readonly name: string
   ) {
     this.timestamp = DateTime.now()
   }

@@ -4,6 +4,7 @@ import { DepartmentRepository } from '#kernel/organisation/domain/repository/dep
 import { FacultyRepository } from '#kernel/organisation/domain/repository/faculty_repository'
 import { Department } from '#kernel/organisation/domain/entity/department'
 import { FacultyNotFoundError } from '#kernel/organisation/domain/errors/faculty_not_found_error'
+import { generateUniqueSlug } from '#shared/domain/slug'
 
 export class CreateDepartmentHandler implements CommandHandler<CreateDepartmentCommand, string> {
   constructor(
@@ -19,7 +20,14 @@ export class CreateDepartmentHandler implements CommandHandler<CreateDepartmentC
     }
 
     const id = (await this.departments.save(
-      new Department(null, command.facultyId.value, command.name, command.slug, null, null)
+      new Department(
+        null,
+        command.facultyId.value,
+        command.name,
+        generateUniqueSlug(command.name),
+        null,
+        null
+      )
     )) as string
 
     return id

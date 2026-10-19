@@ -4,6 +4,5 @@ import { sharedOrganisationRules } from '#validators/organisation/shared_organis
 export const createUniversitySchema = vine.compile(
   vine.object({
     name: sharedOrganisationRules.name,
-    slug: sharedOrganisationRules.slug,
   })
 )

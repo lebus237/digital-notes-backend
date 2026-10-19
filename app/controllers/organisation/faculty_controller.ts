@@ -26,11 +26,7 @@ export default class FacultyController extends AppAbstractController {
   async store({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createFacultySchema)
     const id = await this.handleCommand<string>(
-      new CreateFacultyCommand(
-        AppId.fromString(payload.universityId),
-        payload.name,
-        payload.slug
-      )
+      new CreateFacultyCommand(AppId.fromString(payload.universityId), payload.name)
     )
     return response.created({ id })
   }
