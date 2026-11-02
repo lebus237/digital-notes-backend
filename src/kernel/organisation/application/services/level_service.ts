@@ -6,6 +6,7 @@ export type LevelListItemData = {
   id: string
   departmentId: string
   name: string
+  year: number
   createdAt: string
   updatedAt: string
 }
@@ -14,6 +15,7 @@ export type LevelData = {
   id: string
   departmentId: string
   name: string
+  year: number
   createdAt: string
   updatedAt: string
 }

@@ -176,7 +176,7 @@ test.group('Organisation / catalogue', (group) => {
     const level = await client
       .post('/api/v1/admin/levels')
       .bearerToken(token)
-      .json({ departmentId: structure.department.id, name: 'Year Four' })
+      .json({ departmentId: structure.department.id, name: 'Year Four', year: 4 })
     level.assertStatus(201)
 
     const semester = await client
@@ -196,6 +196,10 @@ test.group('Organisation / catalogue', (group) => {
     levels.assertStatus(200)
     assert.lengthOf(levels.body().data, 2)
     assert.equal(levels.body().data[0].departmentId, structure.department.id)
+    assert.deepEqual(
+      levels.body().data.map((item: { year: number }) => item.year),
+      [1, 4]
+    )
 
     const semesters = await client
       .get('/api/v1/semesters')
@@ -243,5 +247,59 @@ test.group('Organisation / catalogue', (group) => {
 
     response.assertStatus(422)
     assert.equal(response.body().error.code, 'VALIDATION_ERROR')
+  })
+
+  test('validates level year and rejects duplicate years', async ({ client, assert }) => {
+    const admin = await createAdmin()
+    const token = await loginAs(client, admin)
+    const structure = await seedAcademicStructure()
+
+    const missingYear = await client
+      .post('/api/v1/admin/levels')
+      .bearerToken(token)
+      .json({ departmentId: structure.department.id, name: 'No Year' })
+    missingYear.assertStatus(422)
+    assert.equal(missingYear.body().error.code, 'VALIDATION_ERROR')
+
+    const outOfRange = await client
+      .post('/api/v1/admin/levels')
+      .bearerToken(token)
+      .json({ departmentId: structure.department.id, name: 'Out Of Range', year: 99 })
+    outOfRange.assertStatus(422)
+    assert.equal(outOfRange.body().error.code, 'VALIDATION_ERROR')
+
+    const duplicate = await client
+      .post('/api/v1/admin/levels')
+      .bearerToken(token)
+      .json({ departmentId: structure.department.id, name: 'Duplicate Year', year: 1 })
+    duplicate.assertStatus(409)
+    assert.equal(duplicate.body().error.code, 'ORGANISATION_LEVEL_ALREADY_EXISTS')
+
+    const third = await client
+      .post('/api/v1/admin/levels')
+      .bearerToken(token)
+      .json({ departmentId: structure.department.id, name: 'Year Three', year: 3 })
+    third.assertStatus(201)
+
+    const renameToDuplicate = await client
+      .patch(`/api/v1/admin/levels/${structure.level.id}`)
+      .bearerToken(token)
+      .json({ year: 3 })
+    renameToDuplicate.assertStatus(409)
+    assert.equal(renameToDuplicate.body().error.code, 'ORGANISATION_LEVEL_ALREADY_EXISTS')
+
+    const rename = await client
+      .patch(`/api/v1/admin/levels/${structure.level.id}`)
+      .bearerToken(token)
+      .json({ name: 'Renamed Level', year: 2 })
+    rename.assertStatus(204)
+
+    const levels = await client.get('/api/v1/levels').qs({ departmentId: structure.department.id })
+    levels.assertStatus(200)
+    assert.deepEqual(
+      levels.body().data.map((item: { year: number }) => item.year),
+      [2, 3]
+    )
+    assert.equal(levels.body().data[0].name, 'Renamed Level')
   })
 })

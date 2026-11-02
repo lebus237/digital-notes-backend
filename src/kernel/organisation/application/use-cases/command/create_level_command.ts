@@ -7,7 +7,8 @@ export class CreateLevelCommand implements Command {
 
   constructor(
     public readonly departmentId: AppId,
-    public readonly name: string
+    public readonly name: string,
+    public readonly year: number
   ) {
     this.timestamp = DateTime.now()
   }

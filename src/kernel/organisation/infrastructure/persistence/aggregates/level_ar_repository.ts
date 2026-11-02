@@ -14,6 +14,7 @@ export class LevelARRepository implements LevelRepository {
     const object = {
       departmentId: entity.getDepartmentId() as any,
       name: entity.getName(),
+      year: entity.getYear(),
       createdAt: entity.getCreatedAt() as any,
       updatedAt: entity.getUpdatedAt() as any,
     }
@@ -41,6 +42,7 @@ export class LevelARRepository implements LevelRepository {
       new AppId(record.id),
       String(record.departmentId),
       record.name,
+      record.year,
       record.createdAt as any,
       record.updatedAt as any
     )

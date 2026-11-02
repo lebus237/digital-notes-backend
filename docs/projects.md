@@ -228,15 +228,20 @@ slug
 id
 department_id
 name
+year
 ```
+
+`year` (1-12) is the source of truth for identity, ordering and
+filtering; it is unique per department. `name` is the display label, so
+institutions keep their own wording.
 
 For example:
 
 ```text
-Level 100
-Level 200
-Level 300
-Level 400
+Year 1 — Level 100
+Year 2 — Level 200
+Year 3 — Level 300
+Year 4 — Level 400
 ```
 
 ---

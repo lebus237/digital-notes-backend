@@ -27,12 +27,15 @@ export class LevelARService implements LevelService {
       builder.whereILike('name', `%${q}%`)
     }
 
+    builder.orderBy('year', 'asc')
+
     const results = await builder.paginate(page, limit)
 
     return mapPaginatedResult<LevelRecord, LevelListItemData>(results, (item) => ({
       id: item.id,
       departmentId: item.departmentId,
       name: item.name,
+      year: item.year,
       createdAt: item.createdAt.toISO()!,
       updatedAt: item.updatedAt.toISO()!,
     }))
@@ -49,6 +52,7 @@ export class LevelARService implements LevelService {
       id: level.id,
       departmentId: level.departmentId,
       name: level.name,
+      year: level.year,
       createdAt: level.createdAt.toISO()!,
       updatedAt: level.updatedAt.toISO()!,
     }

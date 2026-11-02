@@ -7,7 +7,8 @@ export class UpdateLevelCommand implements Command {
 
   constructor(
     public readonly id: AppId,
-    public readonly name?: string
+    public readonly name?: string,
+    public readonly year?: number
   ) {
     this.timestamp = DateTime.now()
   }

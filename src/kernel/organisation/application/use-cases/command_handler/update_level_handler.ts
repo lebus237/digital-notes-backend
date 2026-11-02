@@ -15,7 +15,14 @@ export class UpdateLevelHandler implements CommandHandler<UpdateLevelCommand, vo
     }
 
     await this.levels.save(
-      new Level(command.id, level.getDepartmentId(), command.name ?? level.getName(), null, null)
+      new Level(
+        command.id,
+        level.getDepartmentId(),
+        command.name ?? level.getName(),
+        command.year ?? level.getYear(),
+        null,
+        null
+      )
     )
   }
 }

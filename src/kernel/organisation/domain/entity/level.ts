@@ -6,6 +6,7 @@ export class Level {
     private readonly id: AppId | null,
     private readonly departmentId: string,
     private readonly name: string,
+    private readonly year: number,
     private readonly createdAt: DateTime | null,
     private readonly updatedAt: DateTime | null
   ) {}
@@ -20,6 +21,10 @@ export class Level {
 
   getName(): string {
     return this.name
+  }
+
+  getYear(): number {
+    return this.year
   }
 
   getCreatedAt(): DateTime | null {

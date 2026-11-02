@@ -5,6 +5,7 @@ export const createLevelSchema = vine.compile(
   vine.object({
     departmentId: vine.string().uuid(),
     name: sharedOrganisationRules.name,
+    year: sharedOrganisationRules.levelYear,
   })
 )
 
@@ -12,5 +13,6 @@ export const updateLevelSchema = vine.compile(
   vine.object({
     departmentId: vine.string().uuid().optional(),
     name: sharedOrganisationRules.name.optional(),
+    year: sharedOrganisationRules.levelYear.optional(),
   })
 )

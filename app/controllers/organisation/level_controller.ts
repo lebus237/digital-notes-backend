@@ -36,7 +36,7 @@ export default class LevelController extends AppAbstractController {
   async store({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createLevelSchema)
     const id = await this.handleCommand<string>(
-      new CreateLevelCommand(AppId.fromString(payload.departmentId), payload.name)
+      new CreateLevelCommand(AppId.fromString(payload.departmentId), payload.name, payload.year)
     )
     return response.created({ id })
   }
@@ -44,7 +44,7 @@ export default class LevelController extends AppAbstractController {
   async update({ request, response }: HttpContext) {
     const payload = await request.validateUsing(updateLevelSchema)
     await this.handleCommand<void>(
-      new UpdateLevelCommand(AppId.fromString(request.param('id')), payload.name)
+      new UpdateLevelCommand(AppId.fromString(request.param('id')), payload.name, payload.year)
     )
     return response.noContent()
   }

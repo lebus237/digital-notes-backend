@@ -17,6 +17,9 @@ export default class Level extends BaseModel {
   @column()
   declare name: string
 
+  @column()
+  declare year: number
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

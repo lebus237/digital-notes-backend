@@ -85,7 +85,7 @@ export type AcademicStructure = {
  * Seeds one complete university -> course branch. Values are suffixed so
  * tests never collide on unique columns even without truncation.
  */
-export async function seedAcademicStructure(): Promise<AcademicStructure> {
+export async function seedAcademicStructure(levelYear: number = 1): Promise<AcademicStructure> {
   const suffix = crypto.randomUUID().slice(0, 8)
 
   const university = await UniversityRecord.create({
@@ -108,6 +108,7 @@ export async function seedAcademicStructure(): Promise<AcademicStructure> {
   const level = await LevelRecord.create({
     departmentId: department.id,
     name: `Level ${suffix}`,
+    year: levelYear,
   })
 
   const semester = await SemesterRecord.create({
