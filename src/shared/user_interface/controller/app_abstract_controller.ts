@@ -34,8 +34,8 @@ export class AppAbstractController {
   }
 
   protected getQueryPagination(query: Record<string, any>) {
-    const page = query.page.offset || query.page
-    const limit = query.page.limit || query.limit
+    const page = query.page?.offset ?? query.page ?? query.offset
+    const limit = query.page?.limit ?? query.limit
 
     return new Pagination(page, limit)
   }

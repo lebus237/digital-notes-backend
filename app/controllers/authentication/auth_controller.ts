@@ -3,11 +3,14 @@ import {
   changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
+  logoutSchema,
+  refreshTokenSchema,
   registerSchema,
   resetPasswordSchema,
 } from '#validators/auth_validator'
 import User from '#database/active-records/user'
 import PasswordResetToken from '#database/active-records/password_reset_token'
+import RefreshToken from '#database/active-records/refresh_token'
 import { UserRole } from '#kernel/user/domain/types/user_role'
 import { AppId } from '#shared/domain/app_id'
 import db from '@adonisjs/lucid/services/db'
@@ -20,20 +23,74 @@ function isUniqueViolation(error: unknown): boolean {
   return e?.code === '23505' || e?.cause?.code === '23505'
 }
 
-function hashResetToken(token: string): string {
+function hashToken(token: string): string {
   return crypto.createHash('sha256').update(token).digest('hex')
 }
 
+function hashResetToken(token: string): string {
+  return hashToken(token)
+}
+
+function generateOpaqueToken(bytes = 48): string {
+  return crypto.randomBytes(bytes).toString('hex')
+}
+
 function generateResetToken(): string {
-  return crypto.randomBytes(32).toString('hex')
+  return generateOpaqueToken(32)
 }
 
 function generateTemporaryPassword(): string {
   return `${crypto.randomBytes(6).toString('base64url')}A1a`
 }
 
+/** Short-lived access token TTL; refresh tokens live 30 days. */
+const ACCESS_TOKEN_TTL = '15 minutes'
+const REFRESH_TOKEN_TTL = { days: 30 }
+
+function serializeUser(user: User) {
+  return {
+    id: user.id,
+    fullName: user?.getFullName(),
+    email: user?.getEmail(),
+    phoneNumber: user?.getPhoneNumber(),
+    role: user.role,
+    createdAt: user?.getCreatedAt(),
+  }
+}
+
 async function revokeAllTokens(userId: crypto.UUID, client: { from: typeof db.from } = db) {
   await client.from('auth_access_tokens').where('tokenable_id', userId).delete()
+  await client.from('refresh_tokens').where('user_id', userId).delete()
+}
+
+async function revokeRefreshTokenByValue(refreshToken: string): Promise<void> {
+  await RefreshToken.query()
+    .where('tokenHash', hashToken(refreshToken))
+    .whereNull('revokedAt')
+    .delete()
+}
+
+/**
+ * Issue a new access + refresh pair. Refresh tokens are opaque random
+ * strings stored as sha256 hashes (same pattern as password-reset tokens)
+ * so a DB leak never exposes usable tokens. Rotation happens in `refresh`.
+ */
+async function issueSession(user: User): Promise<{ accessToken: string; refreshToken: string }> {
+  const accessToken = await User.accessTokens.create(user, undefined, {
+    expiresIn: ACCESS_TOKEN_TTL,
+  })
+  const refreshToken = generateOpaqueToken()
+
+  await RefreshToken.create({
+    userId: user.id,
+    tokenHash: hashToken(refreshToken),
+    expiresAt: DateTime.utc().plus(REFRESH_TOKEN_TTL),
+  })
+
+  return {
+    accessToken: accessToken.toJSON().token as string,
+    refreshToken,
+  }
 }
 
 export default class AuthController {
@@ -44,11 +101,13 @@ export default class AuthController {
       const user = await User.create({ ...payload, role: UserRole.STUDENT })
 
       try {
-        const accessToken = await User.accessTokens.create(user)
+        const session = await issueSession(user)
 
         return response.created({
           data: {
-            accessToken: accessToken.toJSON().token,
+            user: serializeUser(user),
+            context: {},
+            ...session,
           },
         })
       } catch (tokenError) {
@@ -84,18 +143,63 @@ export default class AuthController {
 
     const user = await User.verifyCredentials(identifier, payload.password)
 
-    const accessToken = await User.accessTokens.create(user)
+    const session = await issueSession(user)
 
     return response.ok({
       data: {
-        user: {
-          fullName: user?.getFullName(),
-          email: user?.getEmail(),
-          phoneNumber: user?.getPhoneNumber(),
-          createdAt: user?.getCreatedAt(),
-        },
+        user: serializeUser(user),
         context: {},
-        accessToken: accessToken.toJSON().token,
+        ...session,
+      },
+    })
+  }
+
+  /**
+   * Rotate a refresh token into a fresh access + refresh pair.
+   * The presented token is single-use: it is deleted before the new pair
+   * is issued, so replay of a stolen token fails closed after first use.
+   */
+  async refresh({ request, response }: HttpContext) {
+    const { refreshToken } = await request.validateUsing(refreshTokenSchema)
+
+    const stored = await RefreshToken.query()
+      .where('tokenHash', hashToken(refreshToken))
+      .whereNull('revokedAt')
+      .where('expiresAt', '>', DateTime.utc().toJSDate())
+      .forUpdate()
+      .first()
+
+    if (!stored) {
+      return response.unauthorized({ message: 'Invalid or expired refresh token' })
+    }
+
+    const user = await User.find(stored.userId)
+
+    if (!user) {
+      await stored.delete()
+      return response.unauthorized({ message: 'Invalid or expired refresh token' })
+    }
+
+    // Single-use rotation: consume the old token first.
+    await stored.delete()
+
+    // Opportunistic cleanup; never fail the refresh because of it.
+    try {
+      await RefreshToken.query()
+        .where('userId', user.id)
+        .where('expiresAt', '<=', DateTime.utc().toJSDate())
+        .delete()
+    } catch {
+      // ignore
+    }
+
+    const session = await issueSession(user)
+
+    return response.ok({
+      data: {
+        user: serializeUser(user),
+        context: {},
+        ...session,
       },
     })
   }
@@ -107,19 +211,27 @@ export default class AuthController {
 
     return response.ok({
       data: {
-        user: {
-          fullName: user?.getFullName(),
-          email: user?.getEmail(),
-          phoneNumber: user?.getPhoneNumber(),
-          createdAt: user?.getCreatedAt(),
-        },
+        user: serializeUser(user),
         context: {},
       },
     })
   }
 
-  async logout({ auth, response }: HttpContext) {
+  async logout({ auth, request, response }: HttpContext) {
+    const { refreshToken } = await request.validateUsing(logoutSchema).catch(() => ({
+      refreshToken: undefined as string | undefined,
+    }))
+
     await auth.use('api').invalidateToken()
+
+    try {
+      if (refreshToken) {
+        await revokeRefreshTokenByValue(refreshToken)
+      }
+    } catch {
+      // Access token is already revoked; refresh revocation is best-effort.
+    }
+
     return response.noContent()
   }
 

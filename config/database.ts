@@ -2,15 +2,18 @@ import env from '#start/env'
 import { defineConfig } from '@adonisjs/lucid'
 
 const nodeEnv = env.get('NODE_ENV')
+const isTest = nodeEnv === 'test'
 const dbDriver = env.get('DB_DRIVER')
-const dbSsl = env.get('DB_SSL') ?? 'true'
+const dbSsl = env.get('DB_SSL') ?? (isTest ? 'false' : 'true')
 
 if (dbSsl && !['true', 'false', 'no-verify'].includes(dbSsl)) {
   throw new Error(`DB_SSL must be one of 'true', 'false', 'no-verify' (received: '${dbSsl}')`)
 }
 
 if ((nodeEnv === 'production' || nodeEnv === 'stage') && dbSsl === 'false') {
-  throw new Error("DB_SSL must be 'true' or 'no-verify' in production/stage (plaintext DB connections are refused)")
+  throw new Error(
+    "DB_SSL must be 'true' or 'no-verify' in production/stage (plaintext DB connections are refused)"
+  )
 }
 
 if (!dbDriver && env.get('DATABASE_URL')) {
@@ -35,20 +38,23 @@ function resolveConnection() {
     return { connectionString, ssl: sslConfig }
   }
 
+  /*
+   * Functional tests run against a dedicated local database. These defaults
+   * match docker-compose.test.yml so a fresh checkout can run the suite
+   * without extra configuration. Values from the environment always win.
+   */
   const connection = {
-    host: env.get('DB_HOST'),
-    port: env.get('DB_PORT'),
-    user: env.get('DB_USER'),
-    password: env.get('DB_PASSWORD'),
-    database: env.get('DB_DATABASE'),
+    host: env.get('DB_HOST') ?? (isTest ? '127.0.0.1' : undefined),
+    port: env.get('DB_PORT') ?? (isTest ? 5433 : undefined),
+    user: env.get('DB_USER') ?? (isTest ? 'postgres' : undefined),
+    password: env.get('DB_PASSWORD') ?? (isTest ? 'postgres' : undefined),
+    database: env.get('DB_DATABASE') ?? (isTest ? 'digitalnotes_test' : undefined),
   }
 
   /*
-   * The test suite boots without any env file and never connects to the
-   * database, so the values are allowed to be missing there. Every other
-   * environment fails fast on incomplete configuration.
+   * Every non-test environment fails fast on incomplete configuration.
    */
-  if (nodeEnv !== 'test') {
+  if (!isTest) {
     const missing = Object.entries(connection)
       .filter(([, value]) => value === undefined || value === null || value === '')
       .map(([key]) => `DB_${key.toUpperCase()}`)

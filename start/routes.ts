@@ -33,6 +33,7 @@ router
     router.group(() => {
       router.post('/register', [AuthController, 'register']).use(authThrottle)
       router.post('/login', [AuthController, 'login']).use(authThrottle)
+      router.post('/refresh', [AuthController, 'refresh']).use(authThrottle)
       router.post('/forgot-password', [AuthController, 'forgotPassword']).use(authThrottle)
       router.post('/reset-password', [AuthController, 'resetPassword']).use(authThrottle)
 

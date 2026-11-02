@@ -14,38 +14,36 @@ export default class AggregateProvider {
   constructor(protected app: ApplicationService) {}
 
   public register() {
-    if (this.app.nodeEnvironment !== 'test') {
-      this.app.container.bind('UploadRepository', () => {
-        return new UploadARRepository()
-      })
-      this.app.container.bind('UniversityRepository', () => {
-        return new UniversityARRepository()
-      })
-      this.app.container.bind('FacultyRepository', () => {
-        return new FacultyARRepository()
-      })
-      this.app.container.bind('DepartmentRepository', () => {
-        return new DepartmentARRepository()
-      })
-      this.app.container.bind('LevelRepository', () => {
-        return new LevelARRepository()
-      })
-      this.app.container.bind('SemesterRepository', () => {
-        return new SemesterARRepository()
-      })
-      this.app.container.bind('CourseRepository', () => {
-        return new CourseARRepository()
-      })
-      this.app.container.bind('EmployeeRepository', () => {
-        return new EmployeeARRepository()
-      })
-      this.app.container.bind('UserRepository', () => {
-        return new UserARRepository()
-      })
-      this.app.container.bind('NoteRepository', () => {
-        return new NoteARRepository()
-      })
-    }
+    this.app.container.bind('UploadRepository', () => {
+      return new UploadARRepository()
+    })
+    this.app.container.bind('UniversityRepository', () => {
+      return new UniversityARRepository()
+    })
+    this.app.container.bind('FacultyRepository', () => {
+      return new FacultyARRepository()
+    })
+    this.app.container.bind('DepartmentRepository', () => {
+      return new DepartmentARRepository()
+    })
+    this.app.container.bind('LevelRepository', () => {
+      return new LevelARRepository()
+    })
+    this.app.container.bind('SemesterRepository', () => {
+      return new SemesterARRepository()
+    })
+    this.app.container.bind('CourseRepository', () => {
+      return new CourseARRepository()
+    })
+    this.app.container.bind('EmployeeRepository', () => {
+      return new EmployeeARRepository()
+    })
+    this.app.container.bind('UserRepository', () => {
+      return new UserARRepository()
+    })
+    this.app.container.bind('NoteRepository', () => {
+      return new NoteARRepository()
+    })
   }
 
   public async boot() {}

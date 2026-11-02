@@ -30,7 +30,7 @@
 
 | Flow | Evidence | Why it is atomic |
 |---|---|---|
-| `forgotPassword` | `app/controllers/authentication/auth_controller.ts:149-163` — `db.transaction(async (trx) => { User.query({client: trx}).forUpdate() … PasswordResetToken.query({client: trx}).delete() … PasswordResetToken.create(..., {client: trx}) })` | Single transaction: lock user row, delete unconsumed tokens, insert new token. All-or-nothing. Covered by `tests/unit/app/controllers/authentication/forgot_password.spec.ts:34-174` which asserts work happens inside a transaction. |
+| `forgotPassword` | `app/controllers/authentication/auth_controller.ts:149-163` — `db.transaction(async (trx) => { User.query({client: trx}).forUpdate() … PasswordResetToken.query({client: trx}).delete() … PasswordResetToken.create(..., {client: trx}) })` | Single transaction: lock user row, delete unconsumed tokens, insert new token. All-or-nothing. Covered end-to-end by `tests/functional/auth/password_reset.spec.ts`. |
 | `resetPassword` | `auth_controller.ts:180-207` — one `db.transaction` covering `PasswordResetToken … .forUpdate().first()`, `user.save()`, `resetToken.save()`, delete sibling tokens, `revokeAllTokens(user.id, trx)` | Correct unit of work: consume token + change password + revoke sessions succeed or roll back together. `FOR UPDATE` serialises concurrent redeems of the same token. |
 
 ### 2.2 Non-compliant flows (each is a real atomicity bug)
@@ -118,7 +118,7 @@
 4. **P1 — Close the isolation gaps:** `forUpdate()` the parent `notes` row in `NoteARRepository.save` update path; add an optimistic-concurrency `version` column (or at minimum compare `updated_at`) for note edits; map raw `23505` from the `employees` insert to `EmployeeAlreadyExistsError` so concurrent creates return 409, not 500.
 5. **P1 — Outbox or sweeper for storage↔DB drift:** periodic job listing `uploads.relative_key` vs S3 inventory (and vice versa) until a proper transactional-outbox is introduced. At minimum log compensation failures instead of swallowing them (`create_note_handler.ts:114-122` empty `catch`).
 6. **P2 — Document durability posture:** Neon branch/PITR window, snapshot schedule, RPO/RTO, and which connection (pooled vs direct) migrations and `SET LOCAL` features must use. Pin `disableRollbacksInProduction` (already set) and add a `db:status` CI gate.
-7. **P2 — Add concurrency tests:** parallel `resetPassword` with one token (exactly one succeeds), parallel double-register (exactly one 201), parallel note-page replacement (no zero-page / half-page note). The existing `forgot_password.spec.ts` stub pattern (`db.transaction` stub) is a good template — extend it to the flows in §2.2 after fixing them.
+7. **P2 — Add concurrency tests:** parallel `resetPassword` with one token (exactly one succeeds), parallel double-register (exactly one 201), parallel note-page replacement (no zero-page / half-page note). The functional suite in `tests/functional/auth` is the natural home for these.
 
 ## 8. Appendix — key files cited
 
@@ -130,5 +130,5 @@
 - `src/kernel/notes/application/command_handler/create_note_handler.ts`; `src/kernel/notes/infrastructure/persistence/note_ar_repository.ts`.
 - `src/kernel/uploads/application/command_handler/delete_upload_handler.ts`, `store_upload.handler.ts`.
 - `src/kernel/{user,employee,uploads}/infrastructure/persistence/*_ar_repository.ts` (no `trx` propagation).
-- `tests/unit/app/controllers/authentication/forgot_password.spec.ts` (transaction assertions).
+- `tests/functional/auth/password_reset.spec.ts`, `tests/functional/auth/change_password.spec.ts` (end-to-end reset and revocation assertions).
 - `.agents/skills/neon-postgres/SKILL.md` (pooler vs direct guidance).

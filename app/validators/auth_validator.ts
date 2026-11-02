@@ -66,3 +66,15 @@ export const changePasswordSchema = vine.compile(
     newPassword: passwordRule,
   })
 )
+
+export const refreshTokenSchema = vine.compile(
+  vine.object({
+    refreshToken: vine.string().minLength(32),
+  })
+)
+
+export const logoutSchema = vine.compile(
+  vine.object({
+    refreshToken: vine.string().minLength(32).optional(),
+  })
+)
