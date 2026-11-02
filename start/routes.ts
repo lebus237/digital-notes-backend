@@ -75,6 +75,7 @@ router
         router.post('/faculties', [FacultyController, 'store']).use(adminWriteThrottle)
         router.post('/departments', [DepartmentController, 'store']).use(adminWriteThrottle)
         router.post('/levels', [LevelController, 'store']).use(adminWriteThrottle)
+        router.patch('/levels/:id', [LevelController, 'update']).use(adminWriteThrottle)
         router.post('/semesters', [SemesterController, 'store']).use(adminWriteThrottle)
 
         router.post('/courses', [CourseController, 'store']).use(adminWriteThrottle)

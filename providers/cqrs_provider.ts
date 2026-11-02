@@ -12,6 +12,7 @@ import { CreateUniversityHandler } from '#kernel/organisation/application/use-ca
 import { CreateFacultyHandler } from '#kernel/organisation/application/use-cases/command_handler/create_faculty_handler'
 import { CreateDepartmentHandler } from '#kernel/organisation/application/use-cases/command_handler/create_department_handler'
 import { CreateLevelHandler } from '#kernel/organisation/application/use-cases/command_handler/create_level_handler'
+import { UpdateLevelHandler } from '#kernel/organisation/application/use-cases/command_handler/update_level_handler'
 import { CreateSemesterHandler } from '#kernel/organisation/application/use-cases/command_handler/create_semester_handler'
 import { CreateCourseHandler } from '#kernel/organisation/application/use-cases/command_handler/create_course_handler'
 import { UpdateCourseHandler } from '#kernel/organisation/application/use-cases/command_handler/update_course_handler'
@@ -51,6 +52,7 @@ export default class CqrsProvider {
         'LevelRepository',
         'DepartmentRepository',
       ])
+      commandBus.register('UpdateLevelCommand', UpdateLevelHandler, ['LevelRepository'])
       commandBus.register('CreateSemesterCommand', CreateSemesterHandler, ['SemesterRepository'])
       commandBus.register('CreateCourseCommand', CreateCourseHandler, [
         'CourseRepository',
