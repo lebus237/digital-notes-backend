@@ -41,6 +41,10 @@ export class CreateCourseHandler implements CommandHandler<CreateCourseCommand, 
       throw new SemesterNotFoundError()
     }
 
+    if (semester.getDepartmentId() !== command.departmentId.value) {
+      throw new InvalidHierarchyError('Semester does not belong to the given department')
+    }
+
     const id = (await this.courses.save(
       new Course(
         null,

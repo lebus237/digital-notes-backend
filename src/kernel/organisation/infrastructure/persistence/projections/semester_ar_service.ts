@@ -19,6 +19,10 @@ export class SemesterARService implements SemesterService {
 
     const builder = SemesterRecord.query()
 
+    if (query.departmentId) {
+      builder.where('department_id', query.departmentId.value)
+    }
+
     if (q) {
       builder.whereILike('name', `%${q}%`)
     }
@@ -27,6 +31,7 @@ export class SemesterARService implements SemesterService {
 
     return mapPaginatedResult<SemesterRecord, SemesterListItemData>(results, (item) => ({
       id: item.id,
+      departmentId: item.departmentId,
       name: item.name,
       createdAt: item.createdAt.toISO()!,
       updatedAt: item.updatedAt.toISO()!,
@@ -42,6 +47,7 @@ export class SemesterARService implements SemesterService {
 
     return {
       id: semester.id,
+      departmentId: semester.departmentId,
       name: semester.name,
       createdAt: semester.createdAt.toISO()!,
       updatedAt: semester.updatedAt.toISO()!,

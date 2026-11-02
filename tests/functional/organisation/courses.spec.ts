@@ -200,6 +200,16 @@ test.group('Organisation / courses', (group) => {
     })
     missingSemester.assertStatus(404)
     assert.equal(missingSemester.body().error.code, 'ORGANISATION_SEMESTER_NOT_FOUND')
+
+    const mismatchedSemester = await client.post('/api/v1/admin/courses').bearerToken(token).json({
+      departmentId: first.department.id,
+      levelId: first.level.id,
+      semesterId: second.semester.id,
+      code: 'MISMATCH2',
+      name: 'Mismatched Semester Course',
+    })
+    mismatchedSemester.assertStatus(422)
+    assert.equal(mismatchedSemester.body().error.code, 'ORGANISATION_INVALID_HIERARCHY')
   })
 
   test('updates a course', async ({ client, assert }) => {

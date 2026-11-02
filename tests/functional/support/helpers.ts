@@ -110,7 +110,10 @@ export async function seedAcademicStructure(): Promise<AcademicStructure> {
     name: `Level ${suffix}`,
   })
 
-  const semester = await SemesterRecord.create({ name: `Semester ${suffix}` })
+  const semester = await SemesterRecord.create({
+    departmentId: department.id,
+    name: `Semester ${suffix}`,
+  })
 
   const course = await CourseRecord.create({
     departmentId: department.id,

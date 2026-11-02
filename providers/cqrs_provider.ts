@@ -14,6 +14,7 @@ import { CreateDepartmentHandler } from '#kernel/organisation/application/use-ca
 import { CreateLevelHandler } from '#kernel/organisation/application/use-cases/command_handler/create_level_handler'
 import { UpdateLevelHandler } from '#kernel/organisation/application/use-cases/command_handler/update_level_handler'
 import { CreateSemesterHandler } from '#kernel/organisation/application/use-cases/command_handler/create_semester_handler'
+import { UpdateSemesterHandler } from '#kernel/organisation/application/use-cases/command_handler/update_semester_handler'
 import { CreateCourseHandler } from '#kernel/organisation/application/use-cases/command_handler/create_course_handler'
 import { UpdateCourseHandler } from '#kernel/organisation/application/use-cases/command_handler/update_course_handler'
 import { CreateEmployeeHandler } from '#kernel/employee/application/use-cases/command_handler/create_employee_handler'
@@ -53,7 +54,11 @@ export default class CqrsProvider {
         'DepartmentRepository',
       ])
       commandBus.register('UpdateLevelCommand', UpdateLevelHandler, ['LevelRepository'])
-      commandBus.register('CreateSemesterCommand', CreateSemesterHandler, ['SemesterRepository'])
+      commandBus.register('CreateSemesterCommand', CreateSemesterHandler, [
+        'SemesterRepository',
+        'DepartmentRepository',
+      ])
+      commandBus.register('UpdateSemesterCommand', UpdateSemesterHandler, ['SemesterRepository'])
       commandBus.register('CreateCourseCommand', CreateCourseHandler, [
         'CourseRepository',
         'DepartmentRepository',
@@ -80,9 +85,7 @@ export default class CqrsProvider {
       commandBus.register('PublishNoteCommand', PublishNoteHandler, ['NoteRepository'])
       commandBus.register('RejectNoteCommand', RejectNoteHandler, ['NoteRepository'])
       commandBus.register('ArchiveNoteCommand', ArchiveNoteHandler, ['NoteRepository'])
-      commandBus.register('UpdateNoteCommand', UpdateNoteHandler, [
-        'NoteRepository',
-      ])
+      commandBus.register('UpdateNoteCommand', UpdateNoteHandler, ['NoteRepository'])
 
       return commandBus
     })

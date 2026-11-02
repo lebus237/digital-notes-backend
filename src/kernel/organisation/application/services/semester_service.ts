@@ -4,6 +4,7 @@ import { GetSemesterQuery } from '../use-cases/query/get_semester_query'
 
 export type SemesterListItemData = {
   id: string
+  departmentId: string
   name: string
   createdAt: string
   updatedAt: string
@@ -11,6 +12,7 @@ export type SemesterListItemData = {
 
 export type SemesterData = {
   id: string
+  departmentId: string
   name: string
   createdAt: string
   updatedAt: string

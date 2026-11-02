@@ -3,6 +3,7 @@ import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/l
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Faculty from '#database/active-records/faculty'
 import Level from '#database/active-records/level'
+import Semester from '#database/active-records/semester'
 import Course from '#database/active-records/course'
 import crypto from 'node:crypto'
 
@@ -32,6 +33,9 @@ export default class Department extends BaseModel {
 
   @hasMany(() => Level, { foreignKey: 'departmentId' })
   declare levels: HasMany<typeof Level>
+
+  @hasMany(() => Semester, { foreignKey: 'departmentId' })
+  declare semesters: HasMany<typeof Semester>
 
   @hasMany(() => Course, { foreignKey: 'departmentId' })
   declare courses: HasMany<typeof Course>

@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 export class Semester {
   constructor(
     private readonly id: AppId | null,
+    private readonly departmentId: string,
     private readonly name: string,
     private readonly createdAt: DateTime | null,
     private readonly updatedAt: DateTime | null
@@ -11,6 +12,10 @@ export class Semester {
 
   getId() {
     return this.id?.value
+  }
+
+  getDepartmentId(): string {
+    return this.departmentId
   }
 
   getName(): string {

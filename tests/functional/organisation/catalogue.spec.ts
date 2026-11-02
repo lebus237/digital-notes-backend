@@ -182,7 +182,7 @@ test.group('Organisation / catalogue', (group) => {
     const semester = await client
       .post('/api/v1/admin/semesters')
       .bearerToken(token)
-      .json({ name: 'Semester Two' })
+      .json({ departmentId: structure.department.id, name: 'Semester Two' })
     semester.assertStatus(201)
 
     const departments = await client
@@ -197,9 +197,12 @@ test.group('Organisation / catalogue', (group) => {
     assert.lengthOf(levels.body().data, 2)
     assert.equal(levels.body().data[0].departmentId, structure.department.id)
 
-    const semesters = await client.get('/api/v1/semesters')
+    const semesters = await client
+      .get('/api/v1/semesters')
+      .qs({ departmentId: structure.department.id })
     semesters.assertStatus(200)
     assert.lengthOf(semesters.body().data, 2)
+    assert.equal(semesters.body().data[0].departmentId, structure.department.id)
   })
 
   test('rejects levels and departments under unknown parents', async ({ client, assert }) => {
@@ -220,6 +223,13 @@ test.group('Organisation / catalogue', (group) => {
       .json({ departmentId: missingId, name: 'Orphan Level' })
     level.assertStatus(404)
     assert.equal(level.body().error.code, 'ORGANISATION_DEPARTMENT_NOT_FOUND')
+
+    const semester = await client
+      .post('/api/v1/admin/semesters')
+      .bearerToken(token)
+      .json({ departmentId: missingId, name: 'Orphan Semester' })
+    semester.assertStatus(404)
+    assert.equal(semester.body().error.code, 'ORGANISATION_DEPARTMENT_NOT_FOUND')
   })
 
   test('rejects malformed ids in write payloads', async ({ client, assert }) => {
