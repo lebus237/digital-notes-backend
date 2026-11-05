@@ -75,6 +75,52 @@ test.group('Notes / lifecycle', (group) => {
     response.assertStatus(403)
   })
 
+  test('hides another contributor note behind a 404', async ({ client, assert }) => {
+    const owner = await createContributor()
+    const other = await createContributor()
+    const token = await loginAs(client, other)
+    const structure = await seedAcademicStructure()
+    const note = await seedNote({
+      courseId: structure.course.id,
+      uploadedBy: owner.id,
+      title: 'Owner Title',
+    })
+
+    const response = await client
+      .patch(`/api/v1/notes/${note.id}`)
+      .bearerToken(token)
+      .json({ title: 'Hijacked Title', price: 1 })
+
+    response.assertStatus(404)
+    assert.equal(response.body().error.code, 'NOTE_NOT_FOUND')
+
+    const stored = await NoteRecord.findOrFail(note.id)
+    assert.equal(stored.title, 'Owner Title')
+    assert.equal(stored.price, 0)
+  })
+
+  test('lets an administrator update a contributor note', async ({ client, assert }) => {
+    const admin = await createAdmin()
+    const token = await loginAs(client, admin)
+    const contributor = await createContributor()
+    const structure = await seedAcademicStructure()
+    const note = await seedNote({
+      courseId: structure.course.id,
+      uploadedBy: contributor.id,
+      title: 'Contributor Title',
+    })
+
+    const response = await client
+      .patch(`/api/v1/admin/notes/${note.id}`)
+      .bearerToken(token)
+      .json({ title: 'Admin Edited' })
+
+    response.assertStatus(204)
+
+    const stored = await NoteRecord.findOrFail(note.id)
+    assert.equal(stored.title, 'Admin Edited')
+  })
+
   test('publishes a note that is pending review', async ({ client, assert }) => {
     const admin = await createAdmin()
     const token = await loginAs(client, admin)

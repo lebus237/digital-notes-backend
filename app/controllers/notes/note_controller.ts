@@ -86,11 +86,14 @@ export default class NoteController extends AppAbstractController {
     return response.created({ id: id.value })
   }
 
-  async update({ request, response }: HttpContext) {
+  async update({ auth, request, response }: HttpContext) {
+    const user = auth.user as User
     const payload = await request.validateUsing(updateNoteSchema)
     await this.handleCommand<void>(
       new UpdateNoteCommand(
         AppId.fromString(request.param('id')),
+        AppId.fromString(String(user.id)),
+        user.role,
         payload.title,
         payload.description,
         payload.price
