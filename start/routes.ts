@@ -70,6 +70,7 @@ router
     router.get('/courses/:id', [CourseController, 'show']).use(publicReadThrottle)
 
     router.get('/courses/:courseId/notes', [NoteController, 'index']).use(publicReadThrottle)
+    router.get('/notes', [NoteController, 'publicIndex']).use(publicReadThrottle)
     router.get('/notes/:id', [NoteController, 'show']).use(publicReadThrottle)
 
     router

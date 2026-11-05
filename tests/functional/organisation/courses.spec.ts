@@ -1,10 +1,15 @@
 import { test } from '@japa/runner'
-import testUtils from '@adonisjs/core/services/test_utils'
 import { CourseRecord } from '#database/active-records/index'
-import { createAdmin, createUser, loginAs, seedAcademicStructure } from '../support/helpers.js'
+import {
+  createAdmin,
+  createUser,
+  loginAs,
+  seedAcademicStructure,
+  truncateAll,
+} from '../support/helpers.js'
 
 test.group('Organisation / courses', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => truncateAll())
 
   test('lists visible courses with their academic context', async ({ client, assert }) => {
     const structure = await seedAcademicStructure()
