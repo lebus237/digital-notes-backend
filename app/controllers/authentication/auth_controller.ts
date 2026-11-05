@@ -235,7 +235,7 @@ export default class AuthController {
     return response.noContent()
   }
 
-  async forgotPassword({ request, response }: HttpContext) {
+  async forgotPassword({ request, response, logger }: HttpContext) {
     const payload = await request.validateUsing(forgotPasswordSchema)
 
     const identifier = payload.phoneNumber || payload.email
@@ -257,14 +257,13 @@ export default class AuthController {
 
     const token = generateResetToken()
 
-    let resetToken!: PasswordResetToken
     await db.transaction(async (trx) => {
       await User.query({ client: trx }).where('id', user.id).forUpdate().firstOrFail()
       await PasswordResetToken.query({ client: trx })
         .where('userId', user.id)
         .whereNull('usedAt')
         .delete()
-      resetToken = await PasswordResetToken.create(
+      await PasswordResetToken.create(
         {
           userId: user.id,
           tokenHash: hashResetToken(token),
@@ -274,13 +273,18 @@ export default class AuthController {
       )
     })
 
-    return response.ok({
-      data: {
-        message,
-        resetToken: token,
-        expiresAt: resetToken.expiresAt.toISO(),
-      },
-    })
+    /*
+     * The token must never travel in the HTTP response: knowing an email or
+     * phone number would be enough to take over the account. Delivery (email
+     * or SMS) is intentionally out of scope until a mailer exists; until then
+     * operators can use the admin reset endpoint.
+     */
+    logger.warn(
+      { userId: user.id },
+      'Password reset token generated but no delivery channel is configured'
+    )
+
+    return response.ok({ data: { message } })
   }
 
   async resetPassword({ request, response, logger }: HttpContext) {

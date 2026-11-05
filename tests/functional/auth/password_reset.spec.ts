@@ -1,8 +1,17 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { DEFAULT_PASSWORD, createAdmin, createUser, loginAs } from '../support/helpers.js'
+import PasswordResetToken from '#database/active-records/password_reset_token'
+import {
+  DEFAULT_PASSWORD,
+  createAdmin,
+  createUser,
+  loginAs,
+  seedPasswordResetToken,
+} from '../support/helpers.js'
 
 const NEW_PASSWORD = 'BrandNewPassword1'
+const VALID_RESET_TOKEN = 'a'.repeat(64)
+const UNKNOWN_RESET_TOKEN = 'b'.repeat(64)
 
 test.group('Auth / password reset', (group) => {
   group.each.setup(() => testUtils.db().truncate())
@@ -16,19 +25,25 @@ test.group('Auth / password reset', (group) => {
       'If an account exists, a password reset token has been issued'
     )
     assert.notProperty(response.body().data, 'resetToken')
+    assert.notProperty(response.body().data, 'expiresAt')
   })
 
-  test('issues a reset token for a registered email', async ({ client, assert }) => {
+  test('never returns the reset token for a registered email', async ({ client, assert }) => {
     const user = await createUser()
 
     const response = await client.post('/api/forgot-password').json({ email: user.email })
 
     response.assertStatus(200)
-    assert.isString(response.body().data.resetToken)
-    assert.isString(response.body().data.expiresAt)
+    assert.notProperty(response.body().data, 'resetToken')
+    assert.notProperty(response.body().data, 'token')
+    assert.notProperty(response.body().data, 'expiresAt')
+    assert.notInclude(JSON.stringify(response.body()), 'resetToken')
+
+    const stored = await PasswordResetToken.query().where('userId', user.id).first()
+    assert.isNotNull(stored)
   })
 
-  test('issues a reset token for a registered phone number', async ({ client, assert }) => {
+  test('never returns the reset token for a registered phone number', async ({ client, assert }) => {
     const user = await createUser()
 
     const response = await client
@@ -36,7 +51,11 @@ test.group('Auth / password reset', (group) => {
       .json({ phoneNumber: user.phoneNumber })
 
     response.assertStatus(200)
-    assert.isString(response.body().data.resetToken)
+    assert.notProperty(response.body().data, 'resetToken')
+    assert.notProperty(response.body().data, 'expiresAt')
+
+    const stored = await PasswordResetToken.query().where('userId', user.id).first()
+    assert.isNotNull(stored)
   })
 
   test('validates the identifier', async ({ client, assert }) => {
@@ -48,11 +67,10 @@ test.group('Auth / password reset', (group) => {
 
   test('resets the password with a valid token', async ({ client, assert }) => {
     const user = await createUser()
-    const forgot = await client.post('/api/forgot-password').json({ email: user.email })
-    forgot.assertStatus(200)
+    await seedPasswordResetToken(user.id, VALID_RESET_TOKEN)
 
     const response = await client.post('/api/reset-password').json({
-      token: forgot.body().data.resetToken,
+      token: VALID_RESET_TOKEN,
       password: NEW_PASSWORD,
     })
 
@@ -72,24 +90,23 @@ test.group('Auth / password reset', (group) => {
 
   test('rejects unknown and already used reset tokens', async ({ client, assert }) => {
     const user = await createUser()
-    const forgot = await client.post('/api/forgot-password').json({ email: user.email })
-    forgot.assertStatus(200)
+    await seedPasswordResetToken(user.id, VALID_RESET_TOKEN)
 
     const first = await client.post('/api/reset-password').json({
-      token: forgot.body().data.resetToken,
+      token: VALID_RESET_TOKEN,
       password: NEW_PASSWORD,
     })
     first.assertStatus(200)
 
     const replay = await client.post('/api/reset-password').json({
-      token: forgot.body().data.resetToken,
+      token: VALID_RESET_TOKEN,
       password: 'AnotherPassword1',
     })
     replay.assertStatus(400)
     assert.equal(replay.body().message, 'Invalid or expired reset token')
 
     const unknown = await client.post('/api/reset-password').json({
-      token: 'a'.repeat(64),
+      token: UNKNOWN_RESET_TOKEN,
       password: NEW_PASSWORD,
     })
     unknown.assertStatus(400)
@@ -98,10 +115,10 @@ test.group('Auth / password reset', (group) => {
 
   test('rejects a weak new password', async ({ client, assert }) => {
     const user = await createUser()
-    const forgot = await client.post('/api/forgot-password').json({ email: user.email })
+    await seedPasswordResetToken(user.id, VALID_RESET_TOKEN)
 
     const response = await client.post('/api/reset-password').json({
-      token: forgot.body().data.resetToken,
+      token: VALID_RESET_TOKEN,
       password: 'weak',
     })
 
@@ -112,10 +129,10 @@ test.group('Auth / password reset', (group) => {
   test('revokes existing sessions when the password is reset', async ({ client }) => {
     const user = await createUser()
     const token = await loginAs(client, user)
-    const forgot = await client.post('/api/forgot-password').json({ email: user.email })
+    await seedPasswordResetToken(user.id, VALID_RESET_TOKEN)
 
     const reset = await client.post('/api/reset-password').json({
-      token: forgot.body().data.resetToken,
+      token: VALID_RESET_TOKEN,
       password: NEW_PASSWORD,
     })
     reset.assertStatus(200)
