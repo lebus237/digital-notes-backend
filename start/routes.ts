@@ -94,6 +94,7 @@ router
         router
           .get('/courses/:courseId/notes', [NoteController, 'adminIndex'])
           .use(publicReadThrottle)
+        router.get('/notes', [NoteController, 'adminQueue']).use(publicReadThrottle)
         router.get('/notes/:id', [NoteController, 'adminShow']).use(publicReadThrottle)
 
         router.post('/notes', [NoteController, 'store']).use(uploadStoreThrottle)
