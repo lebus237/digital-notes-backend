@@ -34,6 +34,8 @@ export type AdminNoteListItemData = NoteListItemData & {
 export type NoteData = {
   id: string
   courseId: string
+  courseCode: string
+  courseName: string
   title: string
   description: string | null
   noteType: NoteType

@@ -108,6 +108,7 @@ export class NoteARService implements NoteService {
   async viewNote(query: GetNoteDetailQuery): Promise<NoteData> {
     const note: any = await NoteRecord.query()
       .where('id', query.id.value)
+      .preload('course')
       .preload('pages', (pages) => pages.preload('upload').orderBy('sort_order', 'asc'))
       .first()
 
@@ -127,6 +128,8 @@ export class NoteARService implements NoteService {
     return {
       id: note.id,
       courseId: note.courseId,
+      courseCode: note.course?.code ?? '',
+      courseName: note.course?.name ?? '',
       title: note.title,
       description: note.description,
       noteType: note.noteType,
