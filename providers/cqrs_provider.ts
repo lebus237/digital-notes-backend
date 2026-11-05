@@ -8,6 +8,7 @@ import { PublishNoteHandler } from '#kernel/notes/application/command_handler/pu
 import { RejectNoteHandler } from '#kernel/notes/application/command_handler/reject_note_handler'
 import { ArchiveNoteHandler } from '#kernel/notes/application/command_handler/archive_note_handler'
 import { UpdateNoteHandler } from '#kernel/notes/application/command_handler/update_note_handler'
+import { SubmitNoteHandler } from '#kernel/notes/application/command_handler/submit_note_handler'
 import { CreateUniversityHandler } from '#kernel/organisation/application/use-cases/command_handler/create_university_handler'
 import { CreateFacultyHandler } from '#kernel/organisation/application/use-cases/command_handler/create_faculty_handler'
 import { CreateDepartmentHandler } from '#kernel/organisation/application/use-cases/command_handler/create_department_handler'
@@ -86,6 +87,7 @@ export default class CqrsProvider {
       commandBus.register('RejectNoteCommand', RejectNoteHandler, ['NoteRepository'])
       commandBus.register('ArchiveNoteCommand', ArchiveNoteHandler, ['NoteRepository'])
       commandBus.register('UpdateNoteCommand', UpdateNoteHandler, ['NoteRepository'])
+      commandBus.register('SubmitNoteCommand', SubmitNoteHandler, ['NoteRepository'])
 
       return commandBus
     })

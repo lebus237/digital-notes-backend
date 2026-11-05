@@ -109,6 +109,7 @@ router
       .group(() => {
         router.post('/notes', [NoteController, 'store']).use(uploadStoreThrottle)
         router.patch('/notes/:id', [NoteController, 'update']).use(adminWriteThrottle)
+        router.post('/notes/:id/submit', [NoteController, 'submit']).use(adminWriteThrottle)
       })
       .use([middleware.auth(), middleware.role({ roles: ['administrator', 'contributor'] })])
   })

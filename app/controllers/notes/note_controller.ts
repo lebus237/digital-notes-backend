@@ -5,6 +5,7 @@ import { PublishNoteCommand } from '#kernel/notes/application/command/publish_no
 import { RejectNoteCommand } from '#kernel/notes/application/command/reject_note_command'
 import { ArchiveNoteCommand } from '#kernel/notes/application/command/archive_note_command'
 import { UpdateNoteCommand } from '#kernel/notes/application/command/update_note_command'
+import { SubmitNoteCommand } from '#kernel/notes/application/command/submit_note_command'
 import { GetNoteCollectionQuery } from '#kernel/notes/application/query/get_note_collection_query'
 import { GetNoteDetailQuery } from '#kernel/notes/application/query/get_note_detail_query'
 import { AppId } from '#shared/domain/app_id'
@@ -97,6 +98,18 @@ export default class NoteController extends AppAbstractController {
         payload.title,
         payload.description,
         payload.price
+      )
+    )
+    return response.noContent()
+  }
+
+  async submit({ auth, request, response }: HttpContext) {
+    const user = auth.user as User
+    await this.handleCommand<void>(
+      new SubmitNoteCommand(
+        AppId.fromString(request.param('id')),
+        AppId.fromString(String(user.id)),
+        user.role
       )
     )
     return response.noContent()
