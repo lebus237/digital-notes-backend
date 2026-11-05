@@ -33,10 +33,30 @@ export default class NoteController extends AppAbstractController {
     return response.ok(result)
   }
 
-  async show({ auth, request, response }: HttpContext) {
-    const user = auth.user as User | undefined
+  async adminIndex({ request, response }: HttpContext) {
+    const qs = request.qs()
+    const result = await this.service.noteCollection(
+      new GetNoteCollectionQuery(
+        AppId.fromString(request.param('courseId') ?? qs.courseId),
+        this.getQueryPagination(qs),
+        this.getQuerySearch(qs),
+        this.getQueryFilter(qs),
+        true
+      )
+    )
+    return response.ok(result)
+  }
+
+  async show({ request, response }: HttpContext) {
     const result = await this.service.viewNote(
-      new GetNoteDetailQuery(AppId.fromString(request.param('id')), user?.role === 'administrator')
+      new GetNoteDetailQuery(AppId.fromString(request.param('id')))
+    )
+    return response.ok(result)
+  }
+
+  async adminShow({ request, response }: HttpContext) {
+    const result = await this.service.viewNote(
+      new GetNoteDetailQuery(AppId.fromString(request.param('id')), true)
     )
     return response.ok(result)
   }

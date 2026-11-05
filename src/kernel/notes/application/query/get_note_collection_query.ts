@@ -15,7 +15,8 @@ export class GetNoteCollectionQuery implements Query {
     public readonly courseId: AppId,
     public readonly pagination: Pagination,
     public readonly search: Search,
-    public readonly filter: Filter | null
+    public readonly filter: Filter | null,
+    public readonly includeUnpublished: boolean = false
   ) {
     if (
       filter !== null &&

@@ -2,7 +2,9 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { NoteStatus, NoteType } from '#kernel/organisation/domain/types/index'
 import {
+  createAdmin,
   createContributor,
+  loginAs,
   seedAcademicStructure,
   seedNote,
   seedNotePage,
@@ -30,12 +32,96 @@ test.group('Notes / browsing', (group) => {
     const response = await client.get(`/api/v1/courses/${structure.course.id}/notes`)
 
     response.assertStatus(200)
-    assert.lengthOf(response.body().data, 2)
-    assert.equal(response.body().meta.total, 2)
+    assert.lengthOf(response.body().data, 1)
+    assert.equal(response.body().meta.total, 1)
+    assert.equal(response.body().data[0].id, note.id)
+    assert.equal(response.body().data[0].status, NoteStatus.PUBLISHED)
+    assert.notInclude(
+      response.body().data.map((item: any) => item.status),
+      NoteStatus.DRAFT
+    )
 
     const published = response.body().data.find((item: any) => item.id === note.id)
     assert.equal(published.pageCount, 1)
-    assert.equal(published.status, NoteStatus.PUBLISHED)
+  })
+
+  test('hides non-published notes from the public catalogue and detail', async ({
+    client,
+    assert,
+  }) => {
+    const structure = await seedAcademicStructure()
+    const contributor = await createContributor()
+
+    const hiddenStatuses = [
+      NoteStatus.DRAFT,
+      NoteStatus.PENDING_REVIEW,
+      NoteStatus.REJECTED,
+      NoteStatus.ARCHIVED,
+    ]
+
+    const hiddenNotes = []
+    for (const status of hiddenStatuses) {
+      hiddenNotes.push(
+        await seedNote({
+          courseId: structure.course.id,
+          uploadedBy: contributor.id,
+          title: `Hidden ${status}`,
+          status,
+        })
+      )
+    }
+
+    const list = await client.get(`/api/v1/courses/${structure.course.id}/notes`)
+    list.assertStatus(200)
+    assert.lengthOf(list.body().data, 0)
+    assert.equal(list.body().meta.total, 0)
+
+    for (const note of hiddenNotes) {
+      const detail = await client.get(`/api/v1/notes/${note.id}`)
+      detail.assertStatus(404)
+      assert.equal(detail.body().error.code, 'NOTE_NOT_FOUND')
+    }
+  })
+
+  test('lets an administrator read unpublished notes', async ({ client, assert }) => {
+    const admin = await createAdmin()
+    const token = await loginAs(client, admin)
+    const structure = await seedAcademicStructure()
+    const contributor = await createContributor()
+    const draft = await seedNote({
+      courseId: structure.course.id,
+      uploadedBy: contributor.id,
+      title: 'Admin Only Draft',
+      status: NoteStatus.DRAFT,
+    })
+
+    const list = await client
+      .get(`/api/v1/admin/courses/${structure.course.id}/notes`)
+      .bearerToken(token)
+    list.assertStatus(200)
+    assert.lengthOf(list.body().data, 1)
+    assert.equal(list.body().data[0].status, NoteStatus.DRAFT)
+
+    const detail = await client.get(`/api/v1/admin/notes/${draft.id}`).bearerToken(token)
+    detail.assertStatus(200)
+    assert.equal(detail.body().id, draft.id)
+    assert.equal(detail.body().status, NoteStatus.DRAFT)
+  })
+
+  test('protects admin note reads', async ({ client }) => {
+    const structure = await seedAcademicStructure()
+    const contributor = await createContributor()
+    const token = await loginAs(client, contributor)
+
+    const anonymous = await client.get(
+      `/api/v1/admin/courses/${structure.course.id}/notes`
+    )
+    anonymous.assertStatus(401)
+
+    const forbidden = await client
+      .get(`/api/v1/admin/courses/${structure.course.id}/notes`)
+      .bearerToken(token)
+    forbidden.assertStatus(403)
   })
 
   test('filters notes by status, type and search term', async ({ client, assert }) => {
@@ -106,8 +192,18 @@ test.group('Notes / browsing', (group) => {
     const second = await seedAcademicStructure()
     const contributor = await createContributor()
 
-    await seedNote({ courseId: first.course.id, uploadedBy: contributor.id, title: 'First' })
-    await seedNote({ courseId: second.course.id, uploadedBy: contributor.id, title: 'Second' })
+    await seedNote({
+      courseId: first.course.id,
+      uploadedBy: contributor.id,
+      title: 'First',
+      status: NoteStatus.PUBLISHED,
+    })
+    await seedNote({
+      courseId: second.course.id,
+      uploadedBy: contributor.id,
+      title: 'Second',
+      status: NoteStatus.PUBLISHED,
+    })
 
     const response = await client.get(`/api/v1/courses/${first.course.id}/notes`)
 

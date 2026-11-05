@@ -8,6 +8,7 @@ import type { NoteService } from '#kernel/notes/application/services/note_servic
 import { GetNoteCollectionQuery } from '#kernel/notes/application/query/get_note_collection_query'
 import { GetNoteDetailQuery } from '#kernel/notes/application/query/get_note_detail_query'
 import { NoteNotFoundError } from '#kernel/notes/domain/errors/note_not_found_error'
+import { NoteStatus } from '#kernel/organisation/domain/types/index'
 import { CollectionResponse } from '#shared/application/collection/collection_response'
 import { mapPaginatedResult } from '#shared/infrastructure/collection/paginated_result'
 
@@ -21,8 +22,16 @@ export class NoteARService implements NoteService {
 
     const builder = NoteRecord.query().where('course_id', query.courseId.value).preload('pages')
 
-    if (status) {
-      builder.where('status', status)
+    if (query.includeUnpublished) {
+      if (status) {
+        builder.where('status', status)
+      }
+    } else {
+      /*
+       * The public catalogue must never expose drafts, notes under review,
+       * rejected notes or archives. Admin reads use includeUnpublished.
+       */
+      builder.where('status', NoteStatus.PUBLISHED)
     }
 
     if (noteType) {
@@ -55,7 +64,7 @@ export class NoteARService implements NoteService {
       .preload('pages', (pages) => pages.preload('upload').orderBy('sort_order', 'asc'))
       .first()
 
-    if (!note) {
+    if (!note || (!query.includeUnpublished && note.status !== NoteStatus.PUBLISHED)) {
       throw new NoteNotFoundError()
     }
 
