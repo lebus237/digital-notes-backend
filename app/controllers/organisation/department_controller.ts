@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { AppAbstractController } from '#shared/user_interface/controller/app_abstract_controller'
 import { createDepartmentSchema } from '#validators/organisation/department_validator'
 import { GetDepartmentCollectionQuery } from '#kernel/organisation/application/use-cases/query/get_department_collection_query'
+import { GetDepartmentQuery } from '#kernel/organisation/application/use-cases/query/get_department_query'
 import { CreateDepartmentCommand } from '#kernel/organisation/application/use-cases/command/create_department_command'
 import { AppId } from '#shared/domain/app_id'
 import type { DepartmentService } from '#kernel/organisation/application/services/department_service'
@@ -29,5 +30,12 @@ export default class DepartmentController extends AppAbstractController {
       new CreateDepartmentCommand(AppId.fromString(payload.facultyId), payload.name)
     )
     return response.created({ id })
+  }
+
+  async show({ request, response }: HttpContext) {
+    const result = await this.service.viewDepartment(
+      new GetDepartmentQuery(AppId.fromString(request.param('id')))
+    )
+    return response.ok(result)
   }
 }

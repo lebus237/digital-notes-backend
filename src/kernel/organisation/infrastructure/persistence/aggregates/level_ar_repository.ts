@@ -15,8 +15,6 @@ export class LevelARRepository implements LevelRepository {
       departmentId: entity.getDepartmentId() as any,
       name: entity.getName(),
       year: entity.getYear(),
-      createdAt: entity.getCreatedAt() as any,
-      updatedAt: entity.getUpdatedAt() as any,
     }
 
     try {
