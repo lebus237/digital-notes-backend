@@ -70,6 +70,14 @@ router
     router.get('/notes/:id', [NoteController, 'show']).use(publicReadThrottle)
 
     router
+      .get('/contributor/notes', [NoteController, 'contributorIndex'])
+      .use([
+        middleware.auth(),
+        middleware.role({ roles: ['administrator', 'contributor'] }),
+        publicReadThrottle,
+      ])
+
+    router
       .group(() => {
         router.post('/universities', [UniversitiesController, 'store']).use(adminWriteThrottle)
         router.post('/faculties', [FacultyController, 'store']).use(adminWriteThrottle)

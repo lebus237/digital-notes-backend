@@ -8,6 +8,7 @@ import { UpdateNoteCommand } from '#kernel/notes/application/command/update_note
 import { SubmitNoteCommand } from '#kernel/notes/application/command/submit_note_command'
 import { GetNoteCollectionQuery } from '#kernel/notes/application/query/get_note_collection_query'
 import { GetAdminNoteCollectionQuery } from '#kernel/notes/application/query/get_admin_note_collection_query'
+import { GetContributorNoteCollectionQuery } from '#kernel/notes/application/query/get_contributor_note_collection_query'
 import { GetNoteDetailQuery } from '#kernel/notes/application/query/get_note_detail_query'
 import { AppId } from '#shared/domain/app_id'
 import { AppFile } from '#shared/domain/app_file'
@@ -27,6 +28,20 @@ export default class NoteController extends AppAbstractController {
     const result = await this.service.noteCollection(
       new GetNoteCollectionQuery(
         AppId.fromString(request.param('courseId') ?? qs.courseId),
+        this.getQueryPagination(qs),
+        this.getQuerySearch(qs),
+        this.getQueryFilter(qs)
+      )
+    )
+    return response.ok(result)
+  }
+
+  async contributorIndex({ auth, request, response }: HttpContext) {
+    const user = auth.user as User
+    const qs = request.qs()
+    const result = await this.service.contributorNoteCollection(
+      new GetContributorNoteCollectionQuery(
+        AppId.fromString(String(user.id)),
         this.getQueryPagination(qs),
         this.getQuerySearch(qs),
         this.getQueryFilter(qs)

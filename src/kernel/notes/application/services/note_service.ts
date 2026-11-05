@@ -2,6 +2,7 @@ import { CollectionResponse } from '#shared/application/collection/collection_re
 import { GetNoteCollectionQuery } from '#kernel/notes/application/query/get_note_collection_query'
 import { GetNoteDetailQuery } from '#kernel/notes/application/query/get_note_detail_query'
 import { GetAdminNoteCollectionQuery } from '#kernel/notes/application/query/get_admin_note_collection_query'
+import { GetContributorNoteCollectionQuery } from '#kernel/notes/application/query/get_contributor_note_collection_query'
 import { NoteStatus, NoteType } from '#kernel/organisation/domain/types/index'
 
 export type NotePageData = {
@@ -55,6 +56,10 @@ export interface NoteService {
 
   adminNoteCollection(
     query: GetAdminNoteCollectionQuery
+  ): Promise<CollectionResponse<AdminNoteListItemData>>
+
+  contributorNoteCollection(
+    query: GetContributorNoteCollectionQuery
   ): Promise<CollectionResponse<AdminNoteListItemData>>
 
   viewNote(query: GetNoteDetailQuery): Promise<NoteData>
