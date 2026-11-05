@@ -25,6 +25,7 @@ export interface LocalProviderConfig {
 
 export class LocalStorageProvider implements StorageProviderInterface {
   private storagePath: string
+  private baseUrl: string
   private basePath?: string
   private imageBasePath: string
   private documentBasePath: string
@@ -32,6 +33,7 @@ export class LocalStorageProvider implements StorageProviderInterface {
 
   constructor(config: LocalProviderConfig) {
     this.storagePath = config.storagePath
+    this.baseUrl = config.baseUrl.replace(/\/$/, '')
     this.basePath = config.basePath
     this.imageBasePath = config.imageBasePath ?? DEFAULT_IMAGE_STORAGE_PATH
     this.documentBasePath = config.documentBasePath ?? DEFAULT_DOCUMENT_STORAGE_PATH
@@ -64,7 +66,13 @@ export class LocalStorageProvider implements StorageProviderInterface {
       // Write file
       await file.moveToDisk(relativeKey)
 
-      const url = file.meta.url
+      /*
+       * Drive's file.meta.url is built from both appUrl and routeBasePath.
+       * LOCAL_STORAGE_URL already points at the public storage root, so build
+       * the public URL from that root to avoid a duplicated /uploads segment.
+       */
+      const publicKey = relativeKey.split(path.sep).join('/')
+      const url = `${this.baseUrl}/${publicKey}`
 
       return {
         success: true,
