@@ -59,14 +59,18 @@ router
 router
   .group(() => {
     router.get('/universities', [UniversitiesController, 'index']).use(publicReadThrottle)
+    router.get('/universities/:id', [UniversitiesController, 'show']).use(publicReadThrottle)
     router.get('/faculties', [FacultyController, 'index']).use(publicReadThrottle)
+    router.get('/faculties/:id', [FacultyController, 'show']).use(publicReadThrottle)
     router.get('/departments', [DepartmentController, 'index']).use(publicReadThrottle)
+    router.get('/departments/:id', [DepartmentController, 'show']).use(publicReadThrottle)
     router.get('/levels', [LevelController, 'index']).use(publicReadThrottle)
     router.get('/semesters', [SemesterController, 'index']).use(publicReadThrottle)
     router.get('/courses', [CourseController, 'index']).use(publicReadThrottle)
     router.get('/courses/:id', [CourseController, 'show']).use(publicReadThrottle)
 
     router.get('/courses/:courseId/notes', [NoteController, 'index']).use(publicReadThrottle)
+    router.get('/notes', [NoteController, 'publicIndex']).use(publicReadThrottle)
     router.get('/notes/:id', [NoteController, 'show']).use(publicReadThrottle)
 
     router

@@ -1,11 +1,16 @@
 import { test } from '@japa/runner'
-import testUtils from '@adonisjs/core/services/test_utils'
 import crypto from 'node:crypto'
 import { UniversityRecord } from '#database/active-records/index'
-import { createAdmin, createUser, loginAs, seedAcademicStructure } from '../support/helpers.js'
+import {
+  createAdmin,
+  createUser,
+  loginAs,
+  seedAcademicStructure,
+  truncateAll,
+} from '../support/helpers.js'
 
 test.group('Organisation / catalogue', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => truncateAll())
 
   test('lists universities without authentication', async ({ client, assert }) => {
     const first = await seedAcademicStructure()
@@ -79,6 +84,27 @@ test.group('Organisation / catalogue', (group) => {
 
     response.assertStatus(422)
     assert.equal(response.body().error.code, 'INVALID_UUID_FORMAT_STRING')
+  })
+
+  test('exposes public detail pages for the catalogue hierarchy', async ({ client, assert }) => {
+    const structure = await seedAcademicStructure()
+
+    const university = await client.get(`/api/v1/universities/${structure.university.id}`)
+    university.assertStatus(200)
+    assert.equal(university.body().name, structure.university.name)
+
+    const faculty = await client.get(`/api/v1/faculties/${structure.faculty.id}`)
+    faculty.assertStatus(200)
+    assert.equal(faculty.body().name, structure.faculty.name)
+    assert.equal(faculty.body().universityId, structure.university.id)
+
+    const department = await client.get(`/api/v1/departments/${structure.department.id}`)
+    department.assertStatus(200)
+    assert.equal(department.body().name, structure.department.name)
+    assert.equal(department.body().facultyId, structure.faculty.id)
+
+    const missing = await client.get(`/api/v1/universities/${crypto.randomUUID()}`)
+    missing.assertStatus(404)
   })
 
   test('creates a university as an administrator', async ({ client, assert }) => {
@@ -224,7 +250,7 @@ test.group('Organisation / catalogue', (group) => {
     const level = await client
       .post('/api/v1/admin/levels')
       .bearerToken(token)
-      .json({ departmentId: missingId, name: 'Orphan Level' })
+      .json({ departmentId: missingId, name: 'Orphan Level', year: 1 })
     level.assertStatus(404)
     assert.equal(level.body().error.code, 'ORGANISATION_DEPARTMENT_NOT_FOUND')
 

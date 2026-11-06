@@ -4,11 +4,13 @@ import {
   NoteData,
   NoteListItemData,
   NotePageData,
+  PublicNoteListItemData,
 } from '#kernel/notes/application/services/note_service'
 import type { NoteService } from '#kernel/notes/application/services/note_service'
 import { GetNoteCollectionQuery } from '#kernel/notes/application/query/get_note_collection_query'
 import { GetAdminNoteCollectionQuery } from '#kernel/notes/application/query/get_admin_note_collection_query'
 import { GetContributorNoteCollectionQuery } from '#kernel/notes/application/query/get_contributor_note_collection_query'
+import { GetPublicNoteCollectionQuery } from '#kernel/notes/application/query/get_public_note_collection_query'
 import { GetNoteDetailQuery } from '#kernel/notes/application/query/get_note_detail_query'
 import { NoteNotFoundError } from '#kernel/notes/domain/errors/note_not_found_error'
 import { NoteStatus } from '#kernel/organisation/domain/types/index'
@@ -23,7 +25,9 @@ export class NoteARService implements NoteService {
     const { q } = query.search
     const { status, noteType } = query.filter?.entries ?? {}
 
-    const builder = NoteRecord.query().where('course_id', query.courseId.value).preload('pages')
+    const builder = NoteRecord.query()
+      .where('course_id', query.courseId.value)
+      .preload('pages', (pages) => pages.preload('upload').orderBy('sort_order', 'asc'))
 
     if (query.includeUnpublished) {
       if (status) {
@@ -56,6 +60,70 @@ export class NoteARService implements NoteService {
       uploadedBy: item.uploadedBy,
       providedAt: item.providedAt?.toISO() ?? null,
       pageCount: item.pages?.length ?? 0,
+      coverUrl: item.pages?.[0]?.upload?.url ?? null,
+      createdAt: item.createdAt.toISO()!,
+      updatedAt: item.updatedAt.toISO()!,
+    }))
+  }
+
+  async publicNoteCollection(
+    query: GetPublicNoteCollectionQuery
+  ): Promise<CollectionResponse<PublicNoteListItemData>> {
+    const { page, limit } = query.pagination
+    const { q } = query.search
+    const { noteType } = query.filter?.entries ?? {}
+
+    const builder = NoteRecord.query()
+      .where('status', NoteStatus.PUBLISHED)
+      .preload('course', (course) => {
+        course
+          .preload('level')
+          .preload('semester')
+          .preload('department', (department) => {
+            department.preload('faculty', (faculty) => faculty.preload('university'))
+          })
+      })
+      .preload('pages', (pages) => pages.preload('upload').orderBy('sort_order', 'asc'))
+      .preload('uploader')
+
+    if (noteType) {
+      builder.where('note_type', noteType)
+    }
+
+    if (q) {
+      builder.where((searchQuery) => {
+        searchQuery.whereILike('title', `%${q}%`).orWhereHas('course', (courseQuery) => {
+          courseQuery.whereILike('name', `%${q}%`).orWhereILike('code', `%${q}%`)
+        })
+      })
+    }
+
+    builder.orderBy('published_at', 'desc').orderBy('updated_at', 'desc')
+
+    const results = await builder.paginate(page, limit)
+
+    return mapPaginatedResult<NoteRecord, PublicNoteListItemData>(results, (item: any) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      noteType: item.noteType,
+      price: item.price,
+      status: item.status,
+      uploadedBy: item.uploadedBy,
+      contributorName: item.uploader?.fullName ?? null,
+      providedAt: item.providedAt?.toISO() ?? null,
+      publishedAt: item.publishedAt?.toISO() ?? null,
+      pageCount: item.pages?.length ?? 0,
+      coverUrl: item.pages?.[0]?.upload?.url ?? null,
+      courseId: item.courseId,
+      courseCode: item.course?.code ?? '',
+      courseName: item.course?.name ?? '',
+      departmentId: item.course?.departmentId ?? null,
+      departmentName: item.course?.department?.name ?? null,
+      facultyId: item.course?.department?.facultyId ?? null,
+      facultyName: item.course?.department?.faculty?.name ?? null,
+      universityId: item.course?.department?.faculty?.universityId ?? null,
+      universityName: item.course?.department?.faculty?.university?.name ?? null,
       createdAt: item.createdAt.toISO()!,
       updatedAt: item.updatedAt.toISO()!,
     }))
@@ -153,7 +221,10 @@ export class NoteARService implements NoteService {
   async viewNote(query: GetNoteDetailQuery): Promise<NoteData> {
     const note: any = await NoteRecord.query()
       .where('id', query.id.value)
-      .preload('course')
+      .preload('course', (course) => {
+        course.preload('level').preload('semester').preload('department')
+      })
+      .preload('uploader')
       .preload('pages', (pages) => pages.preload('upload').orderBy('sort_order', 'asc'))
       .first()
 
@@ -175,12 +246,17 @@ export class NoteARService implements NoteService {
       courseId: note.courseId,
       courseCode: note.course?.code ?? '',
       courseName: note.course?.name ?? '',
+      courseDepartmentId: note.course?.departmentId ?? null,
+      courseDepartmentName: note.course?.department?.name ?? null,
+      courseLevelName: note.course?.level?.name ?? null,
+      courseSemesterName: note.course?.semester?.name ?? null,
       title: note.title,
       description: note.description,
       noteType: note.noteType,
       price: note.price,
       status: note.status,
       uploadedBy: note.uploadedBy,
+      contributorName: note.uploader?.fullName ?? null,
       providedAt: note.providedAt?.toISO() ?? null,
       publishedAt: note.publishedAt?.toISO() ?? null,
       archivedAt: note.archivedAt?.toISO() ?? null,

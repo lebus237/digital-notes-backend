@@ -1,5 +1,4 @@
 import { test } from '@japa/runner'
-import testUtils from '@adonisjs/core/services/test_utils'
 import { NoteStatus, NoteType } from '#kernel/organisation/domain/types/index'
 import {
   createAdmin,
@@ -8,10 +7,11 @@ import {
   seedAcademicStructure,
   seedNote,
   seedNotePage,
+  truncateAll,
 } from '../support/helpers.js'
 
 test.group('Notes / browsing', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => truncateAll())
 
   test('lists notes for a course without authentication', async ({ client, assert }) => {
     const structure = await seedAcademicStructure()
@@ -43,6 +43,72 @@ test.group('Notes / browsing', (group) => {
 
     const published = response.body().data.find((item: any) => item.id === note.id)
     assert.equal(published.pageCount, 1)
+  })
+
+  test('lists published notes across the catalogue with covers and search filters', async ({
+    client,
+    assert,
+  }) => {
+    const first = await seedAcademicStructure()
+    const second = await seedAcademicStructure()
+    const contributor = await createContributor()
+
+    const revision = await seedNote({
+      courseId: first.course.id,
+      uploadedBy: contributor.id,
+      title: 'Catalogue Revision Notes',
+      status: NoteStatus.PUBLISHED,
+      noteType: NoteType.REVISION,
+    })
+    const page = await seedNotePage(revision.id, 0, contributor.id)
+    const pastExam = await seedNote({
+      courseId: second.course.id,
+      uploadedBy: contributor.id,
+      title: 'Catalogue Past Exam',
+      status: NoteStatus.PUBLISHED,
+      noteType: NoteType.PAST_EXAM,
+    })
+    const draft = await seedNote({
+      courseId: first.course.id,
+      uploadedBy: contributor.id,
+      title: 'Catalogue Draft',
+      status: NoteStatus.DRAFT,
+    })
+
+    const feed = await client.get('/api/v1/notes')
+    feed.assertStatus(200)
+    assert.lengthOf(feed.body().data, 2)
+    assert.equal(feed.body().meta.total, 2)
+    assert.notInclude(
+      feed.body().data.map((item: { id: string }) => item.id),
+      draft.id
+    )
+
+    const revisionItem = feed.body().data.find((item: { id: string }) => item.id === revision.id)
+    assert.equal(revisionItem.coverUrl, page.url)
+    assert.equal(revisionItem.courseCode, first.course.code)
+    assert.equal(revisionItem.universityName, first.university.name)
+
+    const byType = await client
+      .get('/api/v1/notes')
+      .qs({ noteType: NoteType.REVISION })
+    byType.assertStatus(200)
+    assert.lengthOf(byType.body().data, 1)
+    assert.equal(byType.body().data[0].id, revision.id)
+
+    const byTitle = await client.get('/api/v1/notes').qs({ q: 'past exam' })
+    byTitle.assertStatus(200)
+    assert.lengthOf(byTitle.body().data, 1)
+    assert.equal(byTitle.body().data[0].id, pastExam.id)
+
+    const byCourseCode = await client.get('/api/v1/notes').qs({ q: first.course.code })
+    byCourseCode.assertStatus(200)
+    assert.lengthOf(byCourseCode.body().data, 1)
+    assert.equal(byCourseCode.body().data[0].id, revision.id)
+
+    const invalid = await client.get('/api/v1/notes').qs({ noteType: 'FLASHCARDS' })
+    invalid.assertStatus(422)
+    assert.equal(invalid.body().error.code, 'INVALID_NOTE_TYPE')
   })
 
   test('hides non-published notes from the public catalogue and detail', async ({

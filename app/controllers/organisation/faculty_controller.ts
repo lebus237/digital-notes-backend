@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { AppAbstractController } from '#shared/user_interface/controller/app_abstract_controller'
 import { createFacultySchema } from '#validators/organisation/faculty_validator'
 import { GetFacultyCollectionQuery } from '#kernel/organisation/application/use-cases/query/get_faculty_collection_query'
+import { GetFacultyQuery } from '#kernel/organisation/application/use-cases/query/get_faculty_query'
 import { CreateFacultyCommand } from '#kernel/organisation/application/use-cases/command/create_faculty_command'
 import { AppId } from '#shared/domain/app_id'
 import type { FacultyService } from '#kernel/organisation/application/services/faculty_service'
@@ -29,5 +30,12 @@ export default class FacultyController extends AppAbstractController {
       new CreateFacultyCommand(AppId.fromString(payload.universityId), payload.name)
     )
     return response.created({ id })
+  }
+
+  async show({ request, response }: HttpContext) {
+    const result = await this.service.viewFaculty(
+      new GetFacultyQuery(AppId.fromString(request.param('id')))
+    )
+    return response.ok(result)
   }
 }
