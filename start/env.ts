@@ -75,6 +75,7 @@ export default await Env.create(new URL('../', import.meta.url), {
   MAIL_PASSWORD: Env.schema.string.optional(),
   MAIL_FROM: Env.schema.string.optional(),
   APP_WEB_URL: Env.schema.string.optional(),
+  STUDENT_WEB_URL: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------

@@ -98,6 +98,10 @@ async function issueSession(user: User): Promise<{ accessToken: string; refreshT
   }
 }
 
+function studentWebUrl(): string {
+  return (env.get('STUDENT_WEB_URL') ?? 'http://localhost:3003').replace(/\/$/, '')
+}
+
 async function issueEmailVerification(user: User): Promise<void> {
   const token = generateOpaqueToken(32)
 
@@ -108,7 +112,7 @@ async function issueEmailVerification(user: User): Promise<void> {
     expiresAt: DateTime.utc().plus({ hours: 24 }),
   })
 
-  const verifyUrl = `${(env.get('APP_WEB_URL') ?? 'http://localhost:3000').replace(/\/$/, '')}/verify-email?token=${token}`
+  const verifyUrl = `${studentWebUrl()}/verify-email?token=${token}`
   await mailService.sendEmailVerification(user.email, verifyUrl)
 }
 
@@ -306,7 +310,7 @@ export default class AuthController {
      * phone number would be enough to take over the account. It is delivered
      * through SMTP when configured, with a development log fallback.
      */
-    const resetUrl = `${(env.get('APP_WEB_URL') ?? 'http://localhost:3000').replace(/\/$/, '')}/reset-password?token=${token}`
+    const resetUrl = `${studentWebUrl()}/reset-password?token=${token}`
 
     try {
       await mailService.sendPasswordReset(user.email, resetUrl)
