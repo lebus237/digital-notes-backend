@@ -106,6 +106,31 @@ test.group('Notes / browsing', (group) => {
     assert.lengthOf(byCourseCode.body().data, 1)
     assert.equal(byCourseCode.body().data[0].id, revision.id)
 
+    const byDepartment = await client.get('/api/v1/notes').qs({
+      departmentId: first.department.id,
+    })
+    byDepartment.assertStatus(200)
+    assert.lengthOf(byDepartment.body().data, 1)
+    assert.equal(byDepartment.body().data[0].id, revision.id)
+
+    const byLevel = await client.get('/api/v1/notes').qs({ levelId: second.level.id })
+    byLevel.assertStatus(200)
+    assert.lengthOf(byLevel.body().data, 1)
+    assert.equal(byLevel.body().data[0].id, pastExam.id)
+
+    const bySemester = await client.get('/api/v1/notes').qs({
+      semesterId: first.semester.id,
+    })
+    bySemester.assertStatus(200)
+    assert.lengthOf(bySemester.body().data, 1)
+    assert.equal(bySemester.body().data[0].id, revision.id)
+
+    const invalidDepartment = await client
+      .get('/api/v1/notes')
+      .qs({ departmentId: 'not-a-uuid' })
+    invalidDepartment.assertStatus(422)
+    assert.equal(invalidDepartment.body().error.code, 'INVALID_UUID_FORMAT_STRING')
+
     const invalid = await client.get('/api/v1/notes').qs({ noteType: 'FLASHCARDS' })
     invalid.assertStatus(422)
     assert.equal(invalid.body().error.code, 'INVALID_NOTE_TYPE')

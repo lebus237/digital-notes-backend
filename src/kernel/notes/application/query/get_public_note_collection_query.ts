@@ -6,10 +6,11 @@ import { DateTime } from 'luxon'
 import { ApplicationError } from '#shared/application/errors/application_error'
 import { ErrorCategory } from '#shared/domain/errors/app_error'
 import { Filter } from '#shared/application/read-model/filter'
+import { AppId } from '#shared/domain/app_id'
 
 /**
  * Published notes across the whole catalogue. This powers the public home
- * feed and the global browse/search page.
+ * feed, global browse/search and the personalised student home.
  */
 export class GetPublicNoteCollectionQuery implements Query {
   readonly timestamp: DateTime
@@ -30,6 +31,13 @@ export class GetPublicNoteCollectionQuery implements Query {
         `Invalid note type: ${filter.entries.noteType}`,
         ErrorCategory.VALIDATION
       )
+    }
+
+    for (const key of ['departmentId', 'levelId', 'semesterId']) {
+      const value = filter?.entries[key]
+      if (value !== undefined && value !== null && value !== '') {
+        AppId.fromString(String(value))
+      }
     }
 
     this.timestamp = DateTime.now()

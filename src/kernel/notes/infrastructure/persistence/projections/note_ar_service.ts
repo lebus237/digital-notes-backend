@@ -71,7 +71,7 @@ export class NoteARService implements NoteService {
   ): Promise<CollectionResponse<PublicNoteListItemData>> {
     const { page, limit } = query.pagination
     const { q } = query.search
-    const { noteType } = query.filter?.entries ?? {}
+    const { noteType, departmentId, levelId, semesterId } = query.filter?.entries ?? {}
 
     const builder = NoteRecord.query()
       .where('status', NoteStatus.PUBLISHED)
@@ -88,6 +88,14 @@ export class NoteARService implements NoteService {
 
     if (noteType) {
       builder.where('note_type', noteType)
+    }
+
+    if (departmentId || levelId || semesterId) {
+      builder.whereHas('course', (courseQuery) => {
+        if (departmentId) courseQuery.where('department_id', departmentId)
+        if (levelId) courseQuery.where('level_id', levelId)
+        if (semesterId) courseQuery.where('semester_id', semesterId)
+      })
     }
 
     if (q) {
