@@ -98,6 +98,14 @@ export class NoteARService implements NoteService {
       })
     }
 
+    if (query.noteIds !== null) {
+      if (query.noteIds.length === 0) {
+        builder.whereRaw('1 = 0')
+      } else {
+        builder.whereIn('id', query.noteIds)
+      }
+    }
+
     builder.orderBy('published_at', 'desc').orderBy('updated_at', 'desc')
 
     const results = await builder.paginate(page, limit)

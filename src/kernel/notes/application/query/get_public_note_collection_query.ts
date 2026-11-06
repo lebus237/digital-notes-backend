@@ -17,7 +17,8 @@ export class GetPublicNoteCollectionQuery implements Query {
   constructor(
     public readonly pagination: Pagination,
     public readonly search: Search,
-    public readonly filter: Filter | null
+    public readonly filter: Filter | null,
+    public readonly noteIds: string[] | null = null
   ) {
     if (
       filter !== null &&

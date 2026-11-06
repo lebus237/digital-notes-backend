@@ -10,6 +10,7 @@ import type { SemesterService } from '#kernel/organisation/application/services/
 import type { CourseService } from '#kernel/organisation/application/services/course_service'
 import type { EmployeeService } from '#kernel/employee/application/services/employee_service'
 import type { NoteService } from '#kernel/notes/application/services/note_service'
+import type { StudentService } from '#kernel/student/application/services/student_service'
 
 declare module '@adonisjs/core/types' {
   interface ContainerBindings {
@@ -38,5 +39,6 @@ declare module '@adonisjs/core/types' {
     'CourseService': CourseService
     'EmployeeService': EmployeeService
     'NoteService': NoteService
+    'StudentService': StudentService
   }
 }

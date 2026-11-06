@@ -8,6 +8,7 @@ import { SemesterARService } from '#kernel/organisation/infrastructure/persisten
 import { CourseARService } from '#kernel/organisation/infrastructure/persistence/projections/course_ar_service'
 import { EmployeeARService } from '#kernel/employee/infrastructure/persistence/projections/employee_ar_service'
 import { NoteARService } from '#kernel/notes/infrastructure/persistence/projections/note_ar_service'
+import { StudentARService } from '#kernel/student/infrastructure/persistence/student_ar_service'
 import UniversityController from '#controllers/organisation/university_controller'
 import FacultyController from '#controllers/organisation/faculty_controller'
 import DepartmentController from '#controllers/organisation/department_controller'
@@ -17,6 +18,7 @@ import CourseController from '#controllers/organisation/course_controller'
 import EmployeeController from '#controllers/employee/employee_controller'
 import { ApplicationService } from '@adonisjs/core/types'
 import NoteController from '#controllers/notes/note_controller'
+import StudentController from '#controllers/student/student_controller'
 
 export default class ServiceProvider {
   constructor(protected app: ApplicationService) {}
@@ -46,6 +48,9 @@ export default class ServiceProvider {
     this.app.container.singleton('NoteService', () => {
       return new NoteARService()
     })
+    this.app.container.singleton('StudentService', () => {
+      return new StudentARService()
+    })
 
     this.app.container.bind(UniversityController, async (resolver) => {
       return new UniversityController(await resolver.make('UniversityService'))
@@ -70,6 +75,12 @@ export default class ServiceProvider {
     })
     this.app.container.bind(NoteController, async (resolver) => {
       return new NoteController(await resolver.make('NoteService'))
+    })
+    this.app.container.bind(StudentController, async (resolver) => {
+      return new StudentController(
+        await resolver.make('StudentService'),
+        await resolver.make('NoteService')
+      )
     })
 
     if (this.app.nodeEnvironment !== 'test') {

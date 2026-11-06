@@ -27,6 +27,7 @@ const SemesterController = () => import('#controllers/organisation/semester_cont
 const CourseController = () => import('#controllers/organisation/course_controller')
 const EmployeeController = () => import('#controllers/employee/employee_controller')
 const NoteController = () => import('#controllers/notes/note_controller')
+const StudentController = () => import('#controllers/student/student_controller')
 
 router
   .group(() => {
@@ -80,6 +81,20 @@ router
         middleware.role({ roles: ['administrator', 'contributor'] }),
         publicReadThrottle,
       ])
+
+    router
+      .group(() => {
+        router.get('/profile', [StudentController, 'profile']).use(publicReadThrottle)
+        router.patch('/profile', [StudentController, 'updateProfile'])
+        router.get('/favorites', [StudentController, 'favorites']).use(publicReadThrottle)
+        router.get('/favorites/ids', [StudentController, 'favoriteIds']).use(publicReadThrottle)
+        router.post('/favorites/:noteId', [StudentController, 'addFavorite'])
+        router.delete('/favorites/:noteId', [StudentController, 'removeFavorite'])
+        router.get('/history', [StudentController, 'history']).use(publicReadThrottle)
+        router.post('/history/:noteId', [StudentController, 'recordView'])
+      })
+      .prefix('/student')
+      .use(middleware.auth())
 
     router
       .group(() => {
