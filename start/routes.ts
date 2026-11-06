@@ -91,6 +91,11 @@ router
           .post('/users/:id/reset-password', [AuthController, 'adminResetPassword'])
           .use(authThrottle)
 
+        router
+          .get('/courses/:courseId/notes', [NoteController, 'adminIndex'])
+          .use(publicReadThrottle)
+        router.get('/notes/:id', [NoteController, 'adminShow']).use(publicReadThrottle)
+
         router.post('/notes', [NoteController, 'store']).use(uploadStoreThrottle)
         router.patch('/notes/:id', [NoteController, 'update']).use(adminWriteThrottle)
         router.post('/notes/:id/publish', [NoteController, 'publish']).use(adminWriteThrottle)

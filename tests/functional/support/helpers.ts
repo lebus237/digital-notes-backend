@@ -2,6 +2,7 @@ import crypto from 'node:crypto'
 import { DateTime } from 'luxon'
 import type { ApiClient } from '@japa/api-client'
 import User from '#database/active-records/user'
+import PasswordResetToken from '#database/active-records/password_reset_token'
 import {
   CourseRecord,
   DepartmentRecord,
@@ -70,6 +71,23 @@ export async function createAdmin(): Promise<User> {
 
 export async function createContributor(): Promise<User> {
   return createUser({ role: UserRole.CONTRIBUTOR, fullName: 'Contributor User' })
+}
+
+/**
+ * Seeds a reset token directly. The forgot-password endpoint deliberately
+ * never returns the raw token, so tests must create the hashed record
+ * themselves while exercising the reset-password flow.
+ */
+export async function seedPasswordResetToken(
+  userId: User['id'],
+  token: string = 'a'.repeat(64),
+  expiresAt: DateTime = DateTime.utc().plus({ hour: 1 })
+): Promise<PasswordResetToken> {
+  return PasswordResetToken.create({
+    userId,
+    tokenHash: crypto.createHash('sha256').update(token).digest('hex'),
+    expiresAt,
+  })
 }
 
 export type AcademicStructure = {
