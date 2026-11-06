@@ -52,6 +52,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column({ columnName: 'semester_id' })
   declare semesterId: crypto.UUID | null
 
+  @column.dateTime({ columnName: 'email_verified_at' })
+  declare emailVerifiedAt: DateTime | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

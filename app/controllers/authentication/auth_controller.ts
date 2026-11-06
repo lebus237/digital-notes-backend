@@ -7,10 +7,12 @@ import {
   refreshTokenSchema,
   registerSchema,
   resetPasswordSchema,
+  verifyEmailSchema,
 } from '#validators/auth_validator'
 import User from '#database/active-records/user'
 import PasswordResetToken from '#database/active-records/password_reset_token'
 import RefreshToken from '#database/active-records/refresh_token'
+import EmailVerificationToken from '#database/active-records/email_verification_token'
 import { UserRole } from '#kernel/user/domain/types/user_role'
 import { AppId } from '#shared/domain/app_id'
 import db from '@adonisjs/lucid/services/db'
@@ -56,6 +58,7 @@ function serializeUser(user: User) {
     email: user?.getEmail(),
     phoneNumber: user?.getPhoneNumber(),
     role: user.role,
+    emailVerified: Boolean(user.emailVerifiedAt),
     createdAt: user?.getCreatedAt(),
   }
 }
@@ -95,6 +98,20 @@ async function issueSession(user: User): Promise<{ accessToken: string; refreshT
   }
 }
 
+async function issueEmailVerification(user: User): Promise<void> {
+  const token = generateOpaqueToken(32)
+
+  await EmailVerificationToken.query().where('userId', user.id).whereNull('usedAt').delete()
+  await EmailVerificationToken.create({
+    userId: user.id,
+    tokenHash: hashToken(token),
+    expiresAt: DateTime.utc().plus({ hours: 24 }),
+  })
+
+  const verifyUrl = `${(env.get('APP_WEB_URL') ?? 'http://localhost:3000').replace(/\/$/, '')}/verify-email?token=${token}`
+  await mailService.sendEmailVerification(user.email, verifyUrl)
+}
+
 export default class AuthController {
   async register({ request, response, logger }: HttpContext) {
     const payload = await request.validateUsing(registerSchema)
@@ -104,6 +121,15 @@ export default class AuthController {
 
       try {
         const session = await issueSession(user)
+
+        try {
+          await issueEmailVerification(user)
+        } catch (verificationError) {
+          logger.error(
+            { err: verificationError, userId: user.id },
+            'auth.register verification email failed'
+          )
+        }
 
         return response.created({
           data: {
@@ -337,8 +363,78 @@ export default class AuthController {
     return response.ok({ data: { message: 'Password has been reset' } })
   }
 
-  async changePassword({ auth, request, response }: HttpContext) {
-    const payload = await request.validateUsing(changePasswordSchema)
+  async verifyEmail({ request, response, logger }: HttpContext) {
+    const payload = await request.validateUsing(verifyEmailSchema)
+
+    let verified = false
+
+    try {
+      await db.transaction(async (trx) => {
+        const record = await EmailVerificationToken.query({ client: trx })
+          .where('tokenHash', hashToken(payload.token))
+          .where('expiresAt', '>', DateTime.utc().toJSDate())
+          .forUpdate()
+          .first()
+
+        if (!record) return
+
+        const user = await User.findOrFail(record.userId, { client: trx })
+
+        /*
+         * Verification links are idempotent. A browser can execute the page
+         * twice (React StrictMode, reload, link prefetch), and a used token
+         * must not turn a successful verification into an error screen.
+         */
+        if (record.usedAt) {
+          verified = Boolean(user.emailVerifiedAt)
+          return
+        }
+
+        user.emailVerifiedAt = DateTime.utc()
+        await user.save()
+
+        record.usedAt = DateTime.utc()
+        await record.save()
+
+        await EmailVerificationToken.query({ client: trx })
+          .where('userId', user.id)
+          .whereNot('id', record.id)
+          .delete()
+
+        verified = true
+      })
+    } catch (error) {
+      logger.error({ err: error }, 'auth.verifyEmail failed')
+      return response.abort({ message: 'Email verification failed' })
+    }
+
+    if (!verified) {
+      return response.badRequest({ message: 'Invalid or expired verification token' })
+    }
+
+    return response.ok({ data: { message: 'Email verified', emailVerified: true } })
+  }
+
+  async resendVerification({ auth, response, logger }: HttpContext) {
+    await auth.authenticate()
+    const user = auth.user as User
+
+    if (user.emailVerifiedAt) {
+      return response.ok({ data: { message: 'Email already verified', emailVerified: true } })
+    }
+
+    try {
+      await issueEmailVerification(user)
+      return response.ok({
+        data: { message: 'Verification email sent', emailVerified: false },
+      })
+    } catch (error) {
+      logger.error({ err: error, userId: user.id }, 'auth.resendVerification failed')
+      return response.abort({ message: 'Could not send the verification email' })
+    }
+  }
+
+  async changePassword({ auth, request, response }: HttpContext) {    const payload = await request.validateUsing(changePasswordSchema)
 
     await auth.authenticate()
     const user = auth.user!

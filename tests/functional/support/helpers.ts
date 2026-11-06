@@ -4,6 +4,7 @@ import type { ApiClient } from '@japa/api-client'
 import db from '@adonisjs/lucid/services/db'
 import User from '#database/active-records/user'
 import PasswordResetToken from '#database/active-records/password_reset_token'
+import EmailVerificationToken from '#database/active-records/email_verification_token'
 import {
   CourseRecord,
   DepartmentRecord,
@@ -109,6 +110,18 @@ export async function seedPasswordResetToken(
   expiresAt: DateTime = DateTime.utc().plus({ hour: 1 })
 ): Promise<PasswordResetToken> {
   return PasswordResetToken.create({
+    userId,
+    tokenHash: crypto.createHash('sha256').update(token).digest('hex'),
+    expiresAt,
+  })
+}
+
+export async function seedEmailVerificationToken(
+  userId: User['id'],
+  token: string = 'c'.repeat(64),
+  expiresAt: DateTime = DateTime.utc().plus({ hour: 24 })
+): Promise<EmailVerificationToken> {
+  return EmailVerificationToken.create({
     userId,
     tokenHash: crypto.createHash('sha256').update(token).digest('hex'),
     expiresAt,

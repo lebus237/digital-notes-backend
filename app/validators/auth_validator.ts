@@ -78,3 +78,9 @@ export const logoutSchema = vine.compile(
     refreshToken: vine.string().minLength(32).optional(),
   })
 )
+
+export const verifyEmailSchema = vine.compile(
+  vine.object({
+    token: vine.string().minLength(32),
+  })
+)

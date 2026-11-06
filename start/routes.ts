@@ -37,8 +37,14 @@ router
       router.post('/refresh', [AuthController, 'refresh']).use(authThrottle)
       router.post('/forgot-password', [AuthController, 'forgotPassword']).use(authThrottle)
       router.post('/reset-password', [AuthController, 'resetPassword']).use(authThrottle)
+      router.post('/email/verify', [AuthController, 'verifyEmail']).use(authThrottle)
 
       router.get('/me', [AuthController, 'me']).use(middleware.auth())
+
+      router.post('/email/resend', [AuthController, 'resendVerification']).use([
+        middleware.auth(),
+        authThrottle,
+      ])
 
       router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
       router

@@ -60,6 +60,42 @@ class MailService {
       `,
     })
   }
+
+  async sendEmailVerification(to: string, verifyUrl: string): Promise<void> {
+    if (!this.transporter) {
+      logger.info({ to, verifyUrl }, 'Email verification link generated (SMTP is not configured)')
+      return
+    }
+
+    await this.transporter.sendMail({
+      from: this.from,
+      to,
+      subject: 'Verify your DigitalNotes email',
+      text: [
+        'Hello,',
+        '',
+        'Confirm your email address to secure your DigitalNotes account.',
+        `Open this link to verify your email: ${verifyUrl}`,
+        '',
+        'The link expires in 24 hours. If you did not create this account, you can ignore this email.',
+        '',
+        'DigitalNotes',
+      ].join('\n'),
+      html: `
+        <div style="background:#faf8f3;padding:32px;font-family:Arial,sans-serif;color:#1b1c18">
+          <div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e6e2d8;border-radius:10px;padding:28px">
+            <p style="font-size:12px;letter-spacing:2px;color:#315e42;font-weight:700">DIGITALNOTES</p>
+            <h1 style="font-family:Georgia,serif;font-size:28px;letter-spacing:-1px;margin:12px 0 16px">Verify your email</h1>
+            <p style="line-height:1.6;color:#5d5e55">Confirm your email address to secure your DigitalNotes account and keep access to your library.</p>
+            <p style="margin:24px 0">
+              <a href="${verifyUrl}" style="display:inline-block;background:#315e42;color:#fffdf8;text-decoration:none;padding:12px 20px;border-radius:6px;font-weight:700">Verify my email</a>
+            </p>
+            <p style="font-size:12px;line-height:1.6;color:#938d82">This link expires in 24 hours. If you did not create this account, you can ignore this email.</p>
+          </div>
+        </div>
+      `,
+    })
+  }
 }
 
 export default new MailService()
