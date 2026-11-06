@@ -70,6 +70,14 @@ router
     router.get('/notes/:id', [NoteController, 'show']).use(publicReadThrottle)
 
     router
+      .get('/contributor/notes', [NoteController, 'contributorIndex'])
+      .use([
+        middleware.auth(),
+        middleware.role({ roles: ['administrator', 'contributor'] }),
+        publicReadThrottle,
+      ])
+
+    router
       .group(() => {
         router.post('/universities', [UniversitiesController, 'store']).use(adminWriteThrottle)
         router.post('/faculties', [FacultyController, 'store']).use(adminWriteThrottle)
@@ -94,6 +102,7 @@ router
         router
           .get('/courses/:courseId/notes', [NoteController, 'adminIndex'])
           .use(publicReadThrottle)
+        router.get('/notes', [NoteController, 'adminQueue']).use(publicReadThrottle)
         router.get('/notes/:id', [NoteController, 'adminShow']).use(publicReadThrottle)
 
         router.post('/notes', [NoteController, 'store']).use(uploadStoreThrottle)
@@ -109,6 +118,7 @@ router
       .group(() => {
         router.post('/notes', [NoteController, 'store']).use(uploadStoreThrottle)
         router.patch('/notes/:id', [NoteController, 'update']).use(adminWriteThrottle)
+        router.post('/notes/:id/submit', [NoteController, 'submit']).use(adminWriteThrottle)
       })
       .use([middleware.auth(), middleware.role({ roles: ['administrator', 'contributor'] })])
   })

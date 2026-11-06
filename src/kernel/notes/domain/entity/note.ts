@@ -95,6 +95,17 @@ export class Note {
     }
   }
 
+  submitForReview() {
+    if (this.status !== NoteStatus.DRAFT && this.status !== NoteStatus.REJECTED) {
+      throw new DomainError(
+        'NOTE_STATUS_TRANSITION_INVALID',
+        `Cannot submit note in status ${this.status}`,
+        ErrorCategory.CONFLICT
+      )
+    }
+    this.status = NoteStatus.PENDING_REVIEW
+  }
+
   publish() {
     if (this.status !== NoteStatus.PENDING_REVIEW) {
       throw new DomainError(

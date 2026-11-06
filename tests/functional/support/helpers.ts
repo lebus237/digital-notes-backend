@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 import { DateTime } from 'luxon'
 import type { ApiClient } from '@japa/api-client'
+import db from '@adonisjs/lucid/services/db'
 import User from '#database/active-records/user'
 import PasswordResetToken from '#database/active-records/password_reset_token'
 import {
@@ -52,6 +53,30 @@ export async function createUser(overrides: UserOverrides = {}): Promise<User> {
     password: overrides.password ?? DEFAULT_PASSWORD,
     role: overrides.role ?? UserRole.STUDENT,
   })
+}
+
+/**
+ * Truncates every application table in one statement.
+ *
+ * `testUtils.db().truncate()` truncates tables in parallel with `Promise.all`,
+ * which can deadlock when foreign keys are involved. A single `TRUNCATE ...
+ * CASCADE` request is deterministic and much faster.
+ */
+export async function truncateAll(): Promise<void> {
+  const result = await db.rawQuery(
+    `SELECT tablename FROM pg_tables WHERE schemaname = 'public'`
+  )
+  const tables = (result.rows as Array<{ tablename: string }>)
+    .map((row) => row.tablename)
+    .filter((table) => !['adonis_schema', 'adonis_schema_versions'].includes(table))
+
+  if (tables.length === 0) return
+
+  const quoted = tables
+    .map((table) => `"${table.replace(/"/g, '""')}"`)
+    .join(', ')
+
+  await db.rawQuery(`TRUNCATE TABLE ${quoted} RESTART IDENTITY CASCADE`)
 }
 
 export async function loginAs(
