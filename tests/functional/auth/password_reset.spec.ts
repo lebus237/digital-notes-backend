@@ -1,5 +1,4 @@
 import { test } from '@japa/runner'
-import testUtils from '@adonisjs/core/services/test_utils'
 import PasswordResetToken from '#database/active-records/password_reset_token'
 import {
   DEFAULT_PASSWORD,
@@ -7,6 +6,7 @@ import {
   createUser,
   loginAs,
   seedPasswordResetToken,
+  truncateAll,
 } from '../support/helpers.js'
 
 const NEW_PASSWORD = 'BrandNewPassword1'
@@ -14,7 +14,7 @@ const VALID_RESET_TOKEN = 'a'.repeat(64)
 const UNKNOWN_RESET_TOKEN = 'b'.repeat(64)
 
 test.group('Auth / password reset', (group) => {
-  group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => truncateAll())
 
   test('does not reveal whether an email is registered', async ({ client, assert }) => {
     const response = await client.post('/api/forgot-password').json({ email: 'nobody@example.com' })

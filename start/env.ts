@@ -66,6 +66,18 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Mail delivery (password reset links)
+  |----------------------------------------------------------
+  */
+  MAIL_HOST: Env.schema.string.optional(),
+  MAIL_PORT: Env.schema.string.optional(),
+  MAIL_USERNAME: Env.schema.string.optional(),
+  MAIL_PASSWORD: Env.schema.string.optional(),
+  MAIL_FROM: Env.schema.string.optional(),
+  APP_WEB_URL: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring Railway object storage
   | (S3-compatible; required when DRIVE_DISK=s3)
   |----------------------------------------------------------

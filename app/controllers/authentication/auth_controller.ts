@@ -17,6 +17,8 @@ import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import crypto from 'node:crypto'
 import { errors as authErrors } from '@adonisjs/auth'
+import mailService from '#infra/mail/mail_service'
+import env from '#start/env'
 
 function isUniqueViolation(error: unknown): boolean {
   const e = error as { code?: string; cause?: { code?: string } }
@@ -275,14 +277,16 @@ export default class AuthController {
 
     /*
      * The token must never travel in the HTTP response: knowing an email or
-     * phone number would be enough to take over the account. Delivery (email
-     * or SMS) is intentionally out of scope until a mailer exists; until then
-     * operators can use the admin reset endpoint.
+     * phone number would be enough to take over the account. It is delivered
+     * through SMTP when configured, with a development log fallback.
      */
-    logger.warn(
-      { userId: user.id },
-      'Password reset token generated but no delivery channel is configured'
-    )
+    const resetUrl = `${(env.get('APP_WEB_URL') ?? 'http://localhost:3000').replace(/\/$/, '')}/reset-password?token=${token}`
+
+    try {
+      await mailService.sendPasswordReset(user.email, resetUrl)
+    } catch (error) {
+      logger.error({ err: error, userId: user.id }, 'auth.forgotPassword mail delivery failed')
+    }
 
     return response.ok({ data: { message } })
   }
