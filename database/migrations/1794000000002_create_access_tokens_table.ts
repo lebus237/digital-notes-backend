@@ -5,7 +5,7 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.uuid('id').primary().notNullable().unsigned()
+      table.uuid('id').primary().notNullable()
       table.uuid('tokenable_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
 
       table.string('type').notNullable()
@@ -17,6 +17,10 @@ export default class extends BaseSchema {
       table.timestamp('last_used_at').nullable()
       table.timestamp('expires_at').nullable()
     })
+
+    this.schema.raw(
+      `ALTER TABLE "${this.tableName}" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`
+    )
   }
 
   async down() {

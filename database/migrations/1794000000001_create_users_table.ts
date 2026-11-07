@@ -5,10 +5,13 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.uuid('id').primary().unique().notNullable()
-      table.enum('role', ['student', 'administrator', 'contributor']).notNullable()
+      table.uuid('id').primary().notNullable()
+      table
+        .enum('role', ['student', 'administrator', 'contributor'])
+        .notNullable()
+        .defaultTo('student')
       table.string('full_name').nullable()
-      table.string('email', 254).unique()
+      table.string('email', 254).nullable().unique()
       table.string('phone_number', 12).notNullable().unique()
       table.string('password_hash').notNullable()
 

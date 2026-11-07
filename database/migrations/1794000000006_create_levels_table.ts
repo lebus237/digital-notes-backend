@@ -5,7 +5,7 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.uuid('id').primary().unique().notNullable()
+      table.uuid('id').primary().notNullable()
       table
         .uuid('department_id')
         .notNullable()
@@ -13,8 +13,9 @@ export default class extends BaseSchema {
         .inTable('departments')
         .onDelete('CASCADE')
       table.string('name').notNullable()
+      table.integer('year').notNullable()
 
-      table.unique(['department_id', 'name'])
+      table.unique(['department_id', 'year'])
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

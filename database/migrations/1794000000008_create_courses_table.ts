@@ -5,7 +5,7 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.uuid('id').primary().unique().notNullable()
+      table.uuid('id').primary().notNullable()
       table
         .uuid('department_id')
         .notNullable()
@@ -22,6 +22,7 @@ export default class extends BaseSchema {
       table.string('code').notNullable()
       table.string('name').notNullable()
       table.text('description').nullable()
+      table.string('lecturer_name', 255).nullable()
       table.boolean('is_archived').notNullable().defaultTo(false)
 
       table.unique(['department_id', 'level_id', 'semester_id', 'code'])

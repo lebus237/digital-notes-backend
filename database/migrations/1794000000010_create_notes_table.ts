@@ -5,25 +5,31 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.uuid('id').primary().unique().notNullable()
+      table.uuid('id').primary().notNullable()
       table.uuid('course_id').notNullable().references('id').inTable('courses').onDelete('CASCADE')
       table.string('title').notNullable()
       table.text('description').nullable()
-      table.string('file_key').notNullable()
-      table.integer('file_size').nullable()
-      table.string('mime_type').nullable()
       table
         .enum('note_type', ['LECTURE_NOTES', 'SUMMARY', 'REVISION', 'PAST_EXAM', 'EXERCISES'])
         .notNullable()
         .defaultTo('LECTURE_NOTES')
       table.integer('price').notNullable().defaultTo(0)
       table
-        .enum('status', ['DRAFT', 'PENDING_REVIEW', 'PUBLISHED', 'REJECTED', 'ARCHIVED'])
+        .enum('status', [
+          'DRAFT',
+          'CONVERTED',
+          'PENDING_REVIEW',
+          'PUBLISHED',
+          'REJECTED',
+          'ARCHIVED',
+        ])
         .notNullable()
         .defaultTo('DRAFT')
         .index()
       table.uuid('uploaded_by').nullable().references('id').inTable('users').onDelete('SET NULL')
+      table.timestamp('provided_at', { useTz: true }).nullable()
       table.timestamp('published_at').nullable()
+      table.timestamp('archived_at', { useTz: true }).nullable()
 
       table.index(['course_id', 'status'])
 

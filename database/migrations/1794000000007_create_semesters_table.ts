@@ -1,24 +1,23 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'departments'
+  protected tableName = 'semesters'
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.uuid('id').primary().unique().notNullable()
+      table.uuid('id').primary().notNullable()
       table
-        .uuid('faculty_id')
+        .uuid('department_id')
         .notNullable()
         .references('id')
-        .inTable('faculties')
+        .inTable('departments')
         .onDelete('CASCADE')
       table.string('name').notNullable()
-      table.string('slug').notNullable()
 
-      table.unique(['faculty_id', 'slug'])
+      table.unique(['department_id', 'name'])
 
-      table.timestamp('created_at')
-      table.timestamp('updated_at')
+      table.timestamp('created_at').notNullable().defaultTo(this.now())
+      table.timestamp('updated_at').notNullable().defaultTo(this.now())
     })
   }
 
