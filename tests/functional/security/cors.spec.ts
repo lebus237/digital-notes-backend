@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 
 const ALLOWED_ORIGIN = 'http://localhost:3001'
+const STUDENT_APP_ORIGIN = 'http://localhost:3003'
 const BLOCKED_ORIGIN = 'http://evil.example.com'
 
 test.group('HTTP / CORS', () => {
@@ -11,6 +12,17 @@ test.group('HTTP / CORS', () => {
 
     response.assertStatus(200)
     assert.equal(response.header('access-control-allow-origin'), ALLOWED_ORIGIN)
+  })
+
+  test('allows the locally hosted student app', async ({ client, assert }) => {
+    const response = await client
+      .options('/api/v1/admin/courses/00000000-0000-4000-8000-000000000000')
+      .header('origin', STUDENT_APP_ORIGIN)
+      .header('access-control-request-method', 'PATCH')
+      .header('access-control-request-headers', 'authorization,content-type')
+
+    response.assertStatus(204)
+    assert.equal(response.header('access-control-allow-origin'), STUDENT_APP_ORIGIN)
   })
 
   test('does not return an origin for an unlisted caller', async ({ client, assert }) => {

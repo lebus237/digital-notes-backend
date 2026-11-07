@@ -1,11 +1,24 @@
 import env from '#start/env'
 import { defineConfig } from '@adonisjs/cors'
 
+const LOCAL_FRONTEND_ORIGINS = [
+  ...[3000, 3001, 3002, 3003].flatMap((port) => [
+    `http://localhost:${port}`,
+    `http://127.0.0.1:${port}`,
+  ]),
+]
+
 function allowedOrigins(): string[] {
-  return (env.get('CORS_ORIGINS') ?? '')
+  const configuredOrigins = (env.get('CORS_ORIGINS') ?? '')
     .split(',')
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0)
+
+  if (env.get('NODE_ENV') === 'development' || env.get('NODE_ENV') === 'test') {
+    return [...new Set([...configuredOrigins, ...LOCAL_FRONTEND_ORIGINS])]
+  }
+
+  return configuredOrigins
 }
 
 /**
