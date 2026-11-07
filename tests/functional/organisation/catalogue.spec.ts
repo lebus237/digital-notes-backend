@@ -233,6 +233,8 @@ test.group('Organisation / catalogue', (group) => {
     semesters.assertStatus(200)
     assert.lengthOf(semesters.body().data, 2)
     assert.equal(semesters.body().data[0].departmentId, structure.department.id)
+    assert.isString(semesters.body().data[0].createdAt)
+    assert.isString(semesters.body().data[0].updatedAt)
   })
 
   test('rejects levels and departments under unknown parents', async ({ client, assert }) => {
